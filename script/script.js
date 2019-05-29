@@ -27,22 +27,19 @@ function run() {
     draw()*/
 
 }
+
 function startTimer(){
   console.info("restart 0ms")
   start = Date.now();
 }
+
 function timer(message){
   console.log(message + " ms elapsed = " + (Date.now()-start) + "ms");
 }
+
 function readFile() {
     var input = document.getElementsByTagName("input")[0];
     var output = document.getElementsByTagName("textarea")[0];
-
-    /*if (input.files.length === 0) {
-        output.value = 'No file selected';
-        window.setTimeout(readFile, 1000);
-        return;
-    }*/
 
     startTimer()
     readFileAsArrayBuffer(input.files[0], function(data) {
@@ -140,6 +137,8 @@ function readFile() {
         processPerson(1) //Start with sosa 1
         timer("end processPerson")
 
+        //Try compressing graph
+        compress()
 
         // Draw boxes & links & other things
         timer("start draw")
@@ -223,6 +222,15 @@ function calculateMaxCurrentSosa(){
   }
 }
 
+function compress(){
+  for(var value of boxes){
+    let sosa = value[0]
+    let box = value[1]
+
+    //TODO
+  }
+}
+
 function draw(){
   var canvas = document.getElementById('graph');
   if (canvas.getContext) {
@@ -288,7 +296,6 @@ function processPerson(sosa){
   return box
 
 }
-
 
 class Box{
   x; //x position in canvas
