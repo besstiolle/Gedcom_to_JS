@@ -2,7 +2,7 @@ var boxes = new Map()
 var personsMap = new Map();
 var maxCurrentGeneration = null;
 var maxCurrentSosa = null;
-const MAX_GEN = 10;
+const MAX_GEN = 11;
 
 var indis = new Map() //All Individus
 var fams = new Map() //All famillies
@@ -48,7 +48,9 @@ function run() {
         timer("end processPerson")
 
         //Try compressing graph
-        compress()
+        timer("start compress")
+        compress(1)
+        timer("end compress")
 
         // Draw boxes & links & other things
         draw()
@@ -188,7 +190,7 @@ function exploit(sosa, position, indis, fams){
       //console.info("family is undefined")
     }
   } else {
-    console.error("individu #" + position + " is undefined")
+    console.warn("individu #" + position + " is undefined")
   }
 
 
@@ -230,14 +232,94 @@ function calculateMaxCurrentSosa(){
   timer("end calculateMaxCurrentSosa")
 }
 
-function compress(){
-  for(var value of boxes){
-    let sosa = value[0]
-    let box = value[1]
+function compress(sosa){
 
-    //TODO
+  let fatherX = 0
+  let motherX = 0
+  let myselfX = 0
+  let previousX = 0
+
+  //Get compressed position of father if exists
+  if(boxes.has(getFatherOfSosa(sosa))){
+      fatherX = compress(getFatherOfSosa(sosa))
   }
+
+  //Get compressed position of mother if exists
+  if(boxes.has(getMotherOfSosa(sosa))){
+      motherX = compress(getMotherOfSosa(sosa))
+  }
+
+  //Retrive previous box X-position(*) on the graph (on the left)
+  // * => if exist : X position of previous boxe + Box.width() + Box.widthPadding()
+  //   => if not : Box.leftMargin()
+  previousX = getXPositionOnLeftBox(sosa)
+
+  //If we don't have parents, let take previousX value
+  if(fatherX == 0 && motherX == 0){
+    myselfX = previousX
+  } else {
+    //Process our own position
+    if(fatherX == 0 || motherX == 0){
+      myselfX = fatherX + motherX
+    } else {
+      myselfX = Math.floor((fatherX + motherX) / 2)
+    }
+
+
+    //If there is a conflict with Previous box, resync ancestors and ourself
+    if(myselfX < previousX){
+      //if(sosa == 345 || sosa == 689|| sosa == 691){
+      //  console.info(sosa + " > shift demandé")
+      //}
+      let shift = previousX - myselfX
+      ancestorsSosa = getAncestorsInBoxes(sosa)
+      for (var i = 0; len = ancestorsSosa.length, i < len; i++) {
+        boxes.get(ancestorsSosa[i]).shiftRight(shift)
+      }
+      myselfX = previousX
+    }
+  }
+  //if(sosa == 345 || sosa == 689|| sosa == 691){
+  //  console.info(sosa + " > " + myselfX)
+  //}
+
+
+
+  //Set our own X value
+  boxes.get(sosa).setX(myselfX)
+
+  //Return our own value
+  return myselfX
 }
+
+function getXPositionOnLeftBox(sosa){
+  if(sosa == 17) {
+    //
+  }
+  let minSosaOnGen = getMinSosaOfGeneration(getGeneration(sosa))
+  while(sosa > minSosaOnGen){
+    if(boxes.has(sosa -1)){
+      return boxes.get(sosa -1).getX() + Box.width() + Box.widthPadding()
+    }
+    sosa--
+  }
+  return Box.leftMargin();
+}
+
+function getAncestorsInBoxes(sosa){
+  array = []
+  if(boxes.has(sosa)){
+    if(boxes.has(getFatherOfSosa(sosa))){
+        array.push(getFatherOfSosa(sosa))
+    }
+    if(boxes.has(getMotherOfSosa(sosa))){
+        array.push(getMotherOfSosa(sosa))
+    }
+    return array.concat(getAncestorsInBoxes(getFatherOfSosa(sosa)), getAncestorsInBoxes(getMotherOfSosa(sosa)))
+  }
+  return []
+}
+
 
 function draw(){
   timer("start draw")
@@ -361,6 +443,14 @@ class Box{
   }
   getTopJunctionPoint = function(){
     return {"x" : this.x + Box.width() / 2 , "y" : this.y };
+  }
+
+  setX = function(value){
+    this.x = value
+  }
+
+  shiftRight = function(value){
+    this.x += value
   }
 
   static leftMargin(){return 20} // left margin
