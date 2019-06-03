@@ -2,7 +2,7 @@ var boxes = new Map()
 var personsMap = new Map();
 var maxCurrentGeneration = null;
 var maxCurrentSosa = null;
-const MAX_GEN = 11;
+const MAX_GEN = 30;
 
 var indis = new Map() //All Individus
 var fams = new Map() //All famillies
@@ -16,8 +16,6 @@ var timerStep = 0;
 function init(){
   document.getElementsByTagName("input")[0].addEventListener('change', run);
 }
-
-//var readerWorker = new Worker('script/reader.js');
 
 function run() {
   startTimer()
@@ -52,16 +50,14 @@ function run() {
         compress(1)
         timer("end compress")
 
+        //compute max X value
+        getMaxSizeOfDrawing()
+
         // Draw boxes & links & other things
         draw()
-//        console.info(boxes)
 
         timer("end run()")
       });
-
-
-
-
 }
 
 function startTimer(){
@@ -320,6 +316,29 @@ function getAncestorsInBoxes(sosa){
   return []
 }
 
+function getMaxSizeOfDrawing(){
+  timer("start getMaxSizeOfDrawing()")
+  for (var  i=1; i <= maxCurrentGeneration; i++){
+    let maxSosaOnGeneration = getMaxSosaOfGeneration(i)
+    while(true){
+      if(boxes.has(maxSosaOnGeneration)){
+        let maxXOfGen = boxes.get(maxSosaOnGeneration).getX()
+        if(maxXOfGen > maxX){
+          maxX = maxXOfGen
+        }
+        let maxYOfGen = boxes.get(maxSosaOnGeneration).getY()
+        if(maxYOfGen > maxY){
+          maxY = maxYOfGen
+        }
+        console.info("Gen " + i)
+        break;
+      }
+      maxSosaOnGeneration--
+    }
+  }
+
+  timer("end getMaxSizeOfDrawing()")
+}
 
 function draw(){
   timer("start draw")
@@ -329,15 +348,10 @@ function draw(){
 
   if (canvas.getContext) {
     var ctx = canvas.getContext('2d');
-    //ctx.strokeRect(2348, 134, 2, 2)
-    //return
+
     for(var value of boxes){
       let sosa = value[0]
       let box = value[1]
-
-//      if(sosa==1){
-//        console.info("me")
-//      }
 
       // Dessin de la box
       ctx.strokeRect(box.getX(), box.getY(), Box.width(), Box.height())
@@ -373,9 +387,6 @@ function draw(){
 function processPerson(sosa){
     let box = null
     if(personsMap.has(sosa)) {
-//      if( sosa == 57){
-//        console.info("here")
-//      }
       let father = processPerson(getFatherOfSosa(sosa))
       let mother = processPerson(getMotherOfSosa(sosa))
 
@@ -392,17 +403,7 @@ function processPerson(sosa){
       }
 
       box=new Box(sosa, xCenter, maxCurrentGeneration);
-      if(box.getX() > maxX){
-        maxX = box.getX()
-      }
-      if(box.getY() > maxY){
-        maxY = box.getY()
-      }
       boxes.set(sosa, box)
-//      if(sosa==57){
-//        console.info(box)
-//        console.info(boxes.get(56))
-//      }
   }
   return box
 }
