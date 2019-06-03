@@ -3,7 +3,7 @@ var G_MAP_GEDCOM_PERSON = new Map();
 var G_MAX_GENERATION_PROCESSED = null;
 var G_MAX_SOSA_PROCESSED = null;
 var G_ARR_SOSAS_BY_GEN = null
-const MAX_GEN = 30;
+const MAX_GEN = 100;
 
 var G_MAP_PROCESSED_PERSON = new Map() //All Individus
 var G_MAP_PROCESSED_FAMILY = new Map() //All famillies
