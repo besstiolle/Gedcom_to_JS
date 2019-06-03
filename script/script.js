@@ -4,136 +4,43 @@ var maxCurrentGeneration = null;
 var maxCurrentSosa = null;
 const MAX_GEN = 10;
 
+var indis = new Map() //All Individus
+var fams = new Map() //All famillies
+
 var maxX = 0;
 var maxY = 0;
 
-var start = Date.now();
+var start = 0;
+var timerStep = 0;
 
 function init(){
   document.getElementsByTagName("input")[0].addEventListener('change', run);
 }
 
+//var readerWorker = new Worker('script/reader.js');
+
 function run() {
   startTimer()
 
-  readFile()
+  timer("start reading with Worker")
+  let read = new Promise(function(resolve) {
+        var v = new Worker('script/readerWorker.js');
+        v.postMessage([document.getElementsByTagName("input")[0].files[0]]);
+        v.onmessage = function(event){
+            timer("end reading with Worker")
+            resolve(event.data);
+        };
+    });
 
-  /*
+  read.then(function(data) {
 
-    //Calculate max gen of our tree
-    calculateMaxCurrentSosa()
+        parsingGedcomData(data)
 
-    //Populate virtual box
-    processPerson(1) //Start with sosa 1
-
-    // Draw boxes & links & other things
-    draw()*/
-
-}
-
-function startTimer(){
-  console.info("restart 0ms")
-  start = Date.now();
-}
-
-function timer(message){
-  console.log(message + " ms elapsed = " + (Date.now()-start) + "ms");
-}
-
-function readFile() {
-    var input = document.getElementsByTagName("input")[0];
-    var output = document.getElementsByTagName("textarea")[0];
-
-    startTimer()
-    readFileAsArrayBuffer(input.files[0], function(data) {
-        var array = new Int8Array(data);
-        var line = ""
-        var indi = null // One Individu
-        var indis = new Map() //All Individus
-        var fam = null //One Familly
-        var fams = new Map() //All famillies
-        timer("start parsing gedcom")
-
-        for (var i = 0; len = array.length, i < array.length; i++) {
-            let char = array[i]
-            if(char == 10 || char == 13) { //Return line
-              //process previous line
-              if(line.startsWith('0 @I')){
-                //Save previous indiv
-                if(indi != null){
-                  indis.set(indi['id'], indi)
-                }
-                // Initiate array
-                let matches = line.match("^0 @I([0-9]*)@ INDI$");
-                indi = []
-                indi['id'] = matches[1]
-              }
-
-              if(line.startsWith("1 NAME ")){
-                  if(indi != null) {
-                    var matches = line.match('^1 NAME (.*)\/(.*)\/$');
-                    indi['firstname'] = matches[1].replace(/"/g,'')
-                    indi['lastname'] = matches[2]
-                  }
-              }
-
-              if(line.startsWith("1 FAMC @F")){
-                if(indi != null) {
-                  var matches = line.match('^1 FAMC @F([0-9]+)@$');
-                  indi['famc'] = matches[1]
-                }
-              }
-
-              if(line.startsWith("1 SEX ")){
-                if(indi != null) {
-                  var matches = line.match('^1 SEX ([FM])$');
-                  indi['sex'] = matches[1]
-                }
-              }
-
-              if(line.startsWith("0 @F") & line.endsWith("@ FAM")){
-                //Save previous family
-                if(fam != null){
-
-                  fams.set(fam['id'], fam)
-                }
-                // Initiate array
-                let matches = line.match("^0 @F([0-9]*)@ FAM$");
-                fam = []
-                fam['id'] = matches[1]
-              }
-
-              if(line.startsWith("1 HUSB @I")){
-                if(indi != null) {
-                  var matches = line.match('^1 HUSB @I([0-9]*)@$');
-                  fam['father'] = matches[1]
-                }
-              }
-
-              if(line.startsWith("1 WIFE @I")){
-                if(indi != null) {
-                  var matches = line.match('^1 WIFE @I([0-9]*)@$');
-                  fam['mother'] = matches[1]
-                }
-              }
-
-              //Start next line
-              line = ''
-              continue
-            }
-
-            line += String.fromCharCode(char)
-        }
         timer("start of exploit")
-        console.info(indis)
-        //console.info(fams)
         exploit(1, "1", indis, fams)
-        console.info(personsMap)
         timer("end of exploit")
 
-        timer("start calculateMaxCurrentSosa")
         calculateMaxCurrentSosa()
-        timer("end calculateMaxCurrentSosa")
 
         //Populate virtual box
         timer("start processPerson")
@@ -144,20 +51,113 @@ function readFile() {
         compress()
 
         // Draw boxes & links & other things
-        timer("start draw")
         draw()
-        timer("end draw")
-        console.info(boxes)
+//        console.info(boxes)
 
-        console.info("end")
+        timer("end run()")
+      });
 
-    }, function (e) {
-        console.error(e);
-    });
-    timer("end")
+
+
+
+}
+
+function startTimer(){
+  console.log("restart 0ms")
+  start = Date.now();
+  timerStep = start;
+}
+
+function timer(message){
+  console.log(message + " ms elapsed = " + (Date.now()-timerStep) + "ms" +  " / " + (Date.now()-start) + "ms");
+  timerStep = Date.now()
+}
+
+function parsingGedcomData(data) {
+    timer("start parsingGedcomData()")
+    var array = new Int8Array(data);
+    var line = ""
+    var indi = null // One Individu
+    var fam = null //One Familly
+
+    for (var i = 0; len = array.length, i < len; i++) {
+        let char = array[i]
+        if(char == 10 || char == 13) { //Return line
+          //process previous line
+          if(line.startsWith('0 @I')){
+            //Save previous indiv
+            if(indi != null){
+              indis.set(indi['id'], indi)
+            }
+            // Initiate array
+            let matches = line.match("^0 @I([0-9]*)@ INDI$");
+            indi = []
+            indi['id'] = matches[1]
+          }
+
+          if(line.startsWith("1 NAME ")){
+              if(indi != null) {
+                var matches = line.match('^1 NAME (.*)\/(.*)\/$');
+                indi['firstname'] = matches[1].replace(/"/g,'')
+                indi['lastname'] = matches[2]
+              }
+          }
+
+          if(line.startsWith("1 FAMC @F")){
+            if(indi != null) {
+              var matches = line.match('^1 FAMC @F([0-9]+)@$');
+              indi['famc'] = matches[1]
+            }
+          }
+
+          if(line.startsWith("1 SEX ")){
+            if(indi != null) {
+              var matches = line.match('^1 SEX ([FM])$');
+              indi['sex'] = matches[1]
+            }
+          }
+
+          if(line.startsWith("0 @F") & line.endsWith("@ FAM")){
+            //Save previous family
+            if(fam != null){
+
+              fams.set(fam['id'], fam)
+            }
+            // Initiate array
+            let matches = line.match("^0 @F([0-9]*)@ FAM$");
+            fam = []
+            fam['id'] = matches[1]
+          }
+
+          if(line.startsWith("1 HUSB @I")){
+            if(indi != null) {
+              var matches = line.match('^1 HUSB @I([0-9]*)@$');
+              fam['father'] = matches[1]
+            }
+          }
+
+          if(line.startsWith("1 WIFE @I")){
+            if(indi != null) {
+              var matches = line.match('^1 WIFE @I([0-9]*)@$');
+              fam['mother'] = matches[1]
+            }
+          }
+
+          //Start next line
+          line = ''
+          continue
+        }
+
+        line += String.fromCharCode(char)
+    }
+
+    timer("end parsingGedcomData()")
+    return
 }
 
 function exploit(sosa, position, indis, fams){
+
+
   if(indis.has(position)){
     //Limitation
     if(getGeneration(sosa) > MAX_GEN){
@@ -188,8 +188,10 @@ function exploit(sosa, position, indis, fams){
       //console.info("family is undefined")
     }
   } else {
-    console.info("individu #" + position + " is undefined")
+    console.error("individu #" + position + " is undefined")
   }
+
+
 }
 
 function readFileAsArrayBuffer(file, success, error) {
@@ -214,6 +216,7 @@ function readFileAsArrayBuffer(file, success, error) {
 }
 
 function calculateMaxCurrentSosa(){
+  timer("start calculateMaxCurrentSosa")
   maxCurrentSosa = 1
   for(var value of personsMap){
       if(value[0] > maxCurrentSosa){
@@ -224,6 +227,7 @@ function calculateMaxCurrentSosa(){
   if(maxCurrentGeneration > MAX_GEN){
     maxCurrentGeneration = MAX_GEN
   }
+  timer("end calculateMaxCurrentSosa")
 }
 
 function compress(){
@@ -236,10 +240,11 @@ function compress(){
 }
 
 function draw(){
+  timer("start draw")
   var canvas = document.getElementById('graph');
   canvas.width=maxX + Box.width() + 10
   canvas.height=maxY + Box.height() + 10
-  console.info(maxX + " " + maxY)
+
   if (canvas.getContext) {
     var ctx = canvas.getContext('2d');
     //ctx.strokeRect(2348, 134, 2, 2)
@@ -248,9 +253,9 @@ function draw(){
       let sosa = value[0]
       let box = value[1]
 
-      if(sosa==1){
-        console.info("me")
-      }
+//      if(sosa==1){
+//        console.info("me")
+//      }
 
       // Dessin de la box
       ctx.strokeRect(box.getX(), box.getY(), Box.width(), Box.height())
@@ -280,14 +285,15 @@ function draw(){
       }
     }
   }
+  timer("end draw")
 }
 
 function processPerson(sosa){
     let box = null
     if(personsMap.has(sosa)) {
-      if( sosa == 57){
-        console.info("here")
-      }
+//      if( sosa == 57){
+//        console.info("here")
+//      }
       let father = processPerson(getFatherOfSosa(sosa))
       let mother = processPerson(getMotherOfSosa(sosa))
 
@@ -311,10 +317,10 @@ function processPerson(sosa){
         maxY = box.getY()
       }
       boxes.set(sosa, box)
-      if(sosa==57){
-        console.info(box)
-        console.info(boxes.get(56))
-      }
+//      if(sosa==57){
+//        console.info(box)
+//        console.info(boxes.get(56))
+//      }
   }
   return box
 }
