@@ -2,6 +2,7 @@ var boxes = new Map()
 var personsMap = new Map();
 var maxCurrentGeneration = null;
 var maxCurrentSosa = null;
+var sosasByGenerations = null
 const MAX_GEN = 30;
 
 var indis = new Map() //All Individus
@@ -38,7 +39,7 @@ function run() {
         exploit(1, "1", indis, fams)
         timer("end of exploit")
 
-        calculateMaxCurrentSosa()
+        initVars()
 
         //Populate virtual box
         timer("start processPerson")
@@ -213,8 +214,10 @@ function readFileAsArrayBuffer(file, success, error) {
     }
 }
 
-function calculateMaxCurrentSosa(){
-  timer("start calculateMaxCurrentSosa")
+function initVars(){
+  timer("start initVars")
+
+  //Set maxCurrentGeneration & maxCurrentSosa
   maxCurrentSosa = 1
   for(var value of personsMap){
       if(value[0] > maxCurrentSosa){
@@ -225,7 +228,14 @@ function calculateMaxCurrentSosa(){
   if(maxCurrentGeneration > MAX_GEN){
     maxCurrentGeneration = MAX_GEN
   }
-  timer("end calculateMaxCurrentSosa")
+
+  //Initiate sosasByGeneration
+  sosasByGenerations=[]
+  for(var i=1; i <= maxCurrentGeneration; i++){
+    sosasByGenerations[i] = []
+  }
+
+  timer("end initVars")
 }
 
 function compress(sosa){
@@ -264,9 +274,6 @@ function compress(sosa){
 
     //If there is a conflict with Previous box, resync ancestors and ourself
     if(myselfX < previousX){
-      //if(sosa == 345 || sosa == 689|| sosa == 691){
-      //  console.info(sosa + " > shift demandé")
-      //}
       let shift = previousX - myselfX
       ancestorsSosa = getAncestorsInBoxes(sosa)
       for (var i = 0; len = ancestorsSosa.length, i < len; i++) {
@@ -275,10 +282,6 @@ function compress(sosa){
       myselfX = previousX
     }
   }
-  //if(sosa == 345 || sosa == 689|| sosa == 691){
-  //  console.info(sosa + " > " + myselfX)
-  //}
-
 
 
   //Set our own X value
@@ -289,17 +292,13 @@ function compress(sosa){
 }
 
 function getXPositionOnLeftBox(sosa){
-  if(sosa == 17) {
-    //
+  let sosaIndex = sosasByGenerations[getGeneration(sosa)].indexOf(sosa)
+  if(sosaIndex > 0){
+    leftSosa = sosasByGenerations[getGeneration(sosa)][sosaIndex-1]
+    return boxes.get(leftSosa).getX() + Box.width() + Box.widthPadding()
+  } else {
+    return Box.leftMargin();
   }
-  let minSosaOnGen = getMinSosaOfGeneration(getGeneration(sosa))
-  while(sosa > minSosaOnGen){
-    if(boxes.has(sosa -1)){
-      return boxes.get(sosa -1).getX() + Box.width() + Box.widthPadding()
-    }
-    sosa--
-  }
-  return Box.leftMargin();
 }
 
 function getAncestorsInBoxes(sosa){
@@ -318,23 +317,19 @@ function getAncestorsInBoxes(sosa){
 
 function getMaxSizeOfDrawing(){
   timer("start getMaxSizeOfDrawing()")
-  for (var  i=1; i <= maxCurrentGeneration; i++){
-    let maxSosaOnGeneration = getMaxSosaOfGeneration(i)
-    while(true){
-      if(boxes.has(maxSosaOnGeneration)){
-        let maxXOfGen = boxes.get(maxSosaOnGeneration).getX()
-        if(maxXOfGen > maxX){
-          maxX = maxXOfGen
-        }
-        let maxYOfGen = boxes.get(maxSosaOnGeneration).getY()
-        if(maxYOfGen > maxY){
-          maxY = maxYOfGen
-        }
-        console.info("Gen " + i)
-        break;
+  let localSosa = 0
+  for (var i=1; i <= maxCurrentGeneration; i++){
+    let maxSosaOnGeneration = sosasByGenerations[i][sosasByGenerations.size-1]
+
+      localSosa = sosasByGenerations[i][sosasByGenerations[i].length-1]
+      let maxXOfGen = boxes.get(localSosa).getX()
+      if(maxXOfGen > maxX){
+        maxX = maxXOfGen
       }
-      maxSosaOnGeneration--
-    }
+      let maxYOfGen = boxes.get(localSosa).getY()
+      if(maxYOfGen > maxY){
+        maxY = maxYOfGen
+      }
   }
 
   timer("end getMaxSizeOfDrawing()")
@@ -404,6 +399,7 @@ function processPerson(sosa){
 
       box=new Box(sosa, xCenter, maxCurrentGeneration);
       boxes.set(sosa, box)
+      sosasByGenerations[getGeneration(sosa)].push(sosa)
   }
   return box
 }
