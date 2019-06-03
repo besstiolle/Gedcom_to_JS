@@ -1,18 +1,18 @@
-var boxes = new Map()
-var personsMap = new Map();
-var maxCurrentGeneration = null;
-var maxCurrentSosa = null;
-var sosasByGenerations = null
+var G_MAP_BOXES = new Map()
+var G_MAP_GEDCOM_PERSON = new Map();
+var G_MAX_GENERATION_PROCESSED = null;
+var G_MAX_SOSA_PROCESSED = null;
+var G_ARR_SOSAS_BY_GEN = null
 const MAX_GEN = 30;
 
-var indis = new Map() //All Individus
-var fams = new Map() //All famillies
+var G_MAP_PROCESSED_PERSON = new Map() //All Individus
+var G_MAP_PROCESSED_FAMILY = new Map() //All famillies
 
-var maxX = 0;
-var maxY = 0;
+var G_MAX_POSITION_X = 0;
+var G_MAX_POSITION_Y = 0;
 
-var start = 0;
-var timerStep = 0;
+var G_TIMER_START = 0;
+var G_TIMER_STEP = 0;
 
 function init(){
   document.getElementsByTagName("input")[0].addEventListener('change', run);
@@ -36,7 +36,7 @@ function run() {
         parsingGedcomData(data)
 
         timer("start of exploit")
-        exploit(1, "1", indis, fams)
+        exploit(1, "1")
         timer("end of exploit")
 
         initVars()
@@ -54,7 +54,7 @@ function run() {
         //compute max X value
         getMaxSizeOfDrawing()
 
-        // Draw boxes & links & other things
+        // Draw G_MAP_BOXES & links & other things
         draw()
 
         timer("end run()")
@@ -63,13 +63,13 @@ function run() {
 
 function startTimer(){
   console.log("restart 0ms")
-  start = Date.now();
-  timerStep = start;
+  G_TIMER_START = Date.now();
+  G_TIMER_STEP = G_TIMER_START;
 }
 
 function timer(message){
-  console.log(message + " ms elapsed = " + (Date.now()-timerStep) + "ms" +  " / " + (Date.now()-start) + "ms");
-  timerStep = Date.now()
+  console.log(message + " ms elapsed = " + (Date.now()-G_TIMER_STEP) + "ms" +  " / " + (Date.now()-G_TIMER_START) + "ms");
+  G_TIMER_STEP = Date.now()
 }
 
 function parsingGedcomData(data) {
@@ -86,7 +86,7 @@ function parsingGedcomData(data) {
           if(line.startsWith('0 @I')){
             //Save previous indiv
             if(indi != null){
-              indis.set(indi['id'], indi)
+              G_MAP_PROCESSED_PERSON.set(indi['id'], indi)
             }
             // Initiate array
             let matches = line.match("^0 @I([0-9]*)@ INDI$");
@@ -120,7 +120,7 @@ function parsingGedcomData(data) {
             //Save previous family
             if(fam != null){
 
-              fams.set(fam['id'], fam)
+              G_MAP_PROCESSED_FAMILY.set(fam['id'], fam)
             }
             // Initiate array
             let matches = line.match("^0 @F([0-9]*)@ FAM$");
@@ -154,32 +154,32 @@ function parsingGedcomData(data) {
     return
 }
 
-function exploit(sosa, position, indis, fams){
+function exploit(sosa, position){
 
 
-  if(indis.has(position)){
+  if(G_MAP_PROCESSED_PERSON.has(position)){
     //Limitation
     if(getGeneration(sosa) > MAX_GEN){
       return
     }
 
-    personsMap.set(sosa,{'sosa':sosa,'name':indis.get(""+position)['firstname'], 'surname':indis.get(""+position)['lastname']})
+    G_MAP_GEDCOM_PERSON.set(sosa,{'sosa':sosa,'name':G_MAP_PROCESSED_PERSON.get(""+position)['firstname'], 'surname':G_MAP_PROCESSED_PERSON.get(""+position)['lastname']})
 
     //Process his father and mothers
-    let familyId = indis.get(""+position)['famc']
-    if(fams.has(familyId)) {
-      let family = fams.get(familyId)
+    let familyId = G_MAP_PROCESSED_PERSON.get(""+position)['famc']
+    if(G_MAP_PROCESSED_FAMILY.has(familyId)) {
+      let family = G_MAP_PROCESSED_FAMILY.get(familyId)
       let sosaFather = getFatherOfSosa(sosa)
       let sosaMother = getMotherOfSosa(sosa)
       if(family['father'] != null && family['father'] != undefined) {
       //  console.info("start process father" + sosaFather)
-        exploit(sosaFather, family['father'], indis, fams)
+        exploit(sosaFather, family['father'])
       }else {
         //console.info("mother is undefined")
       }
       if(family['mother'] != null && family['mother'] != undefined) {
         //console.info("start process mother" + sosaMother)
-        exploit(sosaMother, family['mother'], indis, fams)
+        exploit(sosaMother, family['mother'])
       } else {
           //console.info("mother is undefined")
       }
@@ -193,46 +193,25 @@ function exploit(sosa, position, indis, fams){
 
 }
 
-function readFileAsArrayBuffer(file, success, error) {
-    var fr = new FileReader();
-    fr.addEventListener('error', error, false);
-    if (fr.readAsBinaryString) {
-        fr.addEventListener('load', function () {
-            var string = this.resultString != null ? this.resultString : this.result;
-            var result = new Uint8Array(string.length);
-            for (var i = 0; i < string.length; i++) {
-                result[i] = string.charCodeAt(i);
-            }
-            success(result.buffer);
-        }, false);
-        return fr.readAsBinaryString(file);
-    } else {
-        fr.addEventListener('load', function () {
-            success(this.result);
-        }, false);
-        return fr.readAsArrayBuffer(file);
-    }
-}
-
 function initVars(){
   timer("start initVars")
 
-  //Set maxCurrentGeneration & maxCurrentSosa
-  maxCurrentSosa = 1
-  for(var value of personsMap){
-      if(value[0] > maxCurrentSosa){
-        maxCurrentSosa = value[0]
+  //Set G_MAX_GENERATION_PROCESSED & G_MAX_SOSA_PROCESSED
+  G_MAX_SOSA_PROCESSED = 1
+  for(var value of G_MAP_GEDCOM_PERSON){
+      if(value[0] > G_MAX_SOSA_PROCESSED){
+        G_MAX_SOSA_PROCESSED = value[0]
       }
   }
-  maxCurrentGeneration = getGeneration(maxCurrentSosa)
-  if(maxCurrentGeneration > MAX_GEN){
-    maxCurrentGeneration = MAX_GEN
+  G_MAX_GENERATION_PROCESSED = getGeneration(G_MAX_SOSA_PROCESSED)
+  if(G_MAX_GENERATION_PROCESSED > MAX_GEN){
+    G_MAX_GENERATION_PROCESSED = MAX_GEN
   }
 
   //Initiate sosasByGeneration
-  sosasByGenerations=[]
-  for(var i=1; i <= maxCurrentGeneration; i++){
-    sosasByGenerations[i] = []
+  G_ARR_SOSAS_BY_GEN=[]
+  for(var i=1; i <= G_MAX_GENERATION_PROCESSED; i++){
+    G_ARR_SOSAS_BY_GEN[i] = []
   }
 
   timer("end initVars")
@@ -246,12 +225,12 @@ function compress(sosa){
   let previousX = 0
 
   //Get compressed position of father if exists
-  if(boxes.has(getFatherOfSosa(sosa))){
+  if(G_MAP_BOXES.has(getFatherOfSosa(sosa))){
       fatherX = compress(getFatherOfSosa(sosa))
   }
 
   //Get compressed position of mother if exists
-  if(boxes.has(getMotherOfSosa(sosa))){
+  if(G_MAP_BOXES.has(getMotherOfSosa(sosa))){
       motherX = compress(getMotherOfSosa(sosa))
   }
 
@@ -271,46 +250,44 @@ function compress(sosa){
       myselfX = Math.floor((fatherX + motherX) / 2)
     }
 
-
     //If there is a conflict with Previous box, resync ancestors and ourself
     if(myselfX < previousX){
       let shift = previousX - myselfX
-      ancestorsSosa = getAncestorsInBoxes(sosa)
+      ancestorsSosa = getAncestorsInG_MAP_BOXES(sosa)
       for (var i = 0; len = ancestorsSosa.length, i < len; i++) {
-        boxes.get(ancestorsSosa[i]).shiftRight(shift)
+        G_MAP_BOXES.get(ancestorsSosa[i]).shiftRight(shift)
       }
       myselfX = previousX
     }
   }
 
-
   //Set our own X value
-  boxes.get(sosa).setX(myselfX)
+  G_MAP_BOXES.get(sosa).setX(myselfX)
 
   //Return our own value
   return myselfX
 }
 
 function getXPositionOnLeftBox(sosa){
-  let sosaIndex = sosasByGenerations[getGeneration(sosa)].indexOf(sosa)
+  let sosaIndex = G_ARR_SOSAS_BY_GEN[getGeneration(sosa)].indexOf(sosa)
   if(sosaIndex > 0){
-    leftSosa = sosasByGenerations[getGeneration(sosa)][sosaIndex-1]
-    return boxes.get(leftSosa).getX() + Box.width() + Box.widthPadding()
+    leftSosa = G_ARR_SOSAS_BY_GEN[getGeneration(sosa)][sosaIndex-1]
+    return G_MAP_BOXES.get(leftSosa).getX() + Box.width() + Box.widthPadding()
   } else {
     return Box.leftMargin();
   }
 }
 
-function getAncestorsInBoxes(sosa){
+function getAncestorsInG_MAP_BOXES(sosa){
   array = []
-  if(boxes.has(sosa)){
-    if(boxes.has(getFatherOfSosa(sosa))){
+  if(G_MAP_BOXES.has(sosa)){
+    if(G_MAP_BOXES.has(getFatherOfSosa(sosa))){
         array.push(getFatherOfSosa(sosa))
     }
-    if(boxes.has(getMotherOfSosa(sosa))){
+    if(G_MAP_BOXES.has(getMotherOfSosa(sosa))){
         array.push(getMotherOfSosa(sosa))
     }
-    return array.concat(getAncestorsInBoxes(getFatherOfSosa(sosa)), getAncestorsInBoxes(getMotherOfSosa(sosa)))
+    return array.concat(getAncestorsInG_MAP_BOXES(getFatherOfSosa(sosa)), getAncestorsInG_MAP_BOXES(getMotherOfSosa(sosa)))
   }
   return []
 }
@@ -318,17 +295,17 @@ function getAncestorsInBoxes(sosa){
 function getMaxSizeOfDrawing(){
   timer("start getMaxSizeOfDrawing()")
   let localSosa = 0
-  for (var i=1; i <= maxCurrentGeneration; i++){
-    let maxSosaOnGeneration = sosasByGenerations[i][sosasByGenerations.size-1]
+  for (var i=1; i <= G_MAX_GENERATION_PROCESSED; i++){
+    let maxSosaOnGeneration = G_ARR_SOSAS_BY_GEN[i][G_ARR_SOSAS_BY_GEN.size-1]
 
-      localSosa = sosasByGenerations[i][sosasByGenerations[i].length-1]
-      let maxXOfGen = boxes.get(localSosa).getX()
-      if(maxXOfGen > maxX){
-        maxX = maxXOfGen
+      localSosa = G_ARR_SOSAS_BY_GEN[i][G_ARR_SOSAS_BY_GEN[i].length-1]
+      let maxXOfGen = G_MAP_BOXES.get(localSosa).getX()
+      if(maxXOfGen > G_MAX_POSITION_X){
+        G_MAX_POSITION_X = maxXOfGen
       }
-      let maxYOfGen = boxes.get(localSosa).getY()
-      if(maxYOfGen > maxY){
-        maxY = maxYOfGen
+      let maxYOfGen = G_MAP_BOXES.get(localSosa).getY()
+      if(maxYOfGen > G_MAX_POSITION_Y){
+        G_MAX_POSITION_Y = maxYOfGen
       }
   }
 
@@ -338,13 +315,13 @@ function getMaxSizeOfDrawing(){
 function draw(){
   timer("start draw")
   var canvas = document.getElementById('graph');
-  canvas.width=maxX + Box.width() + 10
-  canvas.height=maxY + Box.height() + 10
+  canvas.width=G_MAX_POSITION_X + Box.width() + 10
+  canvas.height=G_MAX_POSITION_Y + Box.height() + 10
 
   if (canvas.getContext) {
     var ctx = canvas.getContext('2d');
 
-    for(var value of boxes){
+    for(var value of G_MAP_BOXES){
       let sosa = value[0]
       let box = value[1]
 
@@ -353,8 +330,8 @@ function draw(){
       ctx.fillText('#'+sosa,box.getX() + Box.width() / 3, box.getY() + Box.height() / 1.5 );
 
       //Si père existe : liaison
-      if(boxes.has(getFatherOfSosa(sosa))){
-        let father = boxes.get(getFatherOfSosa(sosa))
+      if(G_MAP_BOXES.has(getFatherOfSosa(sosa))){
+        let father = G_MAP_BOXES.get(getFatherOfSosa(sosa))
         let middleY = (father.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
         ctx.beginPath();
         ctx.moveTo(box.getTopJunctionPoint().x, box.getTopJunctionPoint().y)
@@ -364,8 +341,8 @@ function draw(){
         ctx.stroke();
       }
       //Si mère existe : liaison
-      if(boxes.has(getMotherOfSosa(sosa))){
-        let mother = boxes.get(getMotherOfSosa(sosa))
+      if(G_MAP_BOXES.has(getMotherOfSosa(sosa))){
+        let mother = G_MAP_BOXES.get(getMotherOfSosa(sosa))
         let middleY = (mother.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
         ctx.beginPath();
         ctx.moveTo(box.getTopJunctionPoint().x, box.getTopJunctionPoint().y)
@@ -381,25 +358,14 @@ function draw(){
 
 function processPerson(sosa){
     let box = null
-    if(personsMap.has(sosa)) {
-      let father = processPerson(getFatherOfSosa(sosa))
-      let mother = processPerson(getMotherOfSosa(sosa))
+    if(G_MAP_GEDCOM_PERSON.has(sosa)) {
 
-      let xCenter = null/*
-      if(father != null && mother != null){
-        xCenter = Math.floor((father.getBottomJunctionPoint().x + mother.getBottomJunctionPoint().x) / 2)
-      } else if(father != null){
-        xCenter = father.getBottomJunctionPoint().x
-      } else if(mother != null){
-        xCenter = mother.getBottomJunctionPoint().x
-      }*/
-      if(father != null){
-        xCenter = father.getX()
-      }
+      processPerson(getFatherOfSosa(sosa))
+      processPerson(getMotherOfSosa(sosa))
 
-      box=new Box(sosa, xCenter, maxCurrentGeneration);
-      boxes.set(sosa, box)
-      sosasByGenerations[getGeneration(sosa)].push(sosa)
+      box=new Box(sosa)
+      G_MAP_BOXES.set(sosa, box)
+      G_ARR_SOSAS_BY_GEN[getGeneration(sosa)].push(sosa)
   }
   return box
 }
@@ -409,19 +375,13 @@ class Box{
   y; //y position in canvas
   sosa; //sosa value
 
-  constructor(sosa, xCenter, maxGeneration){
+  constructor(sosa){
     let gen = getGeneration(sosa)
-    let diffSosaTopGen = getSosaOfMaxFather(sosa, maxGeneration) - getMinSosaOfGeneration(maxGeneration)
-    let diffGen = maxGeneration - gen
+    let diffSosaTopGen = getSosaOfMaxFather(sosa) - getMinSosaOfGeneration(G_MAX_GENERATION_PROCESSED)
+    let diffGen = G_MAX_GENERATION_PROCESSED - gen
 
-    //Calcul x value
-  //  if(xCenter == null){
+    //Calcul y value only
     this.x =  diffSosaTopGen * (Box.width() + Box.widthPadding()) + Box.leftMargin()
-  //  } else {
-      //this.x = xCenter - Box.width() / 2
-    //  this.x = xCenter
-  //  }
-    //Calcul y value
     this.y = diffGen * (Box.height() + Box.heightPadding()) + Box.leftMargin()
 
     this.sosa=sosa
@@ -481,7 +441,7 @@ function getMotherOfSosa(sosa){
   return sosa * 2 + 1
 }
 
-function getSosaOfMaxFather(sosa, maxGeneration){
-  let diffGen = (maxGeneration - getGeneration(sosa))
+function getSosaOfMaxFather(sosa){
+  let diffGen = (G_MAX_GENERATION_PROCESSED - getGeneration(sosa))
   return sosa * Math.pow(2,diffGen)
 }
