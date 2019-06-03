@@ -4,6 +4,9 @@ var maxCurrentGeneration = null;
 var maxCurrentSosa = null;
 const MAX_GEN = 10;
 
+var maxX = 0;
+var maxY = 0;
+
 var start = Date.now();
 
 function init(){
@@ -160,6 +163,7 @@ function exploit(sosa, position, indis, fams){
     if(getGeneration(sosa) > MAX_GEN){
       return
     }
+
     personsMap.set(sosa,{'sosa':sosa,'name':indis.get(""+position)['firstname'], 'surname':indis.get(""+position)['lastname']})
 
     //Process his father and mothers
@@ -233,6 +237,9 @@ function compress(){
 
 function draw(){
   var canvas = document.getElementById('graph');
+  canvas.width=maxX + Box.width() + 10
+  canvas.height=maxY + Box.height() + 10
+  console.info(maxX + " " + maxY)
   if (canvas.getContext) {
     var ctx = canvas.getContext('2d');
     //ctx.strokeRect(2348, 134, 2, 2)
@@ -278,23 +285,38 @@ function draw(){
 function processPerson(sosa){
     let box = null
     if(personsMap.has(sosa)) {
+      if( sosa == 57){
+        console.info("here")
+      }
       let father = processPerson(getFatherOfSosa(sosa))
       let mother = processPerson(getMotherOfSosa(sosa))
 
-      let xCenter = null
+      let xCenter = null/*
       if(father != null && mother != null){
         xCenter = Math.floor((father.getBottomJunctionPoint().x + mother.getBottomJunctionPoint().x) / 2)
       } else if(father != null){
         xCenter = father.getBottomJunctionPoint().x
       } else if(mother != null){
         xCenter = mother.getBottomJunctionPoint().x
+      }*/
+      if(father != null){
+        xCenter = father.getX()
       }
 
       box=new Box(sosa, xCenter, maxCurrentGeneration);
+      if(box.getX() > maxX){
+        maxX = box.getX()
+      }
+      if(box.getY() > maxY){
+        maxY = box.getY()
+      }
       boxes.set(sosa, box)
+      if(sosa==57){
+        console.info(box)
+        console.info(boxes.get(56))
+      }
   }
   return box
-
 }
 
 class Box{
@@ -302,18 +324,18 @@ class Box{
   y; //y position in canvas
   sosa; //sosa value
 
-  constructor(sosa, xCenter, maxGen){
+  constructor(sosa, xCenter, maxGeneration){
     let gen = getGeneration(sosa)
-    let minSosa = getMinSosaOfGeneration(gen)
-    let diffSosa = sosa - minSosa
-    let diffGen = maxGen - gen
+    let diffSosaTopGen = getSosaOfMaxFather(sosa, maxGeneration) - getMinSosaOfGeneration(maxGeneration)
+    let diffGen = maxGeneration - gen
 
     //Calcul x value
-    if(xCenter == null){
-      this.x = diffSosa * (Box.width() + Box.widthPadding()) + Box.leftMargin()
-    } else {
-      this.x = xCenter - Box.width() / 2
-    }
+  //  if(xCenter == null){
+    this.x =  diffSosaTopGen * (Box.width() + Box.widthPadding()) + Box.leftMargin()
+  //  } else {
+      //this.x = xCenter - Box.width() / 2
+    //  this.x = xCenter
+  //  }
     //Calcul y value
     this.y = diffGen * (Box.height() + Box.heightPadding()) + Box.leftMargin()
 
@@ -364,4 +386,9 @@ function getFatherOfSosa(sosa){
 
 function getMotherOfSosa(sosa){
   return sosa * 2 + 1
+}
+
+function getSosaOfMaxFather(sosa, maxGeneration){
+  let diffGen = (maxGeneration - getGeneration(sosa))
+  return sosa * Math.pow(2,diffGen)
 }
