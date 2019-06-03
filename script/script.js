@@ -1,3 +1,5 @@
+import("./svg.js")
+
 var G_MAP_BOXES = new Map()
 var G_MAP_GEDCOM_PERSON = new Map();
 var G_MAX_GENERATION_PROCESSED = null;
@@ -13,6 +15,7 @@ var G_MAX_POSITION_Y = 0;
 
 var G_TIMER_START = 0;
 var G_TIMER_STEP = 0;
+
 
 function init(){
   document.getElementsByTagName("input")[0].addEventListener('change', run);
@@ -32,6 +35,9 @@ function run() {
     });
 
   read.then(function(data) {
+
+
+
 
         parsingGedcomData(data)
 
@@ -86,6 +92,7 @@ function parsingGedcomData(data) {
           if(line.startsWith('0 @I')){
             //Save previous indiv
             if(indi != null){
+              indi['isProcessed'] = false
               G_MAP_PROCESSED_PERSON.set(indi['id'], indi)
             }
             // Initiate array
@@ -94,7 +101,7 @@ function parsingGedcomData(data) {
             indi['id'] = matches[1]
           }
 
-          if(line.startsWith("1 NAME ")){
+          if(line.match('^1 NAME (.*)\/(.*)\/$')){
               if(indi != null) {
                 var matches = line.match('^1 NAME (.*)\/(.*)\/$');
                 indi['firstname'] = matches[1].replace(/"/g,'')
@@ -156,17 +163,26 @@ function parsingGedcomData(data) {
 
 function exploit(sosa, position){
 
-
   if(G_MAP_PROCESSED_PERSON.has(position)){
     //Limitation
     if(getGeneration(sosa) > MAX_GEN){
       return
     }
 
-    G_MAP_GEDCOM_PERSON.set(sosa,{'sosa':sosa,'name':G_MAP_PROCESSED_PERSON.get(""+position)['firstname'], 'surname':G_MAP_PROCESSED_PERSON.get(""+position)['lastname']})
+    if(G_MAP_PROCESSED_PERSON.get(position)['isProcessed']){
+      return
+    }
+
+    G_MAP_PROCESSED_PERSON.get(position)['isProcessed'] = true
+
+    G_MAP_GEDCOM_PERSON.set(sosa,
+        {'sosa':sosa
+          ,'firstname':G_MAP_PROCESSED_PERSON.get(position)['firstname']
+          , 'lastname':G_MAP_PROCESSED_PERSON.get(position)['lastname']
+        })
 
     //Process his father and mothers
-    let familyId = G_MAP_PROCESSED_PERSON.get(""+position)['famc']
+    let familyId = G_MAP_PROCESSED_PERSON.get(position)['famc']
     if(G_MAP_PROCESSED_FAMILY.has(familyId)) {
       let family = G_MAP_PROCESSED_FAMILY.get(familyId)
       let sosaFather = getFatherOfSosa(sosa)
@@ -314,44 +330,49 @@ function getMaxSizeOfDrawing(){
 
 function draw(){
   timer("start draw")
-  var canvas = document.getElementById('graph');
-  canvas.width=G_MAX_POSITION_X + Box.width() + 10
-  canvas.height=G_MAX_POSITION_Y + Box.height() + 10
-
-  if (canvas.getContext) {
-    var ctx = canvas.getContext('2d');
+  var draw = SVG('svg')
+    .size(G_MAX_POSITION_X + Box.width() + 10, G_MAX_POSITION_Y + Box.height() + 10)
 
     for(var value of G_MAP_BOXES){
       let sosa = value[0]
       let box = value[1]
 
-      // Dessin de la box
-      ctx.strokeRect(box.getX(), box.getY(), Box.width(), Box.height())
-      ctx.fillText('#'+sosa,box.getX() + Box.width() / 3, box.getY() + Box.height() / 1.5 );
+      // Retrieve Informations
+      let person = G_MAP_GEDCOM_PERSON.get(sosa)
 
+      // Dessin de la box
+      draw.rect(Box.width(), Box.height())
+          .fill('#eee')
+          .move(box.getX(), box.getY())
+          .stroke({ width: 1 })
+          .radius(10)
+
+      draw.text(person['firstname'] + ' ' + person['lastname'])
+          .move(box.getX() + 5, box.getY())
       //Si père existe : liaison
       if(G_MAP_BOXES.has(getFatherOfSosa(sosa))){
         let father = G_MAP_BOXES.get(getFatherOfSosa(sosa))
         let middleY = (father.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
-        ctx.beginPath();
-        ctx.moveTo(box.getTopJunctionPoint().x, box.getTopJunctionPoint().y)
-        ctx.lineTo(box.getBottomJunctionPoint().x, middleY);
-        ctx.lineTo(father.getBottomJunctionPoint().x, middleY);
-        ctx.lineTo(father.getBottomJunctionPoint().x, father.getBottomJunctionPoint().y);
-        ctx.stroke();
+
+        draw.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
+                      ,box.getBottomJunctionPoint().x,middleY
+                      ,father.getBottomJunctionPoint().x, middleY
+                      ,father.getBottomJunctionPoint().x, father.getBottomJunctionPoint().y])
+            .fill('none')
+            .stroke({ width: 1 })
       }
       //Si mère existe : liaison
       if(G_MAP_BOXES.has(getMotherOfSosa(sosa))){
         let mother = G_MAP_BOXES.get(getMotherOfSosa(sosa))
         let middleY = (mother.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
-        ctx.beginPath();
-        ctx.moveTo(box.getTopJunctionPoint().x, box.getTopJunctionPoint().y)
-        ctx.lineTo(box.getBottomJunctionPoint().x, middleY);
-        ctx.lineTo(mother.getBottomJunctionPoint().x, middleY);
-        ctx.lineTo(mother.getBottomJunctionPoint().x, mother.getBottomJunctionPoint().y);
-        ctx.stroke();
+
+        draw.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
+                      ,box.getBottomJunctionPoint().x,middleY
+                      ,mother.getBottomJunctionPoint().x, middleY
+                      ,mother.getBottomJunctionPoint().x, mother.getBottomJunctionPoint().y])
+            .fill('none')
+            .stroke({ width: 1 })
       }
-    }
   }
   timer("end draw")
 }
@@ -411,10 +432,10 @@ class Box{
   }
 
   static leftMargin(){return 20} // left margin
-  static widthPadding(){return 5} // horizontal padding between box
-  static heightPadding(){return 10} // vertical padding between box
-  static width(){return 40;} //width of box in px
-  static height(){return 30;} //height of box in px
+  static widthPadding(){return 10} // horizontal padding between box
+  static heightPadding(){return 30} // vertical padding between box
+  static width(){return 200;} //width of box in px
+  static height(){return 75;} //height of box in px
 }
 
 /**
