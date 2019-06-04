@@ -78,68 +78,73 @@ function parsingGedcomData(data) {
     var line = ""
     var indi = null // One Individu
     var fam = null //One Familly
+    let char = null //One char
+
+    let matches = null
+    let regexINDI = /^0 @I([0-9]*)@ INDI$/
+    let regexNAME = /^1 NAME (.*)\/(.*)\/$/
+    let regexFAMC = /^1 FAMC @F([0-9]+)@$/
+    let regexSEX = /^1 SEX ([FM])$/
+    let regexFAMILY = /^0 @F([0-9]*)@ FAM$/
+    let regexHUSB = /^1 HUSB @I([0-9]*)@$/
+    let regexWIFE = /^1 WIFE @I([0-9]*)@$/
+
+    let regexReplaceName = /"/g
 
     for (var i = 0; len = array.length, i < len; i++) {
-        let char = array[i]
+        char = array[i]
+
+
         if(char == 10 || char == 13) { //Return line
           //process previous line
-          if(line.startsWith('0 @I')){
+          matches = line.match(regexINDI)
+          if(matches){
             //Save previous indiv
             if(indi != null){
               G_MAP_PROCESSED_PERSON.set(indi['id'], indi)
             }
+
             // Initiate array
-            let matches = line.match("^0 @I([0-9]*)@ INDI$");
             indi = []
             indi['id'] = matches[1]
           }
 
-          if(line.startsWith("1 NAME ")){
-              if(indi != null) {
-                var matches = line.match('^1 NAME (.*)\/(.*)\/$');
-                indi['firstname'] = matches[1].replace(/"/g,'')
-                indi['lastname'] = matches[2]
-              }
+          matches = line.match(regexNAME)
+          if(matches && indi != null) {
+            indi['firstname'] = matches[1].replace(regexReplaceName,'')
+            indi['lastname'] = matches[2]
           }
 
-          if(line.startsWith("1 FAMC @F")){
-            if(indi != null) {
-              var matches = line.match('^1 FAMC @F([0-9]+)@$');
-              indi['famc'] = matches[1]
-            }
+          matches = line.match(regexFAMC)
+          if(matches && indi != null) {
+            indi['famc'] = matches[1]
           }
 
-          if(line.startsWith("1 SEX ")){
-            if(indi != null) {
-              var matches = line.match('^1 SEX ([FM])$');
-              indi['sex'] = matches[1]
-            }
+          matches = line.match(regexSEX)
+          if(matches && indi != null) {
+            indi['sex'] = matches[1]
           }
 
-          if(line.startsWith("0 @F") & line.endsWith("@ FAM")){
+          matches = line.match(regexFAMILY)
+          if(matches){
             //Save previous family
             if(fam != null){
-
               G_MAP_PROCESSED_FAMILY.set(fam['id'], fam)
             }
             // Initiate array
-            let matches = line.match("^0 @F([0-9]*)@ FAM$");
             fam = []
             fam['id'] = matches[1]
           }
 
-          if(line.startsWith("1 HUSB @I")){
-            if(indi != null) {
-              var matches = line.match('^1 HUSB @I([0-9]*)@$');
-              fam['father'] = matches[1]
-            }
+          matches = line.match(regexHUSB)
+          if(matches && indi != null) {
+            fam['father'] = matches[1]
           }
 
-          if(line.startsWith("1 WIFE @I")){
-            if(indi != null) {
-              var matches = line.match('^1 WIFE @I([0-9]*)@$');
-              fam['mother'] = matches[1]
-            }
+
+          matches = line.match(regexWIFE)
+          if(matches && indi != null) {
+            fam['mother'] = matches[1]
           }
 
           //Start next line
