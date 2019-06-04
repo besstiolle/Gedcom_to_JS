@@ -1,4 +1,4 @@
-import("./svg.js")
+
 
 var G_MAP_BOXES = new Map()
 var G_MAP_GEDCOM_PERSON = new Map();
@@ -16,29 +16,90 @@ var G_MAX_POSITION_Y = 0;
 var G_TIMER_START = 0;
 var G_TIMER_STEP = 0;
 
+var progressBar = null
 
 function init(){
-  document.getElementsByTagName("input")[0].addEventListener('change', run);
+  document.getElementById('file').addEventListener('change', function(e) {
+    run(document.getElementById('file').files[0])
+  });
+
+  var isAdvancedUpload = function() {
+    var div = document.createElement('div');
+    return (('draggable' in div) || ('ondragstart' in div && 'ondrop' in div)) && 'FormData' in window && 'FileReader' in window;
+  }();
+
+  var formElement = document.getElementById('box');
+  if (isAdvancedUpload) {
+    formElement.classList.add('has-advanced-upload');
+    var droppedFiles = false;
+
+    var funcDrag = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    var funcDragOver = function(e) {
+      formElement.classList.add('is-dragover');
+    }
+    var funcDragLeave = function(e) {
+      formElement.classList.remove('is-dragover');
+    }
+
+    formElement.addEventListener('drag', funcDrag)
+    formElement.addEventListener('dragstart', funcDrag)
+    formElement.addEventListener('dragend', funcDrag)
+    formElement.addEventListener('dragover', funcDrag)
+    formElement.addEventListener('dragenter', funcDrag)
+    formElement.addEventListener('dragleave', funcDrag)
+    formElement.addEventListener('drop', funcDrag)
+
+    formElement.addEventListener('dragover', funcDragOver)
+    formElement.addEventListener('dragenter', funcDragOver)
+
+    formElement.addEventListener('dragleave', funcDragLeave)
+    formElement.addEventListener('dragend', funcDragLeave)
+    formElement.addEventListener('drop', funcDragLeave)
+
+    formElement.addEventListener('drop', function(e) {
+      let droppedFiles = e.dataTransfer.files;
+      for(var i = 0; i < droppedFiles.length; i++){
+        if(droppedFiles[i]['name'].endsWith('.gedcom') || droppedFiles[i]['name'].endsWith('.ged')){
+          run(droppedFiles[i])
+          break
+        }
+      }
+    });
+  }
+
+/*  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                              window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+*/
+  progressBar = new ProgressBar(10)
 }
 
-function run() {
+function run(file) {
   startTimer()
+
+  progressBar.initiateProgressBar("Reading File")
 
   timer("start reading with Worker")
   let read = new Promise(function(resolve) {
         var v = new Worker('script/readerWorker.js');
-        v.postMessage([document.getElementsByTagName("input")[0].files[0]]);
+        v.postMessage([file]);
         v.onmessage = function(event){
             timer("end reading with Worker")
             resolve(event.data);
         };
     });
 
+
+
   read.then(function(data) {
-    
+
+        progressBar.movingProgressBar("Parsing Gedcom Data")
         parsingGedcomData(data)
 
         timer("start of exploit")
+        progressBar.movingProgressBar("Transforming Data into something more interesting")
         exploit(1, "1")
         timer("end of exploit")
 
@@ -46,11 +107,13 @@ function run() {
 
         //Populate virtual box
         timer("start processPerson")
+        progressBar.movingProgressBar("Assembling your Ancestors")
         processPerson(1) //Start with sosa 1
         timer("end processPerson")
 
         //Try compressing graph
         timer("start compress")
+        progressBar.movingProgressBar("Compressing your Ancestors")
         compress(1)
         timer("end compress")
 
@@ -58,8 +121,13 @@ function run() {
         getMaxSizeOfDrawing()
 
         // Draw G_MAP_BOXES & links & other things
+        progressBar.movingProgressBar("Drawing your graph")
         draw()
 
+        // Hide dropdown file
+        document.getElementById('box').classList.add('hidden');
+
+        progressBar.hidingProgressBar()
         timer("end run()")
       });
 }
@@ -324,7 +392,7 @@ function getMaxSizeOfDrawing(){
 }
 
 function draw(){
-  timer("start draw")
+  timer("start draw()")
   var draw = SVG('svg')
     .size(G_MAX_POSITION_X + Box.width() + 10, G_MAX_POSITION_Y + Box.height() + 10)
 
@@ -369,7 +437,7 @@ function draw(){
             .stroke({ width: 1 })
       }
   }
-  timer("end draw")
+  timer("end draw() " + G_MAP_BOXES.size +" elements")
 }
 
 function processPerson(sosa){

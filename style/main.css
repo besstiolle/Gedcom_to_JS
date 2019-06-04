@@ -1,1 +1,92 @@
-canvas { border: 1px solid black; }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, sans-serif;
+  color: #0f3c4b;
+  background-color: #e5edf1;
+}
+
+#box{
+  min-height: 100%;
+  font-size: 1.5rem;
+  background-color: #c8dadf;
+  position: relative;
+  text-align:center;
+}
+
+.box__file {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+.box__file + label {
+  max-width: 80%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-block;
+  overflow: hidden;
+}
+.box__button {
+  font-weight: 700;
+  color: #e5edf1;
+  background-color: #39bfd3;
+  display: none;
+  padding: 8px 16px;
+  margin: 40px auto 0;
+}
+.box__input{
+  padding: 30% 20px 0 20px;
+}
+.box__dragndrop,
+.box__uploading,
+.box__success,
+.box__error {
+  display: none;
+}
+
+#box.has-advanced-upload {
+  outline: 2px dashed #92b0b3;
+  outline-offset: -10px;
+  -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+  transition: outline-offset .15s ease-in-out, background-color .15s linear;
+}
+
+#box.has-advanced-upload .box__dragndrop {
+  display: inline;
+}
+
+#box.is-dragover {
+  background-color: grey;
+}
+
+#box.hidden{
+  display:none;
+}
+
+#progressBar{
+  width: 50%;
+  max-width: 300px;
+  height: 30px;
+  background-color: #555;
+  margin: 10px auto;
+  border-radius: 5px;
+  padding: 5px;
+  position: relative;
+}
+
+#subProgressBar{
+  background-color: #999;
+  min-height: 90%;
+  float: left;
+}
+#textProgressBar{
+  color: #DDD;
+  text-align: center;
+  min-width: 100%;
+  min-height: 100%;
+  position: absolute;
+}
