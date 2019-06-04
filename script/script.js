@@ -35,10 +35,7 @@ function run() {
     });
 
   read.then(function(data) {
-
-
-
-
+    
         parsingGedcomData(data)
 
         timer("start of exploit")
@@ -173,7 +170,9 @@ function exploit(sosa, position){
       return
     }
 
+    //Case of Implexe
     if(G_MAP_PROCESSED_PERSON.get(position)['isProcessed']){
+      //TODO
       return
     }
 
@@ -192,19 +191,11 @@ function exploit(sosa, position){
       let sosaFather = getFatherOfSosa(sosa)
       let sosaMother = getMotherOfSosa(sosa)
       if(family['father'] != null && family['father'] != undefined) {
-      //  console.info("start process father" + sosaFather)
         exploit(sosaFather, family['father'])
-      }else {
-        //console.info("mother is undefined")
       }
       if(family['mother'] != null && family['mother'] != undefined) {
-        //console.info("start process mother" + sosaMother)
         exploit(sosaMother, family['mother'])
-      } else {
-          //console.info("mother is undefined")
       }
-    } else {
-      //console.info("family is undefined")
     }
   } else {
     console.warn("individu #" + position + " is undefined")
