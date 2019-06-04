@@ -392,16 +392,12 @@ function processPerson(sosa){
 }
 
 class Box{
-  x; //x position in canvas
-  y; //y position in canvas
-  sosa; //sosa value
-
   constructor(sosa){
     let gen = getGeneration(sosa)
     let diffSosaTopGen = getSosaOfMaxFather(sosa) - getMinSosaOfGeneration(G_MAX_GENERATION_PROCESSED)
     let diffGen = G_MAX_GENERATION_PROCESSED - gen
 
-    //Calcul y value only
+    //Calcul x & y values
     this.x =  diffSosaTopGen * (Box.width() + Box.widthPadding()) + Box.leftMargin()
     this.y = diffGen * (Box.height() + Box.heightPadding()) + Box.leftMargin()
 
