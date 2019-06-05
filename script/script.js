@@ -162,12 +162,14 @@ function parsingGedcomData(data) {
 
     let regexReplaceName = /"/g
 
-    let len=null
-    for (var i = 0; len = array.length, i < len; i++) {
+    array = new TextDecoder("utf-8").decode(array);
+
+    let len = array.length
+    for (var i = 0; i < len; i++) {
         char = array[i]
 
 
-        if(char == 10 || char == 13) { //Return line
+        if(char == '\n' || char == '\r') { //Return line
           //process previous line
           matches = line.match(regexINDI)
           if(matches){
@@ -224,7 +226,7 @@ function parsingGedcomData(data) {
           continue
         }
 
-        line += String.fromCharCode(char)
+        line += char
     }
 
     timer("end parsingGedcomData()")
@@ -249,8 +251,8 @@ function exploit(sosa, position){
 
     G_MAP_GEDCOM_PERSON.set(sosa,
         {'sosa':sosa
-          ,'firstname':G_MAP_PROCESSED_PERSON.get(position)['firstname']
-          , 'lastname':G_MAP_PROCESSED_PERSON.get(position)['lastname']
+          ,'firstname':G_MAP_PROCESSED_PERSON.get(position)['firstname'].trim()
+          , 'lastname':G_MAP_PROCESSED_PERSON.get(position)['lastname'].trim()
         })
 
     //Process his father and mothers
@@ -334,8 +336,8 @@ function compress(sosa){
     if(myselfX < previousX){
       let shift = previousX - myselfX
       let ancestorsSosa = getAncestorsInG_MAP_BOXES(sosa)
-      let len = null
-      for (var i = 0; len = ancestorsSosa.length, i < len; i++) {
+      let len =  ancestorsSosa.length
+      for (var i = 0; i < len; i++) {
         G_MAP_BOXES.get(ancestorsSosa[i]).shiftRight(shift)
       }
       myselfX = previousX
@@ -397,8 +399,12 @@ function getMaxSizeOfDrawing(){
 
 function draw(){
   timer("start draw()")
-  var draw = SVG('svg')
-    .size(G_MAX_POSITION_X + /*Box.width() +*/ 10, G_MAX_POSITION_Y + /*Box.height() +*/ 10)
+  var draw = SVG().addTo('#svg')
+  .size('100%','100%')
+  .panZoom({zoomMin: 0.02, zoomMax: 20, zoomFactor:0.15})
+
+  draw.viewbox(0, 0, window.innerWidth - 10 , window.innerHeight - 10)
+      .zoom(1)
 
     for(var value of G_MAP_BOXES){
       let sosa = value[0]
@@ -411,7 +417,7 @@ function draw(){
       draw.rect(box.width(), box.height())
           .fill('#eee')
           .move(box.getX(), box.getY())
-          .stroke({ width: 1 })
+          .stroke({ width: 1, color: '#ccc' })
           .radius(10)
 
       draw.text(person['firstname'] + ' ' + person['lastname'])
@@ -426,7 +432,7 @@ function draw(){
                       ,father.getBottomJunctionPoint().x, middleY
                       ,father.getBottomJunctionPoint().x, father.getBottomJunctionPoint().y])
             .fill('none')
-            .stroke({ width: 1 })
+            .stroke({ width: 1, color: '#000' })
       }
       //Si mère existe : liaison
       if(G_MAP_BOXES.has(getMotherOfSosa(sosa))){
@@ -438,9 +444,14 @@ function draw(){
                       ,mother.getBottomJunctionPoint().x, middleY
                       ,mother.getBottomJunctionPoint().x, mother.getBottomJunctionPoint().y])
             .fill('none')
-            .stroke({ width: 1 })
+            .stroke({ width: 1, color: '#000' })
       }
   }
+
+  draw.animate()
+  //  .zoom(1, {x:-G_MAP_BOXES.get(1).getX(), y:-G_MAP_BOXES.get(1).getY()})
+    .zoom(0.25)
+
   timer("end draw() " + G_MAP_BOXES.size +" elements")
 }
 
