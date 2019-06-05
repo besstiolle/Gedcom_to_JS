@@ -1,3 +1,5 @@
+"use strict";
+
 onmessage = function(e) {
 
       var fr = new FileReader();
