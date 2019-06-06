@@ -14,7 +14,7 @@ var G_MAX_POSITION_X = 0;
 var G_MAX_POSITION_Y = 0;
 
 var progressBar = null
-let taskOrchestrator = new TaskOrchestrator()
+var taskOrchestrator = null
 
 function init(){
   document.getElementById('file').addEventListener('change', function(e) {
@@ -83,10 +83,9 @@ function run(file) {
         };
     });
 
-
-
   read.then(function(data) {
 
+        taskOrchestrator = new TaskOrchestrator()
         let sosaOne = new SosaWrapper(1)
 
         taskOrchestrator.add(parsingGedcomData, [data], "Parsing Gedcom Data")
