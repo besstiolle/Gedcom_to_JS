@@ -19,10 +19,7 @@ class ProgressBar{
   movingProgressBar(message){
     this.message = message
     this.currentStep++
-    console.log(document.getElementById('textProgressBar'))
-    document.getElementById('subProgressBar').style.width = this.currentStep * (100 / this.nbSteps) + '%'
-    document.getElementById('textProgressBar').innerHTML = this.message
-  //  this.render()
+    this.render()
   }
 
   hidingProgressBar(){
@@ -32,8 +29,5 @@ class ProgressBar{
   render(){
     this.advanceHtmlElement.style.width = this.currentStep * (100 / this.nbSteps) + '%'
     this.textHtmlElement.innerHTML = this.message
-    console.info(">>>>" + this.message)
-    console.info(">>>>" + this.textHtmlElement.innerHTML)
-    //window.requestAnimationFrame
   }
 }
