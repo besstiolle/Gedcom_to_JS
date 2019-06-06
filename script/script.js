@@ -104,90 +104,86 @@ function run(file) {
 }
 
 function parsingGedcomData(data) {
-    var array = new Int8Array(data);
-    var line = ""
-    var indi = null // One Individu
-    var fam = null //One Familly
-    let char = null //One char
+  let line = null
+  var indi = null // One Individu
+  var fam = null //One Familly
 
-    let matches = null
-    let regexINDI = /^0 @I([0-9]*)@ INDI$/
-    let regexNAME = /^1 NAME (.*)\/(.*)\/$/
-    let regexFAMC = /^1 FAMC @F([0-9]+)@$/
-    let regexSEX = /^1 SEX ([FM])$/
-    let regexFAMILY = /^0 @F([0-9]*)@ FAM$/
-    let regexHUSB = /^1 HUSB @I([0-9]*)@$/
-    let regexWIFE = /^1 WIFE @I([0-9]*)@$/
+  let matches = null
+  let regexINDI = /^0 @I([0-9]*)@ INDI$/
+  let regexNAME = /^1 NAME (.*)\/(.*)\/$/
+  let regexFAMC = /^1 FAMC @F([0-9]+)@$/
+  let regexSEX = /^1 SEX ([FM])$/
+  let regexFAMILY = /^0 @F([0-9]*)@ FAM$/
+  let regexHUSB = /^1 HUSB @I([0-9]*)@$/
+  let regexWIFE = /^1 WIFE @I([0-9]*)@$/
 
-    let regexReplaceName = /"/g
+  let regexReplaceName = /"/g
 
-    array = new TextDecoder("utf-8").decode(array);
+  let lines = new TextDecoder("utf-8")
+              .decode(new Int8Array(data))
+              .split(/[\r\n]+/)
 
-    let len = array.length
-    for (var i = 0; i < len; i++) {
-        char = array[i]
+  let len = lines.length
+  for (var i = 0; i < len; i++) {
+    line = lines[i]
 
+    matches = line.match(regexINDI)
+    if(matches){
+      //Save previous indiv
+      if(indi != null){
+        indi['isProcessed'] = false
+        G_MAP_PROCESSED_PERSON.set(indi['id'], indi)
+      }
 
-        if(char == '\n' || char == '\r') { //Return line
-          //process previous line
-          matches = line.match(regexINDI)
-          if(matches){
-            //Save previous indiv
-            if(indi != null){
-              indi['isProcessed'] = false
-              G_MAP_PROCESSED_PERSON.set(indi['id'], indi)
-            }
-
-            // Initiate array
-            indi = []
-            indi['id'] = matches[1]
-          }
-
-          matches = line.match(regexNAME)
-          if(matches && indi != null) {
-            indi['firstname'] = matches[1].replace(regexReplaceName,'')
-            indi['lastname'] = matches[2]
-          }
-
-          matches = line.match(regexFAMC)
-          if(matches && indi != null) {
-            indi['famc'] = matches[1]
-          }
-
-          matches = line.match(regexSEX)
-          if(matches && indi != null) {
-            indi['sex'] = matches[1]
-          }
-
-          matches = line.match(regexFAMILY)
-          if(matches){
-            //Save previous family
-            if(fam != null){
-              G_MAP_PROCESSED_FAMILY.set(fam['id'], fam)
-            }
-            // Initiate array
-            fam = []
-            fam['id'] = matches[1]
-          }
-
-          matches = line.match(regexHUSB)
-          if(matches && indi != null) {
-            fam['father'] = matches[1]
-          }
-
-          matches = line.match(regexWIFE)
-          if(matches && indi != null) {
-            fam['mother'] = matches[1]
-          }
-
-          //Start next line
-          line = ''
-          continue
-        }
-
-        line += char
+      // Initiate array
+      indi = []
+      indi['id'] = matches[1]
+      continue
     }
-    return
+
+    matches = line.match(regexNAME)
+    if(matches && indi != null) {
+      indi['firstname'] = matches[1].replace(regexReplaceName,'')
+      indi['lastname'] = matches[2]
+      continue
+    }
+
+    matches = line.match(regexFAMC)
+    if(matches && indi != null) {
+      indi['famc'] = matches[1]
+      continue
+    }
+
+    matches = line.match(regexSEX)
+    if(matches && indi != null) {
+      indi['sex'] = matches[1]
+      continue
+    }
+
+    matches = line.match(regexFAMILY)
+    if(matches){
+      //Save previous family
+      if(fam != null){
+        G_MAP_PROCESSED_FAMILY.set(fam['id'], fam)
+      }
+      // Initiate array
+      fam = []
+      fam['id'] = matches[1]
+      continue
+    }
+
+    matches = line.match(regexHUSB)
+    if(matches && indi != null) {
+      fam['father'] = matches[1]
+      continue
+    }
+
+    matches = line.match(regexWIFE)
+    if(matches && indi != null) {
+      fam['mother'] = matches[1]
+      continue
+    }
+  }
 }
 
 function exploit(sosaWrapper, position){
