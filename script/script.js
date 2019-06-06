@@ -13,10 +13,8 @@ var G_MAP_PROCESSED_FAMILY = new Map() //All famillies
 var G_MAX_POSITION_X = 0;
 var G_MAX_POSITION_Y = 0;
 
-var G_TIMER_START = 0;
-var G_TIMER_STEP = 0;
-
 var progressBar = null
+let taskOrchestrator = new TaskOrchestrator()
 
 function init(){
   document.getElementById('file').addEventListener('change', function(e) {
@@ -70,23 +68,17 @@ function init(){
     });
   }
 
-/*  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-                              window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-*/
   progressBar = new ProgressBar(10)
 }
 
 function run(file) {
-  startTimer()
 
   progressBar.initiateProgressBar("Reading File")
 
-  timer("start reading with Worker")
   let read = new Promise(function(resolve) {
         var v = new Worker('script/readerWorker.js');
         v.postMessage([file]);
         v.onmessage = function(event){
-            timer("end reading with Worker")
             resolve(event.data);
         };
     });
@@ -97,56 +89,21 @@ function run(file) {
 
         let sosaOne = new SosaWrapper(1)
 
-        progressBar.movingProgressBar("Parsing Gedcom Data")
-        parsingGedcomData(data)
+        taskOrchestrator.add(parsingGedcomData, [data], "Parsing Gedcom Data")
+        taskOrchestrator.add(exploit, [sosaOne, "1"], "Exploit")
+        taskOrchestrator.add(initVars, [], "Init Variabless")
 
-        timer("start of exploit")
-        progressBar.movingProgressBar("Transforming Data into something more interesting")
-        exploit(sosaOne, "1")
-        timer("end of exploit")
+        taskOrchestrator.add(processPerson, [sosaOne], "Process persons")
+        taskOrchestrator.add(compress, [sosaOne], "Compressing your Ancestors")
+        taskOrchestrator.add(getMaxSizeOfDrawing, [], "Calculate size of graph")
+        taskOrchestrator.add(draw, [], "Drawing your graph")
 
-        initVars()
+        taskOrchestrator.run()
 
-        //Populate virtual box
-        timer("start processPerson")
-        progressBar.movingProgressBar("Assembling your Ancestors")
-        processPerson(sosaOne) //Start with sosaWrapper 1
-        timer("end processPerson")
-
-        //Try compressing graph
-        timer("start compress")
-        progressBar.movingProgressBar("Compressing your Ancestors")
-        compress(sosaOne)
-        timer("end compress")
-
-        //compute max X value
-        getMaxSizeOfDrawing()
-
-        // Draw G_MAP_BOXES & links & other things
-        progressBar.movingProgressBar("Drawing your graph")
-        draw()
-
-        // Hide dropdown file
-        document.getElementById('box').classList.add('hidden');
-
-        progressBar.hidingProgressBar()
-        timer("end run()")
       });
 }
 
-function startTimer(){
-  console.log("restart 0ms")
-  G_TIMER_START = Date.now();
-  G_TIMER_STEP = G_TIMER_START;
-}
-
-function timer(message){
-  console.log(message + " ms elapsed = " + (Date.now()-G_TIMER_STEP) + "ms" +  " / " + (Date.now()-G_TIMER_START) + "ms");
-  G_TIMER_STEP = Date.now()
-}
-
 function parsingGedcomData(data) {
-    timer("start parsingGedcomData()")
     var array = new Int8Array(data);
     var line = ""
     var indi = null // One Individu
@@ -230,8 +187,6 @@ function parsingGedcomData(data) {
 
         line += char
     }
-
-    timer("end parsingGedcomData()")
     return
 }
 
@@ -277,7 +232,6 @@ function exploit(sosaWrapper, position){
 }
 
 function initVars(){
-  timer("start initVars")
 
   //Set G_MAX_GENERATION_PROCESSED & G_MAX_SOSA_PROCESSED
   G_MAX_SOSA_PROCESSED = 1
@@ -297,7 +251,6 @@ function initVars(){
     G_ARR_SOSAS_BY_GENENERATION[i] = []
   }
 
-  timer("end initVars")
 }
 
 function compress(sosaWrapper){
@@ -384,7 +337,6 @@ function getAllAncestorsMapOfSosaWrapper(sosaWrapper){
 }
 
 function getMaxSizeOfDrawing(){
-  timer("start getMaxSizeOfDrawing()")
   let localSosa = null
   for (var i=1; i <= G_MAX_GENERATION_PROCESSED; i++){
     let maxSosaOnGeneration = G_ARR_SOSAS_BY_GENENERATION[i][G_ARR_SOSAS_BY_GENENERATION.size-1]
@@ -400,11 +352,9 @@ function getMaxSizeOfDrawing(){
       }
   }
 
-  timer("end getMaxSizeOfDrawing()")
 }
 
 function draw(){
-  timer("start draw()")
   var draw = SVG().addTo('#svg')
   .size('100%','100%')
   .panZoom({zoomMin: 0.02, zoomMax: 20, zoomFactor:0.15})
@@ -455,11 +405,10 @@ function draw(){
       }
   }
 
-  draw.animate()
-  //  .zoom(1, {x:-G_MAP_BOXES.get(1).getX(), y:-G_MAP_BOXES.get(1).getY()})
-    .zoom(0.25)
+  draw.animate().zoom(0.25)
 
-  timer("end draw() " + G_MAP_BOXES.size +" elements")
+
+  document.getElementById('box').classList.add('hidden')
 }
 
 function processPerson(sosaWrapper){
