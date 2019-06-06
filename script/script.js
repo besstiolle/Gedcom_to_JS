@@ -1,10 +1,10 @@
 "use strict";
 
 var G_MAP_BOXES = new Map()
-var G_MAP_GEDCOM_PERSON = new Map();
+var G_MAP_SOSA_WRAPPER_AND_PERSONS = new Map();
 var G_MAX_GENERATION_PROCESSED = null;
 var G_MAX_SOSA_PROCESSED = null;
-var G_ARR_SOSAS_BY_GEN = null
+var G_ARR_SOSAS_BY_GENENERATION = null
 const MAX_GEN = 100;
 
 var G_MAP_PROCESSED_PERSON = new Map() //All Individus
@@ -95,12 +95,14 @@ function run(file) {
 
   read.then(function(data) {
 
+        let sosaOne = new SosaWrapper(1)
+
         progressBar.movingProgressBar("Parsing Gedcom Data")
         parsingGedcomData(data)
 
         timer("start of exploit")
         progressBar.movingProgressBar("Transforming Data into something more interesting")
-        exploit(1, "1")
+        exploit(sosaOne, "1")
         timer("end of exploit")
 
         initVars()
@@ -108,13 +110,13 @@ function run(file) {
         //Populate virtual box
         timer("start processPerson")
         progressBar.movingProgressBar("Assembling your Ancestors")
-        processPerson(1) //Start with sosa 1
+        processPerson(sosaOne) //Start with sosaWrapper 1
         timer("end processPerson")
 
         //Try compressing graph
         timer("start compress")
         progressBar.movingProgressBar("Compressing your Ancestors")
-        compress(1)
+        compress(sosaOne)
         timer("end compress")
 
         //compute max X value
@@ -233,11 +235,12 @@ function parsingGedcomData(data) {
     return
 }
 
-function exploit(sosa, position){
+function exploit(sosaWrapper, position){
 
   if(G_MAP_PROCESSED_PERSON.has(position)){
+
     //Limitation
-    if(getGenerationOfSosa(sosa) > MAX_GEN){
+    if(sosaWrapper.getGeneration() > MAX_GEN){
       return
     }
 
@@ -249,8 +252,8 @@ function exploit(sosa, position){
 
     G_MAP_PROCESSED_PERSON.get(position)['isProcessed'] = true
 
-    G_MAP_GEDCOM_PERSON.set(sosa,
-        {'sosa':sosa
+    G_MAP_SOSA_WRAPPER_AND_PERSONS.set(sosaWrapper.getSosa(),
+        {'sosaWrapper':sosaWrapper
           ,'firstname':G_MAP_PROCESSED_PERSON.get(position)['firstname'].trim()
           , 'lastname':G_MAP_PROCESSED_PERSON.get(position)['lastname'].trim()
         })
@@ -259,13 +262,11 @@ function exploit(sosa, position){
     let familyId = G_MAP_PROCESSED_PERSON.get(position)['famc']
     if(G_MAP_PROCESSED_FAMILY.has(familyId)) {
       let family = G_MAP_PROCESSED_FAMILY.get(familyId)
-      let sosaFather = getFatherOfSosa(sosa)
-      let sosaMother = getMotherOfSosa(sosa)
       if(family['father'] != null && family['father'] != undefined) {
-        exploit(sosaFather, family['father'])
+        exploit(new SosaWrapper(sosaWrapper.getVirtualFather()), family['father'])
       }
       if(family['mother'] != null && family['mother'] != undefined) {
-        exploit(sosaMother, family['mother'])
+        exploit(new SosaWrapper(sosaWrapper.getVirtualMother()), family['mother'])
       }
     }
   } else {
@@ -280,26 +281,26 @@ function initVars(){
 
   //Set G_MAX_GENERATION_PROCESSED & G_MAX_SOSA_PROCESSED
   G_MAX_SOSA_PROCESSED = 1
-  for(var value of G_MAP_GEDCOM_PERSON){
+  for(var value of G_MAP_SOSA_WRAPPER_AND_PERSONS){
       if(value[0] > G_MAX_SOSA_PROCESSED){
         G_MAX_SOSA_PROCESSED = value[0]
       }
   }
-  G_MAX_GENERATION_PROCESSED = getGenerationOfSosa(G_MAX_SOSA_PROCESSED)
+  G_MAX_GENERATION_PROCESSED = SosaWrapper.getGenerationOfSosa(G_MAX_SOSA_PROCESSED)
   if(G_MAX_GENERATION_PROCESSED > MAX_GEN){
     G_MAX_GENERATION_PROCESSED = MAX_GEN
   }
 
   //Initiate sosasByGeneration
-  G_ARR_SOSAS_BY_GEN=[]
+  G_ARR_SOSAS_BY_GENENERATION=[]
   for(var i=1; i <= G_MAX_GENERATION_PROCESSED; i++){
-    G_ARR_SOSAS_BY_GEN[i] = []
+    G_ARR_SOSAS_BY_GENENERATION[i] = []
   }
 
   timer("end initVars")
 }
 
-function compress(sosa){
+function compress(sosaWrapper){
 
   let fatherX = 0
   let motherX = 0
@@ -307,19 +308,20 @@ function compress(sosa){
   let previousX = 0
 
   //Get compressed position of father if exists
-  if(G_MAP_BOXES.has(getFatherOfSosa(sosa))){
-      fatherX = compress(getFatherOfSosa(sosa))
+  if(G_MAP_BOXES.has(sosaWrapper.getVirtualFather())){
+      fatherX = compress(new SosaWrapper(sosaWrapper.getVirtualFather()))
   }
 
   //Get compressed position of mother if exists
-  if(G_MAP_BOXES.has(getMotherOfSosa(sosa))){
-      motherX = compress(getMotherOfSosa(sosa))
+  if(G_MAP_BOXES.has(sosaWrapper.getVirtualMother())){
+      motherX = compress(new SosaWrapper(sosaWrapper.getVirtualMother()))
   }
 
   //Retrive previous box X-position(*) on the graph (on the left)
   // * => if exist : X position of previous boxe + box.width() + box.widthPadding()
   //   => if not : box.leftMargin()
-  previousX = getXPositionOnLeftBox(sosa)
+  previousX = getXPositionOnLeftBox(sosaWrapper)
+  //FIXME
 
   //If we don't have parents, let take previousX value
   if(fatherX == 0 && motherX == 0){
@@ -335,7 +337,8 @@ function compress(sosa){
     //If there is a conflict with Previous box, resync ancestors and ourself
     if(myselfX < previousX){
       let shift = previousX - myselfX
-      let ancestorsSosa = getAncestorsInG_MAP_BOXES(sosa)
+      let ancestorsSosa = getAllAncestorsMapOfSosaWrapper(sosaWrapper)
+      //FIXME
       let len =  ancestorsSosa.length
       for (var i = 0; i < len; i++) {
         G_MAP_BOXES.get(ancestorsSosa[i]).shiftRight(shift)
@@ -345,45 +348,48 @@ function compress(sosa){
   }
 
   //Set our own X value
-  G_MAP_BOXES.get(sosa).setX(myselfX)
+  G_MAP_BOXES.get(sosaWrapper.getSosa()).setX(myselfX)
 
   //Return our own value
   return myselfX
 }
 
-function getXPositionOnLeftBox(sosa){
-  let sosaIndex = G_ARR_SOSAS_BY_GEN[getGenerationOfSosa(sosa)].indexOf(sosa)
+function getXPositionOnLeftBox(sosaWrapper){
+  let sosaIndex = G_ARR_SOSAS_BY_GENENERATION[sosaWrapper.getGeneration()].indexOf(sosaWrapper.getSosa())
 
   if(sosaIndex > 0){
-    let leftSosa = G_ARR_SOSAS_BY_GEN[getGenerationOfSosa(sosa)][sosaIndex-1]
+    let leftSosa = G_ARR_SOSAS_BY_GENENERATION[sosaWrapper.getGeneration()][sosaIndex-1]
     let box = G_MAP_BOXES.get(leftSosa)
     return box.getX() + box.width() + box.widthPadding()
   } else {
-    return G_MAP_BOXES.get(sosa).leftMargin();
+    return G_MAP_BOXES.get(sosaWrapper.getSosa()).leftMargin();
   }
 }
 
-function getAncestorsInG_MAP_BOXES(sosa){
+/**
+ * Return a Map with all Ancestors of a SosaWrapper
+ */
+function getAllAncestorsMapOfSosaWrapper(sosaWrapper){
   let array = []
-  if(G_MAP_BOXES.has(sosa)){
-    if(G_MAP_BOXES.has(getFatherOfSosa(sosa))){
-        array.push(getFatherOfSosa(sosa))
+  if(G_MAP_BOXES.has(sosaWrapper.getSosa())){
+    if(G_MAP_BOXES.has(sosaWrapper.getVirtualFather())){
+        array.push(sosaWrapper.getVirtualFather())
     }
-    if(G_MAP_BOXES.has(getMotherOfSosa(sosa))){
-        array.push(getMotherOfSosa(sosa))
+    if(G_MAP_BOXES.has(sosaWrapper.getVirtualMother())){
+        array.push(sosaWrapper.getVirtualMother())
     }
-    return array.concat(getAncestorsInG_MAP_BOXES(getFatherOfSosa(sosa)), getAncestorsInG_MAP_BOXES(getMotherOfSosa(sosa)))
+    return array.concat(getAllAncestorsMapOfSosaWrapper(new SosaWrapper(sosaWrapper.getVirtualFather())), getAllAncestorsMapOfSosaWrapper(new SosaWrapper(sosaWrapper.getVirtualMother())))
   }
   return []
 }
 
 function getMaxSizeOfDrawing(){
   timer("start getMaxSizeOfDrawing()")
-  let localSosa = 0
+  let localSosa = null
   for (var i=1; i <= G_MAX_GENERATION_PROCESSED; i++){
-    let maxSosaOnGeneration = G_ARR_SOSAS_BY_GEN[i][G_ARR_SOSAS_BY_GEN.size-1]
+    let maxSosaOnGeneration = G_ARR_SOSAS_BY_GENENERATION[i][G_ARR_SOSAS_BY_GENENERATION.size-1]
 
-      localSosa = G_ARR_SOSAS_BY_GEN[i][G_ARR_SOSAS_BY_GEN[i].length-1]
+      localSosa = G_ARR_SOSAS_BY_GENENERATION[i][G_ARR_SOSAS_BY_GENENERATION[i].length-1]
       let maxXOfGen = G_MAP_BOXES.get(localSosa).getX()
       if(maxXOfGen > G_MAX_POSITION_X){
         G_MAX_POSITION_X = maxXOfGen
@@ -411,7 +417,8 @@ function draw(){
       let box = value[1]
 
       // Retrieve Informations
-      let person = G_MAP_GEDCOM_PERSON.get(sosa)
+      let person = G_MAP_SOSA_WRAPPER_AND_PERSONS.get(sosa)
+      let sosaWrapper = person['sosaWrapper']
 
       // Dessin de la box
       draw.rect(box.width(), box.height())
@@ -423,8 +430,8 @@ function draw(){
       draw.text(person['firstname'] + ' ' + person['lastname'])
           .move(box.getX() + 5, box.getY())
       //Si père existe : liaison
-      if(G_MAP_BOXES.has(getFatherOfSosa(sosa))){
-        let father = G_MAP_BOXES.get(getFatherOfSosa(sosa))
+      if(G_MAP_BOXES.has(sosaWrapper.getVirtualFather())){
+        let father = G_MAP_BOXES.get(sosaWrapper.getVirtualFather())
         let middleY = (father.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
 
         draw.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
@@ -435,8 +442,8 @@ function draw(){
             .stroke({ width: 1, color: '#000' })
       }
       //Si mère existe : liaison
-      if(G_MAP_BOXES.has(getMotherOfSosa(sosa))){
-        let mother = G_MAP_BOXES.get(getMotherOfSosa(sosa))
+      if(G_MAP_BOXES.has(sosaWrapper.getVirtualMother())){
+        let mother = G_MAP_BOXES.get(sosaWrapper.getVirtualMother())
         let middleY = (mother.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
 
         draw.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
@@ -455,44 +462,21 @@ function draw(){
   timer("end draw() " + G_MAP_BOXES.size +" elements")
 }
 
-function processPerson(sosa){
+function processPerson(sosaWrapper){
     let box = null
-    if(G_MAP_GEDCOM_PERSON.has(sosa)) {
+    if(G_MAP_SOSA_WRAPPER_AND_PERSONS.has(sosaWrapper.getSosa())) {
 
-      processPerson(getFatherOfSosa(sosa))
-      processPerson(getMotherOfSosa(sosa))
+      processPerson(new SosaWrapper(sosaWrapper.getVirtualFather()))
+      processPerson(new SosaWrapper(sosaWrapper.getVirtualMother()))
 
-      let generationOfSosa = getGenerationOfSosa(sosa)
-      if(generationOfSosa > 5){
-          box=new BoxV(sosa, generationOfSosa, G_MAX_GENERATION_PROCESSED) // Vertical Box
+      if(sosaWrapper.getGeneration() > 5){
+          box=new BoxV(sosaWrapper.getSosa(), sosaWrapper.getGeneration(), G_MAX_GENERATION_PROCESSED) // Vertical Box
       } else {
-        box=new Box(sosa, generationOfSosa, G_MAX_GENERATION_PROCESSED) // Classic box
+        box=new Box(sosaWrapper.getSosa(), sosaWrapper.getGeneration(), G_MAX_GENERATION_PROCESSED) // Classic box
       }
 
-      G_MAP_BOXES.set(sosa, box)
-      G_ARR_SOSAS_BY_GEN[getGenerationOfSosa(sosa)].push(sosa)
+      G_MAP_BOXES.set(sosaWrapper.getSosa(), box)
+      G_ARR_SOSAS_BY_GENENERATION[sosaWrapper.getGeneration()].push(sosaWrapper.getSosa())
   }
   return box
-}
-
-
-/**
-* Return n° of generation based on sosa
-* tkt to Rolland (https://www.lorand.org/spip.php?article1459)
-**/
-function getGenerationOfSosa(sosa){
-  return Math.floor(Math.log(sosa) / Math.LN2)+1
-}
-
-/*
-function getMaxSosaOfGeneration(generation){
-  return Math.pow(2,generation)-1
-}*/
-
-function getFatherOfSosa(sosa){
-  return sosa * 2
-}
-
-function getMotherOfSosa(sosa){
-  return sosa * 2 + 1
 }
