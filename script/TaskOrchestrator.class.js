@@ -29,7 +29,7 @@ class TaskOrchestrator{
       this.tasks.shift()
       //Rerun myself
       this.run()
-    }, 0);
+    }, 20);
   }
 
   timer(message){

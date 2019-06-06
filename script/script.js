@@ -68,12 +68,13 @@ function init(){
     });
   }
 
-  progressBar = new ProgressBar(10)
+  progressBar = new ProgressBar(8)
+  progressBar.initiateProgressBar("System Ready")
 }
 
 function run(file) {
 
-  progressBar.initiateProgressBar("Reading File")
+  progressBar.movingProgressBar("Reading File")
 
   let read = new Promise(function(resolve) {
         var v = new Worker('script/readerWorker.js');
@@ -89,8 +90,8 @@ function run(file) {
         let sosaOne = new SosaWrapper(1)
 
         taskOrchestrator.add(parsingGedcomData, [data], "Parsing Gedcom Data")
-        taskOrchestrator.add(exploit, [sosaOne, "1"], "Exploit")
-        taskOrchestrator.add(initVars, [], "Init Variabless")
+        taskOrchestrator.add(exploit, [sosaOne, "1"], "Exploiting Gedcom Data")
+        taskOrchestrator.add(initVars, [], "Init Variables")
 
         taskOrchestrator.add(processPerson, [sosaOne], "Process persons")
         taskOrchestrator.add(compress, [sosaOne], "Compressing your Ancestors")
