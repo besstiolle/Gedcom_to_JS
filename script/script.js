@@ -68,6 +68,14 @@ function init(){
     });
   }
 
+  document.getElementById('panel').classList.toggle('minify')
+  document.getElementById('panel_open').addEventListener('click', function(e) {
+    togglePanel()
+  });
+  document.getElementById('panel_close').addEventListener('click', function(e) {
+    togglePanel()
+  });
+
   progressBar = new ProgressBar(8)
 }
 
@@ -331,6 +339,27 @@ function getAllAncestorsMapOfSosaWrapper(sosaWrapper){
   return []
 }
 
+
+function processPerson(sosaWrapper){
+    let box = null
+    if(G_MAP_SOSA_WRAPPER_AND_PERSONS.has(sosaWrapper.getSosa())) {
+
+      processPerson(new SosaWrapper(sosaWrapper.getVirtualFather()))
+      processPerson(new SosaWrapper(sosaWrapper.getVirtualMother()))
+
+      if(sosaWrapper.getGeneration() > 5){
+          box=new BoxV(sosaWrapper.getSosa(), sosaWrapper.getGeneration(), G_MAX_GENERATION_PROCESSED) // Vertical Box
+      } else {
+        box=new Box(sosaWrapper.getSosa(), sosaWrapper.getGeneration(), G_MAX_GENERATION_PROCESSED) // Classic box
+      }
+
+      G_MAP_BOXES.set(sosaWrapper.getSosa(), box)
+      G_ARR_SOSAS_BY_GENENERATION[sosaWrapper.getGeneration()].push(sosaWrapper.getSosa())
+  }
+  return box
+}
+
+
 function getMaxSizeOfDrawing(){
   let localSosa = null
   for (var i=1; i <= G_MAX_GENERATION_PROCESSED; i++){
@@ -421,21 +450,10 @@ function pdf(){
   pdf.save('myPDF.pdf')
 }
 
-function processPerson(sosaWrapper){
-    let box = null
-    if(G_MAP_SOSA_WRAPPER_AND_PERSONS.has(sosaWrapper.getSosa())) {
-
-      processPerson(new SosaWrapper(sosaWrapper.getVirtualFather()))
-      processPerson(new SosaWrapper(sosaWrapper.getVirtualMother()))
-
-      if(sosaWrapper.getGeneration() > 5){
-          box=new BoxV(sosaWrapper.getSosa(), sosaWrapper.getGeneration(), G_MAX_GENERATION_PROCESSED) // Vertical Box
-      } else {
-        box=new Box(sosaWrapper.getSosa(), sosaWrapper.getGeneration(), G_MAX_GENERATION_PROCESSED) // Classic box
-      }
-
-      G_MAP_BOXES.set(sosaWrapper.getSosa(), box)
-      G_ARR_SOSAS_BY_GENENERATION[sosaWrapper.getGeneration()].push(sosaWrapper.getSosa())
-  }
-  return box
+function togglePanel(){
+  document.getElementById('panel').classList.toggle('show')
+  document.getElementById('panel').classList.toggle('minify')
+  document.getElementById('panel_open').classList.toggle('hidden')
+  document.getElementById('panel_close').classList.toggle('hidden')
+  console.info("toto")
 }

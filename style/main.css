@@ -100,3 +100,54 @@ html, body {
   -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
   transition: outline-offset .15s ease-in-out, background-color .15s linear;
 }
+
+#panel{
+  width: 110px;
+  height:200px;
+  position: fixed;
+  left:-90px;
+  top:50%;
+  margin-top:-100px;
+  background-color: #82b0ed;
+  border-radius: 0 15px 15px 0;
+}
+
+#panel.show{
+  transition: 1s;
+  left:0;
+}
+
+#panel.minify{
+  transition: 1s;
+  left:-90px;
+}
+
+#panel_open, #panel_close{
+  position:absolute;
+  right: 0;
+  top:37%;
+  float:left;
+  width: 13px;
+  cursor: pointer;
+}
+
+#panel > label{
+  text-align: center;
+  display: block;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+img.action{
+  display: block;
+  margin: 0px auto 2px;
+}
+
+img.action:hover{
+  transition: 0.5s;
+  filter: drop-shadow(0 0 0.75rem crimson);
+}
+img.action:active{
+  margin: 2px auto 0px;
+  filter: drop-shadow(0 0 0.75rem crimson);
+}
