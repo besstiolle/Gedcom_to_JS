@@ -64,7 +64,7 @@ html, body {
   background-color: grey;
 }
 
-#box.hidden{
+.hidden{
   display:none;
 }
 

@@ -8,15 +8,17 @@
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="stylesheet" href="style/main.css">
 
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.0.12/svg.min.js" ></script>
-    <script type="text/javascript" src="script/svg.panzoom.min.js"></script>
-    <script type="text/javascript" src="script/SosaWrapper.class.js" ></script>
-    <script type="text/javascript" src="script/TaskOrchestrator.class.js" ></script>
-    <script type="text/javascript" src="script/ProgressBar.class.js" ></script>
-    <script type="text/javascript" src="script/BoxAbstract.class.js" ></script>
-    <script type="text/javascript" src="script/Box.class.js" ></script>
-    <script type="text/javascript" src="script/BoxV.class.js" ></script>
-    <script type="text/javascript" src="script/script.js" ></script>
+    <script src="node_modules/@svgdotjs/svg.js/dist/svg.min.js" ></script>
+    <script src="node_modules/@svgdotjs/svg.panzoom.js/dist/svg.panzoom.min.js"></script>
+    <script src="node_modules/jspdf-yworks/dist/jspdf.min.js"></script>
+    <script src="node_modules/svg2pdf.js/dist/svg2pdf.min.js"></script>
+    <script src="script/SosaWrapper.class.js" ></script>
+    <script src="script/TaskOrchestrator.class.js" ></script>
+    <script src="script/ProgressBar.class.js" ></script>
+    <script src="script/BoxAbstract.class.js" ></script>
+    <script src="script/Box.class.js" ></script>
+    <script src="script/BoxV.class.js" ></script>
+    <script src="script/script.js" ></script>
   </head>
   <body onload="init();">
     <form id="box" method="post" action="" enctype="multipart/form-data">
@@ -26,7 +28,7 @@
         <div><input class="box__file" type="file" name="files[]" accept=".gedcom, .ged" id="file"/>
         <label for="file"><strong>Choose a Gedcom file (.ged)</strong><span class="box__dragndrop"> or drag it here</span>.</label></div>
         <button class="box__button" type="submit">Upload</button>
-        <div id='progressBar'>
+        <div id='progressBar' class="hidden">
             <div id='subProgressBar' style="width: 0px;"></div>
             <div id='textProgressBar'></div>
         </div>
