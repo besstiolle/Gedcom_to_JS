@@ -69,11 +69,10 @@ function init(){
   }
 
   progressBar = new ProgressBar(8)
-  progressBar.initiateProgressBar("System Ready")
 }
 
 function run(file) {
-
+  document.getElementById('progressBar').classList.remove('hidden')
   progressBar.movingProgressBar("Reading File")
 
   let read = new Promise(function(resolve) {
@@ -403,8 +402,23 @@ function draw(){
 
   draw.animate().zoom(0.25)
 
-
   document.getElementById('box').classList.add('hidden')
+}
+
+function pdf(){
+  const svgElement = document.getElementsByTagName("svg")[0];
+  const pdf = new jsPDF('l', 'px', [G_MAX_POSITION_X, G_MAX_POSITION_Y]);
+
+  // render the svg element
+  svg2pdf(svgElement, pdf, {
+  	xOffset: 0,
+  	yOffset: 0,
+  	scale: 1
+  });
+
+  const uri = pdf.output('datauristring');
+
+  pdf.save('myPDF.pdf')
 }
 
 function processPerson(sosaWrapper){

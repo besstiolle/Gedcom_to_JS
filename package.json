@@ -1,0 +1,29 @@
+{
+  "name": "gedcom_to_js",
+  "version": "0.0.1",
+  "description": "Generate SVG Graph and Pdf from Gedcom file",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/besstiolle/Gedcom_to_JS.git"
+  },
+  "keywords": [
+    "gedcom",
+    "svg",
+    "pdf"
+  ],
+  "author": "besstiolle",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/besstiolle/Gedcom_to_JS/issues"
+  },
+  "homepage": "https://github.com/besstiolle/Gedcom_to_JS#readme",
+  "dependencies": {
+    "@svgdotjs/svg.js": "^3.0.12",
+    "@svgdotjs/svg.panzoom.js": "^2.0.2",
+    "svg2pdf.js": "^1.3.4"
+  }
+}
