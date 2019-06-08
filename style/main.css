@@ -7,6 +7,14 @@ html, body {
   overflow: hidden;
 }
 
+.hidden{
+  display:none !important;
+}
+
+/*****************/
+/* Drop File Box */
+/*****************/
+
 #box{
   min-height: 100%;
   font-size: 1.5rem;
@@ -64,9 +72,10 @@ html, body {
   background-color: grey;
 }
 
-.hidden{
-  display:none !important;
-}
+
+/*****************/
+/* ProgressBar */
+/*****************/
 
 #progressBar{
   width: 50%;
@@ -92,6 +101,10 @@ html, body {
   position: absolute;
 }
 
+/*****************/
+/* SVG Render Box */
+/*****************/
+
 #svg{
 
   font-family: monospace;
@@ -102,6 +115,10 @@ html, body {
   -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
   transition: outline-offset .15s ease-in-out, background-color .15s linear;
 }
+
+/*****************/
+/* Panel Box & Action button */
+/*****************/
 
 #panel{
   width: 110px;
@@ -155,6 +172,8 @@ img.action:active{
 }
 
 /*****************/
+/* PDF Render Box */
+/*****************/
 #pdfobjectWrapper{
   overflow: auto;
   width: 90%;
@@ -162,6 +181,7 @@ img.action:active{
   margin: 5% 5%;
   position: absolute;
   display: block;
+  overflow: hidden;
 }
 #pdfobject{
   width: 100%;
