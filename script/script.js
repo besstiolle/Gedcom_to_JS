@@ -70,11 +70,21 @@ function init(){
 
   document.getElementById('panel').classList.toggle('minify')
   document.getElementById('panel_open').addEventListener('click', function(e) {
+    hiddePdfobjectWrapper()
     togglePanel()
   });
   document.getElementById('panel_close').addEventListener('click', function(e) {
+    hiddePdfobjectWrapper()
     togglePanel()
   });
+  document.getElementById('pdf1').addEventListener('click', function(e) {
+    pdf()
+  });
+  document.getElementById('svg').addEventListener('click', function(e) {
+    hiddePdfobjectWrapper()
+  });
+
+
 
   progressBar = new ProgressBar(8)
 }
@@ -435,7 +445,14 @@ function draw(){
 }
 
 function pdf(){
+
+  const pdfobjectWrapper = document.getElementById("pdfobjectWrapper");
+  var pdfobject = document.getElementById("pdfobject");
   const svgElement = document.getElementsByTagName("svg")[0];
+
+  //Show Wrapper
+  pdfobjectWrapper.classList.remove("hidden")
+
   const pdf = new jsPDF('l', 'px', [G_MAX_POSITION_X, G_MAX_POSITION_Y]);
 
   // render the svg element
@@ -445,15 +462,29 @@ function pdf(){
   	scale: 1
   });
 
+
+
   const uri = pdf.output('datauristring');
 
-  pdf.save('myPDF.pdf')
+  if(pdfobject == undefined){
+    pdfobject = document.createElement("embed");
+    pdfobject.setAttribute("src", uri);
+    pdfobject.id = "pdfobject";
+    pdfobject.type = "application/pdf"
+    pdfobjectWrapper.appendChild(pdfobject);
+  } else {
+    pdfobject.setAttribute("src", uri);
+  }
+
+  //pdf.save('myPDF.pdf')
 }
 
+function hiddePdfobjectWrapper(){
+  document.getElementById("pdfobjectWrapper").classList.add("hidden")
+}
 function togglePanel(){
   document.getElementById('panel').classList.toggle('show')
   document.getElementById('panel').classList.toggle('minify')
   document.getElementById('panel_open').classList.toggle('hidden')
   document.getElementById('panel_close').classList.toggle('hidden')
-  console.info("toto")
 }
