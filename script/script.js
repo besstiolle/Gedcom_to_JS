@@ -15,6 +15,7 @@ var G_MAX_POSITION_Y = 0;
 
 var progressBar = null
 var taskOrchestrator = null
+var drawSVG = null
 
 function init(){
   document.getElementById('file').addEventListener('change', function(e) {
@@ -372,6 +373,8 @@ function processPerson(sosaWrapper){
 
 function getMaxSizeOfDrawing(){
   let localSosa = null
+  let widthBox = null
+  let heightBox = null
   for (var i=1; i <= G_MAX_GENERATION_PROCESSED; i++){
     let maxSosaOnGeneration = G_ARR_SOSAS_BY_GENENERATION[i][G_ARR_SOSAS_BY_GENENERATION.size-1]
 
@@ -379,22 +382,46 @@ function getMaxSizeOfDrawing(){
       let maxXOfGen = G_MAP_BOXES.get(localSosa).getX()
       if(maxXOfGen > G_MAX_POSITION_X){
         G_MAX_POSITION_X = maxXOfGen
+        widthBox = G_MAP_BOXES.get(localSosa).width()
       }
       let maxYOfGen = G_MAP_BOXES.get(localSosa).getY()
       if(maxYOfGen > G_MAX_POSITION_Y){
         G_MAX_POSITION_Y = maxYOfGen
+        heightBox = G_MAP_BOXES.get(localSosa).height()
       }
   }
+  G_MAX_POSITION_X += widthBox
+  G_MAX_POSITION_Y += heightBox
 
 }
 
 function draw(){
-  var draw = SVG().addTo('#svg')
+  drawSVG = SVG().addTo('#svg')
   .size('100%','100%')
   .panZoom({zoomMin: 0.02, zoomMax: 20, zoomFactor:0.15})
 
-  draw.viewbox(0, 0, window.innerWidth - 10 , window.innerHeight - 10)
-      .zoom(1)
+  drawSVG.viewbox(0, 0, window.innerWidth - 10 , window.innerHeight - 10)
+
+    drawSVG.polyline([0,0 , 0,G_MAX_POSITION_Y , G_MAX_POSITION_X,G_MAX_POSITION_Y , G_MAX_POSITION_X,0, 0,0])
+        .fill('none')
+        .stroke({ width: 1, color: '#000' })
+
+
+      /**********************************//*
+      let i
+      for(i=0; i < G_MAX_POSITION_X;i+=250){
+        drawSVG.polyline([i,0
+                      ,i,G_MAX_POSITION_Y])
+            .fill('none')
+            .stroke({ width: 1, color: '#000' })
+      }
+      for(i=0; i < G_MAX_POSITION_Y;i+=250){
+        drawSVG.polyline([0,i
+                      ,G_MAX_POSITION_X,i])
+            .fill('none')
+            .stroke({ width: 1, color: '#000' })
+      }*/
+      /**********************************/
 
     for(var value of G_MAP_BOXES){
       let sosa = value[0]
@@ -405,20 +432,20 @@ function draw(){
       let sosaWrapper = person['sosaWrapper']
 
       // Dessin de la box
-      draw.rect(box.width(), box.height())
+      drawSVG.rect(box.width(), box.height())
           .fill('#eee')
           .move(box.getX(), box.getY())
           .stroke({ width: 1, color: '#ccc' })
           .radius(10)
 
-      draw.text(person['firstname'] + ' ' + person['lastname'])
+      drawSVG.text(person['firstname'] + ' ' + person['lastname'])
           .move(box.getX() + 5, box.getY())
       //Si père existe : liaison
       if(G_MAP_BOXES.has(sosaWrapper.getVirtualFather())){
         let father = G_MAP_BOXES.get(sosaWrapper.getVirtualFather())
         let middleY = (father.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
 
-        draw.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
+        drawSVG.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
                       ,box.getBottomJunctionPoint().x,middleY
                       ,father.getBottomJunctionPoint().x, middleY
                       ,father.getBottomJunctionPoint().x, father.getBottomJunctionPoint().y])
@@ -430,7 +457,7 @@ function draw(){
         let mother = G_MAP_BOXES.get(sosaWrapper.getVirtualMother())
         let middleY = (mother.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
 
-        draw.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
+        drawSVG.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
                       ,box.getBottomJunctionPoint().x,middleY
                       ,mother.getBottomJunctionPoint().x, middleY
                       ,mother.getBottomJunctionPoint().x, mother.getBottomJunctionPoint().y])
@@ -439,44 +466,49 @@ function draw(){
       }
   }
 
-  draw.animate().zoom(0.25)
-
-  document.getElementById('box').classList.add('hidden')
+    document.getElementById('box').classList.add('hidden')
+    document.getElementById('panel').classList.remove('hidden')
 }
 
 function pdf(){
 
-  const pdfobjectWrapper = document.getElementById("pdfobjectWrapper");
-  var pdfobject = document.getElementById("pdfobject");
-  const svgElement = document.getElementsByTagName("svg")[0];
+  drawSVG.viewbox(0, 0, window.innerWidth - 10 , window.innerHeight - 10)
 
-  //Show Wrapper
-  pdfobjectWrapper.classList.remove("hidden")
-
-  const pdf = new jsPDF('l', 'px', [G_MAX_POSITION_X, G_MAX_POSITION_Y]);
-
-  // render the svg element
-  svg2pdf(svgElement, pdf, {
-  	xOffset: 0,
-  	yOffset: 0,
-  	scale: 1
-  });
+  setTimeout(() => {
 
 
+    const pdfobjectWrapper = document.getElementById("pdfobjectWrapper");
+    var pdfobject = document.getElementById("pdfobject");
+    const svgElement = document.getElementsByTagName("svg")[0];
 
-  const uri = pdf.output('datauristring');
+    //Show Wrapper
+    pdfobjectWrapper.classList.remove("hidden")
 
-  if(pdfobject == undefined){
-    pdfobject = document.createElement("embed");
-    pdfobject.setAttribute("src", uri);
-    pdfobject.id = "pdfobject";
-    pdfobject.type = "application/pdf"
-    pdfobjectWrapper.appendChild(pdfobject);
-  } else {
-    pdfobject.setAttribute("src", uri);
-  }
+    const pdf = new jsPDF('l', 'px', [G_MAX_POSITION_X, G_MAX_POSITION_Y]);
 
-  //pdf.save('myPDF.pdf')
+    // render the svg element
+    svg2pdf(svgElement, pdf, {
+      xOffset: 0,
+      yOffset: 0,
+      scale: 8.75
+    });
+
+
+
+    const uri = pdf.output('datauristring');
+
+    if(pdfobject == undefined){
+      pdfobject = document.createElement("embed");
+      pdfobject.setAttribute("src", uri);
+      pdfobject.id = "pdfobject";
+      pdfobject.type = "application/pdf"
+      pdfobjectWrapper.appendChild(pdfobject);
+    } else {
+      pdfobject.setAttribute("src", uri);
+    }
+
+    //pdf.save('myPDF.pdf')
+  }, 20);
 }
 
 function hiddePdfobjectWrapper(){
