@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+
+    <title>Gedcom to JS - Live Demo</title>
+
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="style/main.css">
+
+        <script src="node_modules/@svgdotjs/svg.js/dist/svg.min.js" ></script>
+        <script src="node_modules/@svgdotjs/svg.panzoom.js/dist/svg.panzoom.min.js"></script>
+    <script src="node_modules/jspdf-yworks/dist/jspdf.min.js"></script>
+    <script src="node_modules/svg2pdf.js/dist/svg2pdf.min.js"></script>
+    <script src="script/scriptTest.js" ></script>
+  </head>
+  <body onload="init();">
+    <div id="panel" class="hidden">
+      <div id="panel_open" class="">&raquo;<br/>&raquo;<br/> &raquo;</div>
+      <div id="panel_close" class="hidden">&laquo;<br/>&laquo;<br/>&laquo;</div>
+      <img id='pdf1' class='action' src='medias/pdf_cutted.png' alt='Generate truncate PDF'/>
+      <label for="pdf1">Truncated<br/>PDF</label>
+      <img id='pdf2' class='action' src='medias/pdf_full.png' alt='Generate full PDF'/>
+      <label for="pdf2">Full Size</label>
+    </div>
+
+
+      <div id="pdfobjectWrapper" class='hidden'></div>
+
+      <div id="svg"></div>
+          <button onclick="pdf()"></button>
+  </body>
+</html>
