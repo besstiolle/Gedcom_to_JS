@@ -1,4 +1,11 @@
 
+
+CONST_LEFT_MARGIN = 20 // left margin
+CONST_WIDTH_PADDING = 10 // horizontal padding between box
+CONST_HEIGHT_PADDING = 30 // vertical padding between box
+CONST_WIDTH = 200 //width of box in px
+CONST_HEIGHT = 75 //height of box in px
+
 class BoxAbstract {
   constructor(sosa, generation, maxGeneration) {
     this.maxGeneration = maxGeneration
@@ -7,11 +14,6 @@ class BoxAbstract {
     this.x = 0
     this.y = 0
 
-    this.CONST_LEFT_MARGIN = 20 // left margin
-    this.CONST_WIDTH_PADDING = 10 // horizontal padding between box
-    this.CONST_HEIGHT_PADDING = 30 // vertical padding between box
-    this.CONST_WIDTH = 200 //width of box in px
-    this.CONST_HEIGHT = 75 //height of box in px
 
     //let diffSosaTopGen = this.getSosaOfMaxFather() - this.getMinSosaOfGeneration()
     //let diffGen = maxGeneration - generation
@@ -24,6 +26,10 @@ class BoxAbstract {
 
   setX(value){
     this.x = value
+  }
+
+  setY(value){
+    this.y = value
   }
 
   shiftRight(value){
@@ -40,9 +46,11 @@ class BoxAbstract {
 
   getX(){return this.x;}
   getY(){return this.y;}
-  leftMargin(){return this.CONST_LEFT_MARGIN}
-  widthPadding(){return this.CONST_WIDTH_PADDING}
-  heightPadding(){return this.CONST_HEIGHT_PADDING}
-  width(){return this.CONST_WIDTH}
-  height(){return this.CONST_HEIGHT}
+
+
+  static leftMargin(){return CONST_LEFT_MARGIN}
+  static widthPadding(){return CONST_WIDTH_PADDING}
+  static heightPadding(){return CONST_HEIGHT_PADDING}
+  static width(){return CONST_WIDTH}
+  static height(){return CONST_HEIGHT}
 }
