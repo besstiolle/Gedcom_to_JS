@@ -395,33 +395,22 @@ function getMaxSizeOfDrawing(){
 
 }
 
+function resetViewBox(){
+  drawSVG.viewbox(0, 0, window.innerWidth - 10 , window.innerHeight - 10)
+          .size('100%','100%')
+          .panZoom({zoomMin: 0.02, zoomMax: 20, zoomFactor:0.15})
+          .zoom(0.02)
+
+}
+
 function draw(){
   drawSVG = SVG().addTo('#svg')
-  .size('100%','100%')
-  .panZoom({zoomMin: 0.02, zoomMax: 20, zoomFactor:0.15})
 
-  drawSVG.viewbox(0, 0, window.innerWidth - 10 , window.innerHeight - 10)
+  resetViewBox()
 
     drawSVG.polyline([0,0 , 0,G_MAX_POSITION_Y , G_MAX_POSITION_X,G_MAX_POSITION_Y , G_MAX_POSITION_X,0, 0,0])
         .fill('none')
         .stroke({ width: 1, color: '#000' })
-
-
-      /**********************************//*
-      let i
-      for(i=0; i < G_MAX_POSITION_X;i+=250){
-        drawSVG.polyline([i,0
-                      ,i,G_MAX_POSITION_Y])
-            .fill('none')
-            .stroke({ width: 1, color: '#000' })
-      }
-      for(i=0; i < G_MAX_POSITION_Y;i+=250){
-        drawSVG.polyline([0,i
-                      ,G_MAX_POSITION_X,i])
-            .fill('none')
-            .stroke({ width: 1, color: '#000' })
-      }*/
-      /**********************************/
 
     for(var value of G_MAP_BOXES){
       let sosa = value[0]
@@ -472,10 +461,9 @@ function draw(){
 
 function pdf(){
 
-  drawSVG.viewbox(0, 0, window.innerWidth - 10 , window.innerHeight - 10)
-
-  setTimeout(() => {
-
+  drawSVG.size(G_MAX_POSITION_X, G_MAX_POSITION_Y)
+        .viewbox(0, 0, G_MAX_POSITION_X ,G_MAX_POSITION_Y)
+        .zoom(1)
 
     const pdfobjectWrapper = document.getElementById("pdfobjectWrapper");
     var pdfobject = document.getElementById("pdfobject");
@@ -485,30 +473,38 @@ function pdf(){
     pdfobjectWrapper.classList.remove("hidden")
 
     const pdf = new jsPDF('l', 'px', [G_MAX_POSITION_X, G_MAX_POSITION_Y]);
-
+console.info(window.innerWidth)
+console.info(window.innerHeight)
+console.info(G_MAX_POSITION_X)
+console.info(G_MAX_POSITION_Y)
     // render the svg element
     svg2pdf(svgElement, pdf, {
       xOffset: 0,
       yOffset: 0,
-      scale: 8.75
+      scale: 1//9.275
     });
 
 
 
     const uri = pdf.output('datauristring');
 
-    if(pdfobject == undefined){
-      pdfobject = document.createElement("embed");
-      pdfobject.setAttribute("src", uri);
-      pdfobject.id = "pdfobject";
-      pdfobject.type = "application/pdf"
-      pdfobjectWrapper.appendChild(pdfobject);
+    if(uri.length < 5000000){
+
+      if(pdfobject == undefined){
+        pdfobject = document.createElement("embed");
+        pdfobject.setAttribute("src", uri);
+        pdfobject.id = "pdfobject";
+        pdfobject.type = "application/pdf"
+        pdfobjectWrapper.appendChild(pdfobject);
+      } else {
+        pdfobject.setAttribute("src", uri);
+      }
     } else {
-      pdfobject.setAttribute("src", uri);
+      pdf.save('myPDF.pdf')
     }
 
-    //pdf.save('myPDF.pdf')
-  }, 20);
+  //Reset information post pdf generation
+  resetViewBox()
 }
 
 function hiddePdfobjectWrapper(){
