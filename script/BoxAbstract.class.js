@@ -1,6 +1,7 @@
 
 
 CONST_LEFT_MARGIN = 20 // left margin
+CONST_TOP_MARGIN = 20 // top margin
 CONST_WIDTH_PADDING = 10 // horizontal padding between box
 CONST_HEIGHT_PADDING = 30 // vertical padding between box
 CONST_WIDTH = 200 //width of box in px
@@ -49,6 +50,7 @@ class BoxAbstract {
 
 
   static leftMargin(){return CONST_LEFT_MARGIN}
+  static topMargin(){return CONST_TOP_MARGIN}
   static widthPadding(){return CONST_WIDTH_PADDING}
   static heightPadding(){return CONST_HEIGHT_PADDING}
   static width(){return CONST_WIDTH}
