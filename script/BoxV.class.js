@@ -1,5 +1,5 @@
 
-CONST_WIDTH_V = 50 //width of box in px
+CONST_WIDTH_V = 95 //width of box in px
 CONST_HEIGHT_V = 150 //height of box in px
 
 class BoxV extends BoxAbstract {
@@ -34,6 +34,6 @@ class BoxV extends BoxAbstract {
     return {"x" : this.x + BoxV.width() / 2 , "y" : this.y };
   }
 
-  static width(){return CONST_WIDTH_V}
-  static height(){return CONST_HEIGHT_V}
+//  static width(){return CONST_WIDTH_V}
+//  static height(){return CONST_HEIGHT_V}
 }
