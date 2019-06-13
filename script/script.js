@@ -487,8 +487,8 @@ function draw(){
                 .stroke({ width: 1, color: '#ccc' })
                 .radius(10)
 
-            //drawSVG.text(firstname + ' ' + lastname)
-            drawSVG.text(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]")
+            //drawSVG.plain(firstname + ' ' + lastname)
+            drawSVG.plain(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]")
                 .move(box.getX() + 5, box.getY())
             //Si père existe : liaison
             if(G_MAP_ALL_BY_SOSA_BY_GEN.has(i+1) && G_MAP_ALL_BY_SOSA_BY_GEN.get(i+1).has(sosaWrapper.getVirtualFather())){
