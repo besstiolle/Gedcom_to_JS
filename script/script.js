@@ -465,9 +465,6 @@ function pdf(){
         .viewbox(0, 0, G_MAX_POSITION_X ,G_MAX_POSITION_Y)
         .zoom(1)
 
-  setTimeout(() => {
-
-
     const pdfobjectWrapper = document.getElementById("pdfobjectWrapper");
     var pdfobject = document.getElementById("pdfobject");
     const svgElement = document.getElementsByTagName("svg")[0];
@@ -505,8 +502,6 @@ console.info(G_MAX_POSITION_Y)
     } else {
       pdf.save('myPDF.pdf')
     }
-
-  }, 20);
 
   //Reset information post pdf generation
   resetViewBox()
