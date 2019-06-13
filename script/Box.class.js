@@ -7,15 +7,15 @@ class Box extends BoxAbstract {
     let diffGen = maxGeneration - generation
 
     //Calcul x & y values
-    this.x =  diffSosaTopGen * (this.width() + this.widthPadding()) + this.leftMargin()
-    this.y = diffGen * (this.height() + this.heightPadding()) + this.leftMargin()
+    //this.x =  diffSosaTopGen * (this.width() + this.widthPadding()) + this.leftMargin()
+    //this.y = diffGen * (this.height() + this.heightPadding()) + this.leftMargin()
   }
 
   getBottomJunctionPoint(){
-    return {"x" : this.x + this.width() / 2 , "y" : this.y + this.height()};
+    return {"x" : this.x + Box.width() / 2 , "y" : this.y + Box.height()};
   }
 
   getTopJunctionPoint(){
-    return {"x" : this.x + this.width() / 2 , "y" : this.y };
+    return {"x" : this.x + Box.width() / 2 , "y" : this.y };
   }
 }
