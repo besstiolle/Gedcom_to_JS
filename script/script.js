@@ -313,19 +313,24 @@ function compress(sosaWrapper){
 
     //If there is a conflict with Previous box, resync ancestors and ourself
     if(myselfX < previousX){
+      //special case : 2 generations with != box
       let shift = previousX - myselfX
+      //if(sosaWrapper.getGeneration() == 5){
+      //  shift = previousX
+    //  }
+
       let ancestorsSosa = getAllAncestorsMapOfSosaWrapper(sosaWrapper)
-      //FIXME
+
       let len =  ancestorsSosa.length
       for (var i = 0; i < len; i++) {
-        G_MAP_ALL_BY_SOSA_BY_GEN.get(SosaWrapper.getGenerationOfSosa(ancestorsSosa)).get(ancestorsSosa[i]).shiftRight(shift)
+        G_MAP_ALL_BY_SOSA_BY_GEN.get(SosaWrapper.getGenerationOfSosa(ancestorsSosa[i])).get(ancestorsSosa[i])['box'].shiftRight(shift)
       }
       myselfX = previousX
     }
   }
 
   //Set our own X/Y value
-  G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).get(sosaWrapper.getSosa())['box'].setX(myselfX)
+  G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).get(sosaWrapper.getSosa())['box'].shiftRight(myselfX)
   G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).get(sosaWrapper.getSosa())['box'].setY(myselfY)
 
   //Return our own value
@@ -346,9 +351,13 @@ function getYPosition(sosaWrapper){
   } else {
     // Number of generation (>5) above me * total height of boxV
     //  + Number of generation (max 5) above me * total height of box
-    y = (G_MAX_GENERATION_PROCESSED - sosaWrapper.getGeneration()) * (BoxV.height() + BoxV.heightPadding())
-              + (5 - sosaWrapper.getGeneration()) * (Box.height() + Box.heightPadding())
+    if(G_MAX_GENERATION_PROCESSED > 5 ){
+      y = (G_MAX_GENERATION_PROCESSED - 5) * (BoxV.height() + BoxV.heightPadding())
+    }
+    y += (Math.min(5, G_MAX_GENERATION_PROCESSED) - sosaWrapper.getGeneration()) * (Box.height() + Box.heightPadding())
   }
+
+  y += BoxAbstract.topMargin()
 
   G_MAP_GENERATION_Y_POSITION.set(sosaWrapper.getGeneration(), y)
 
@@ -382,10 +391,10 @@ function getXPositionOnLeftBox(sosaWrapper){
 function getAllAncestorsMapOfSosaWrapper(sosaWrapper){
   let array = []
   if(G_MAP_ALL_BY_SOSA_BY_GEN.has(sosaWrapper.getGeneration()) && G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).has(sosaWrapper.getSosa())){
-    if(G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).has(sosaWrapper.getVirtualFather())){
+    if(G_MAP_ALL_BY_SOSA_BY_GEN.has(sosaWrapper.getGeneration()+1) && G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()+1).has(sosaWrapper.getVirtualFather())){
         array.push(sosaWrapper.getVirtualFather())
     }
-    if(G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).has(sosaWrapper.getVirtualMother())){
+    if(G_MAP_ALL_BY_SOSA_BY_GEN.has(sosaWrapper.getGeneration()+1) && G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()+1).has(sosaWrapper.getVirtualMother())){
         array.push(sosaWrapper.getVirtualMother())
     }
     return array.concat(getAllAncestorsMapOfSosaWrapper(new SosaWrapper(sosaWrapper.getVirtualFather())), getAllAncestorsMapOfSosaWrapper(new SosaWrapper(sosaWrapper.getVirtualMother())))
@@ -404,17 +413,17 @@ function getMaxSizeOfDrawing(){
       let maxXOfGen = tmp_box.getX()
       if(maxXOfGen > G_MAX_POSITION_X){
         G_MAX_POSITION_X = maxXOfGen
-        if(i > 5){widthBox = BoxV.width()} else {widthBox = BoxV.width()}
+        if(i > 5){widthBox = BoxV.width()} else {widthBox = Box.width()}
       }
       let maxYOfGen = tmp_box.getY()
       if(maxYOfGen > G_MAX_POSITION_Y){
         G_MAX_POSITION_Y = maxYOfGen
-        if(i > 5){heightBox = Box.height()} else {heightBox = Box.height()}
+        if(i > 5){heightBox = BoxV.height()} else {heightBox = Box.height()}
 
       }
   }
-  G_MAX_POSITION_X += widthBox
-  G_MAX_POSITION_Y += heightBox
+  G_MAX_POSITION_X += widthBox + 20
+  G_MAX_POSITION_Y += heightBox + 20
 
 }
 
@@ -478,7 +487,8 @@ function draw(){
                 .stroke({ width: 1, color: '#ccc' })
                 .radius(10)
 
-            drawSVG.text(firstname + ' ' + lastname)
+            //drawSVG.text(firstname + ' ' + lastname)
+            drawSVG.text(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]")
                 .move(box.getX() + 5, box.getY())
             //Si père existe : liaison
             if(G_MAP_ALL_BY_SOSA_BY_GEN.has(i+1) && G_MAP_ALL_BY_SOSA_BY_GEN.get(i+1).has(sosaWrapper.getVirtualFather())){
