@@ -444,23 +444,6 @@ function draw(){
         .fill('none')
         .stroke({ width: 1, color: '#000' })
 
-
-      /**********************************//*
-      let i
-      for(i=0; i < G_MAX_POSITION_X;i+=250){
-        drawSVG.polyline([i,0
-                      ,i,G_MAX_POSITION_Y])
-            .fill('none')
-            .stroke({ width: 1, color: '#000' })
-      }
-      for(i=0; i < G_MAX_POSITION_Y;i+=250){
-        drawSVG.polyline([0,i
-                      ,G_MAX_POSITION_X,i])
-            .fill('none')
-            .stroke({ width: 1, color: '#000' })
-      }*/
-      /**********************************/
-
     let sosaWrapper = null
     let box = null
     let firstname = null
@@ -493,9 +476,9 @@ function draw(){
                 .stroke({ width: 1, color: '#ccc' })
                 .radius(10)
 
-            //drawSVG.plain(firstname + ' ' + lastname)
-            drawSVG.plain(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]")
-                .move(box.getX() + 5, box.getY())
+            drawSVG.plain(firstname + ' ' + lastname)
+            //drawSVG.plain(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]")
+                .move(box.getX() + 5, box.getY() + 15)
             //Si père existe : liaison
             if(G_MAP_ALL_BY_SOSA_BY_GEN.has(i+1) && G_MAP_ALL_BY_SOSA_BY_GEN.get(i+1).has(sosaWrapper.getVirtualFather())){
               let father = G_MAP_ALL_BY_SOSA_BY_GEN.get(i+1).get(sosaWrapper.getVirtualFather())['box']
@@ -541,10 +524,6 @@ function pdf(){
     pdfobjectWrapper.classList.remove("hidden")
 
     const pdf = new jsPDF('l', 'px', [G_MAX_POSITION_X, G_MAX_POSITION_Y]);
-console.info(window.innerWidth)
-console.info(window.innerHeight)
-console.info(G_MAX_POSITION_X)
-console.info(G_MAX_POSITION_Y)
     // render the svg element
     svg2pdf(svgElement, pdf, {
       xOffset: 0,
