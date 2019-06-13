@@ -27,7 +27,7 @@ class BoxV extends BoxAbstract {
 //    height(){return 150;} //height of box in px
   }
   getBottomJunctionPoint(){
-    return {"x" : this.x + BoxV.width() / 2 , "y" : this.y + Box.height()};
+    return {"x" : this.x + BoxV.width() / 2 , "y" : this.y + BoxV.height()};
   }
 
   getTopJunctionPoint(){
