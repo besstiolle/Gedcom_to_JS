@@ -6,7 +6,7 @@
     <title>Gedcom to JS - Live Demo</title>
 
     <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="stylesheet" href="style/main.css">
+    <link rel="stylesheet" href="style/demo.css">
 
     <script src="node_modules/@svgdotjs/svg.js/dist/svg.min.js" ></script>
     <script src="node_modules/@svgdotjs/svg.panzoom.js/dist/svg.panzoom.min.js"></script>
@@ -18,7 +18,7 @@
     <script src="script/BoxAbstract.class.js" ></script>
     <script src="script/Box.class.js" ></script>
     <script src="script/BoxV.class.js" ></script>
-    <script src="script/script.js" ></script>
+    <script src="script/demo.js" ></script>
   </head>
   <body onload="init();">
     <form id="box" method="post" action="" enctype="multipart/form-data">
@@ -39,10 +39,10 @@
     <div id="panel" class="hidden">
       <div id="panel_open" class="">&raquo;<br/>&raquo;<br/> &raquo;</div>
       <div id="panel_close" class="hidden">&laquo;<br/>&laquo;<br/>&laquo;</div>
-      <img id='pdf1' class='action' src='medias/pdf_cutted.png' alt='Generate truncate PDF'/>
-      <label for="pdf1">Truncated<br/>PDF</label>
-      <img id='pdf2' class='action' src='medias/pdf_full.png' alt='Generate full PDF'/>
-      <label for="pdf2">Full Size</label>
+      <img id='pdf1' class='action' src='medias/pdf_full.png' alt='Generate full PDF'/>
+      <label for="pdf1">Full Size</label>
+      <img id='pdf2' class='action' src='medias/pdf_cutted.png' alt='A4 PDF'/>
+      <label for="pdf2">A4 PDF</label>
     </div>
 
 
