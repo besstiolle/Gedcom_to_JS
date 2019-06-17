@@ -123,6 +123,8 @@ function parsingGedcomData(data) {
   let line = null
   var indi = null // One Individu
   var fam = null //One Familly
+  var birthInit = false
+  var deathInit = false
 
   let matches = null
   let regexINDI = /^0 @I([0-9]*)@ INDI$/
@@ -132,6 +134,10 @@ function parsingGedcomData(data) {
   let regexFAMILY = /^0 @F([0-9]*)@ FAM$/
   let regexHUSB = /^1 HUSB @I([0-9]*)@$/
   let regexWIFE = /^1 WIFE @I([0-9]*)@$/
+  let regexBIRTH = /^1 BIRT$/
+  let regexDEATH = /^1 DEAT$/
+  let regexDATE = /^2 DATE (.*)$/
+  let regexPLACE = /^2 PLAC (.*)$/
 
   let regexReplaceName = /"/g
 
@@ -149,6 +155,8 @@ function parsingGedcomData(data) {
       if(indi != null){
         indi['isProcessed'] = false
         G_MAP_PROCESSED_PERSON.set(indi['id'], indi)
+        birthInit = false
+        deathInit = false
       }
 
       // Initiate array
@@ -197,6 +205,40 @@ function parsingGedcomData(data) {
     matches = line.match(regexWIFE)
     if(matches && indi != null) {
       fam['mother'] = matches[1].trim()
+      continue
+    }
+
+    matches = line.match(regexBIRTH)
+    if(matches && indi != null) {
+      birthInit = true
+      deathInit = false
+      continue
+    }
+
+    matches = line.match(regexDEATH)
+    if(matches && indi != null) {
+      deathInit = true
+      birthInit = false
+      continue
+    }
+
+    matches = line.match(regexDATE)
+    if(matches && indi != null) {
+      if(birthInit) {
+        indi['birthDate'] = matches[1].trim()
+      } else if (deathInit) {
+        indi['deathDate'] = matches[1].trim()
+      }
+      continue
+    }
+
+    matches = line.match(regexPLACE)
+    if(matches && indi != null) {
+      if(birthInit) {
+        indi['birthPlace'] = matches[1].trim()
+      } else if (deathInit) {
+        indi['deathPlace'] = matches[1].trim()
+      }
       continue
     }
   }
@@ -253,6 +295,10 @@ function exploit(sosaWrapper, position){
         {'sosaWrapper':sosaWrapper
           , 'firstname':G_MAP_PROCESSED_PERSON.get(position)['firstname']
           , 'lastname':G_MAP_PROCESSED_PERSON.get(position)['lastname']
+          , 'birthDate':G_MAP_PROCESSED_PERSON.get(position)['birthDate']
+          , 'birthPlace':G_MAP_PROCESSED_PERSON.get(position)['birthPlace']
+          , 'deathDate':G_MAP_PROCESSED_PERSON.get(position)['deathDate']
+          , 'deathPlace':G_MAP_PROCESSED_PERSON.get(position)['deathPlace']
           , 'box': box
           , 'previousSosaWrapper' : previousSosaWrapper
           , 'nextSosaWrapper' : null
@@ -450,6 +496,14 @@ function draw(){
     let lastname = null
     let width = null
     let height = null
+    let birth = null
+    let death = null
+    let yIncrement = null
+    let tmpStr = null
+
+    const nbCar1em = 26
+    const nbCar07em = 38
+
 
     for (var i=1; i <= G_MAX_GENERATION_PROCESSED; i++){
 
@@ -466,8 +520,32 @@ function draw(){
 
             sosaWrapper = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['sosaWrapper']
             box = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['box']
-            firstname = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['firstname']
-            lastname = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['lastname']
+            name = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['firstname'] + " " + G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['lastname']
+            yIncrement = 15
+
+            birth = ""
+            if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthDate'] != undefined || G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthPlace'] != undefined){
+              birth += "✪"
+              if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthDate'] != undefined){
+                birth += " " + G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthDate']
+              }
+              if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthPlace'] != undefined){
+                tmpStr = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthPlace'].split(',')
+                birth += " " + tmpStr[0] + ", "+ tmpStr[1]
+              }
+            }
+
+            death = ""
+            if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathDate'] != undefined || G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathPlace'] != undefined){
+              death += "✞"
+              if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathDate'] != undefined){
+                death += " " + G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathDate']
+              }
+              if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathPlace'] != undefined){
+                tmpStr = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathPlace'].split(',')
+                death += " " + tmpStr[0] + "," + tmpStr[1]
+              }
+            }
 
             // Dessin de la box
             drawSVG.rect(width, height)
@@ -476,9 +554,28 @@ function draw(){
                 .stroke({ width: 1, color: '#ccc' })
                 .radius(10)
 
-            drawSVG.plain(firstname + ' ' + lastname)
+            //26 car in size 1em
+            drawSVG.plain(name.substring(0,nbCar1em))
             //drawSVG.plain(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]")
-                .move(box.getX() + 5, box.getY() + 15)
+                .move(box.getX() + 5, box.getY() + yIncrement)
+                yIncrement += 15
+            if(name.length > nbCar1em){
+              drawSVG.plain(name.substring(nbCar1em,2*nbCar1em)).move(box.getX() + 5, box.getY() + yIncrement)
+              yIncrement += 15
+            }
+            //38 car in size 0.7em
+            drawSVG.plain(birth.substring(0,nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+            if(birth.length > nbCar07em){
+              yIncrement += 10
+              drawSVG.plain(birth.substring(nbCar07em,2*nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+            }
+            yIncrement += 10
+            drawSVG.plain(death.substring(0,nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+            if(death.length > nbCar07em){
+              yIncrement += 10
+              drawSVG.plain(death.substring(nbCar07em,2*nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+            }
+
             //Si père existe : liaison
             if(G_MAP_ALL_BY_SOSA_BY_GEN.has(i+1) && G_MAP_ALL_BY_SOSA_BY_GEN.get(i+1).has(sosaWrapper.getVirtualFather())){
               let father = G_MAP_ALL_BY_SOSA_BY_GEN.get(i+1).get(sosaWrapper.getVirtualFather())['box']
@@ -528,7 +625,7 @@ function pdf(){
     svg2pdf(svgElement, pdf, {
       xOffset: 0,
       yOffset: 0,
-      scale: 1//9.275
+      scale: 1
     });
 
 
