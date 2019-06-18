@@ -112,7 +112,7 @@ function run(file) {
         taskOrchestrator.add(exploit, [sosaOne, "1"], "Exploiting Gedcom Data")
         taskOrchestrator.add(compress, [sosaOne], "Compressing your Ancestors")
         taskOrchestrator.add(getMaxSizeOfDrawing, [], "Calculate size of graph")
-        taskOrchestrator.add(draw, [], "Drawing your graph")
+        taskOrchestrator.add(drawProxy, [], "Drawing your graph")
 
         taskOrchestrator.run()
 
@@ -481,14 +481,26 @@ function resetViewBox(){
 
 }
 
-function draw(){
+function drawProxy(){
   drawSVG = SVG().addTo('#svg')
 
   resetViewBox()
 
-    drawSVG.polyline([0,0 , 0,G_MAX_POSITION_Y , G_MAX_POSITION_X,G_MAX_POSITION_Y , G_MAX_POSITION_X,0, 0,0])
+  drawSVG.polyline([0,0 , 0,G_MAX_POSITION_Y , G_MAX_POSITION_X,G_MAX_POSITION_Y , G_MAX_POSITION_X,0, 0,0])
         .fill('none')
         .stroke({ width: 1, color: '#000' })
+
+  draw(1)
+
+  document.getElementById('box').classList.add('hidden')
+  document.getElementById('panel').classList.remove('hidden')
+}
+
+function draw(generation){
+
+    if(generation > G_MAX_GENERATION_PROCESSED){
+      return
+    }
 
     let sosaWrapper = null
     let box = null
@@ -505,106 +517,106 @@ function draw(){
     const nbCar07em = 38
 
 
-    for (var i=1; i <= G_MAX_GENERATION_PROCESSED; i++){
 
-        if(i > 5) {
-          width = BoxV.width()
-          height = BoxV.height()
-        } else {
-          width = Box.width()
-          height = Box.height()
+    if(generation > 5) {
+      width = BoxV.width()
+      height = BoxV.height()
+    } else {
+      width = Box.width()
+      height = Box.height()
+    }
+
+
+    for (var key of G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).keys()) {
+
+        sosaWrapper = G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['sosaWrapper']
+        box = G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['box']
+        name = G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['firstname'] + " " + G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['lastname']
+        yIncrement = 15
+
+        birth = ""
+        if(G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['birthDate'] != undefined || G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['birthPlace'] != undefined){
+          birth += "✪"
+          if(G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['birthDate'] != undefined){
+            birth += " " + G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['birthDate']
+          }
+          if(G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['birthPlace'] != undefined){
+            tmpStr = G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['birthPlace'].split(',')
+            birth += " " + tmpStr[0] + ", "+ tmpStr[1]
+          }
         }
 
+        death = ""
+        if(G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['deathDate'] != undefined || G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['deathPlace'] != undefined){
+          death += "✞"
+          if(G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['deathDate'] != undefined){
+            death += " " + G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['deathDate']
+          }
+          if(G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['deathPlace'] != undefined){
+            tmpStr = G_MAP_ALL_BY_SOSA_BY_GEN.get(generation).get(key)['deathPlace'].split(',')
+            death += " " + tmpStr[0] + "," + tmpStr[1]
+          }
+        }
 
-        for (var key of G_MAP_ALL_BY_SOSA_BY_GEN.get(i).keys()) {
+        // Dessin de la box
+        drawSVG.rect(width, height)
+            .fill('#eee')
+            .move(box.getX(), box.getY())
+            .stroke({ width: 1, color: '#ccc' })
+            .radius(10)
 
-            sosaWrapper = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['sosaWrapper']
-            box = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['box']
-            name = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['firstname'] + " " + G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['lastname']
-            yIncrement = 15
+        //26 car in size 1em
+        drawSVG.plain(name.substring(0,nbCar1em))
+        //drawSVG.plain(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]")
+            .move(box.getX() + 5, box.getY() + yIncrement)
+            yIncrement += 15
+        if(name.length > nbCar1em){
+          drawSVG.plain(name.substring(nbCar1em,2*nbCar1em)).move(box.getX() + 5, box.getY() + yIncrement)
+          yIncrement += 15
+        }
+        //38 car in size 0.7em
+        drawSVG.plain(birth.substring(0,nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+        if(birth.length > nbCar07em){
+          yIncrement += 10
+          drawSVG.plain(birth.substring(nbCar07em,2*nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+        }
+        yIncrement += 10
+        drawSVG.plain(death.substring(0,nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+        if(death.length > nbCar07em){
+          yIncrement += 10
+          drawSVG.plain(death.substring(nbCar07em,2*nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+        }
 
-            birth = ""
-            if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthDate'] != undefined || G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthPlace'] != undefined){
-              birth += "✪"
-              if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthDate'] != undefined){
-                birth += " " + G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthDate']
-              }
-              if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthPlace'] != undefined){
-                tmpStr = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['birthPlace'].split(',')
-                birth += " " + tmpStr[0] + ", "+ tmpStr[1]
-              }
-            }
+        //Si père existe : liaison
+        if(G_MAP_ALL_BY_SOSA_BY_GEN.has(generation+1) && G_MAP_ALL_BY_SOSA_BY_GEN.get(generation+1).has(sosaWrapper.getVirtualFather())){
+          let father = G_MAP_ALL_BY_SOSA_BY_GEN.get(generation+1).get(sosaWrapper.getVirtualFather())['box']
+          let middleY = (father.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
 
-            death = ""
-            if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathDate'] != undefined || G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathPlace'] != undefined){
-              death += "✞"
-              if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathDate'] != undefined){
-                death += " " + G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathDate']
-              }
-              if(G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathPlace'] != undefined){
-                tmpStr = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(key)['deathPlace'].split(',')
-                death += " " + tmpStr[0] + "," + tmpStr[1]
-              }
-            }
+          drawSVG.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
+                        ,box.getBottomJunctionPoint().x,middleY
+                        ,father.getBottomJunctionPoint().x, middleY
+                        ,father.getBottomJunctionPoint().x, father.getBottomJunctionPoint().y])
+              .fill('none')
+              .stroke({ width: 1, color: '#000' })
+        }
+        //Si mère existe : liaison
+        if(G_MAP_ALL_BY_SOSA_BY_GEN.has(generation+1) && G_MAP_ALL_BY_SOSA_BY_GEN.get(generation+1).has(sosaWrapper.getVirtualMother())){
+          let mother = G_MAP_ALL_BY_SOSA_BY_GEN.get(generation+1).get(sosaWrapper.getVirtualMother())['box']
+          let middleY = (mother.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
 
-            // Dessin de la box
-            drawSVG.rect(width, height)
-                .fill('#eee')
-                .move(box.getX(), box.getY())
-                .stroke({ width: 1, color: '#ccc' })
-                .radius(10)
-
-            //26 car in size 1em
-            drawSVG.plain(name.substring(0,nbCar1em))
-            //drawSVG.plain(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]")
-                .move(box.getX() + 5, box.getY() + yIncrement)
-                yIncrement += 15
-            if(name.length > nbCar1em){
-              drawSVG.plain(name.substring(nbCar1em,2*nbCar1em)).move(box.getX() + 5, box.getY() + yIncrement)
-              yIncrement += 15
-            }
-            //38 car in size 0.7em
-            drawSVG.plain(birth.substring(0,nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
-            if(birth.length > nbCar07em){
-              yIncrement += 10
-              drawSVG.plain(birth.substring(nbCar07em,2*nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
-            }
-            yIncrement += 10
-            drawSVG.plain(death.substring(0,nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
-            if(death.length > nbCar07em){
-              yIncrement += 10
-              drawSVG.plain(death.substring(nbCar07em,2*nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
-            }
-
-            //Si père existe : liaison
-            if(G_MAP_ALL_BY_SOSA_BY_GEN.has(i+1) && G_MAP_ALL_BY_SOSA_BY_GEN.get(i+1).has(sosaWrapper.getVirtualFather())){
-              let father = G_MAP_ALL_BY_SOSA_BY_GEN.get(i+1).get(sosaWrapper.getVirtualFather())['box']
-              let middleY = (father.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
-
-              drawSVG.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
-                            ,box.getBottomJunctionPoint().x,middleY
-                            ,father.getBottomJunctionPoint().x, middleY
-                            ,father.getBottomJunctionPoint().x, father.getBottomJunctionPoint().y])
-                  .fill('none')
-                  .stroke({ width: 1, color: '#000' })
-            }
-            //Si mère existe : liaison
-            if(G_MAP_ALL_BY_SOSA_BY_GEN.has(i+1) && G_MAP_ALL_BY_SOSA_BY_GEN.get(i+1).has(sosaWrapper.getVirtualMother())){
-              let mother = G_MAP_ALL_BY_SOSA_BY_GEN.get(i+1).get(sosaWrapper.getVirtualMother())['box']
-              let middleY = (mother.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
-
-              drawSVG.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
-                            ,box.getBottomJunctionPoint().x,middleY
-                            ,mother.getBottomJunctionPoint().x, middleY
-                            ,mother.getBottomJunctionPoint().x, mother.getBottomJunctionPoint().y])
-                  .fill('none')
-                  .stroke({ width: 1, color: '#000' })
-            }
+          drawSVG.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
+                        ,box.getBottomJunctionPoint().x,middleY
+                        ,mother.getBottomJunctionPoint().x, middleY
+                        ,mother.getBottomJunctionPoint().x, mother.getBottomJunctionPoint().y])
+              .fill('none')
+              .stroke({ width: 1, color: '#000' })
         }
     }
 
-    document.getElementById('box').classList.add('hidden')
-    document.getElementById('panel').classList.remove('hidden')
+    generation++
+    setTimeout(() => {
+      draw(generation)
+    }, 1);
 }
 
 function pdf(){
