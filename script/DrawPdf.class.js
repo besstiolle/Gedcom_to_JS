@@ -13,7 +13,6 @@ class DrawPdf {
     this.drawLoop(1, generationMap)
 
     document.getElementById('box').classList.add('hidden')
-    document.getElementById('panel').classList.remove('hidden')
   }
 
   drawLoop(generation, generationMap){

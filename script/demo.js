@@ -1,20 +1,19 @@
 "use strict";
 
 var G_MAP_BOXES = new Map()
-var G_MAP_ALL_BY_SOSA_BY_GEN = new Map();
-var G_MAX_GENERATION_PROCESSED = null;
-var G_MAX_SOSA_PROCESSED = 1;
-var G_ARR_SOSAS_BY_GENENERATION = null
-const MAX_GEN = 100;
+var G_MAP_ALL_BY_SOSA_BY_GEN = new Map()
+var G_MAX_GENERATION_PROCESSED = null
+var G_MAX_SOSA_PROCESSED = 1
+const MAX_GEN = 100
 var G_MAP_GENERATION_Y_POSITION = new Map()
 
-var exploitHelper = new Map()
+var G_MAP_EXPLOIT_HELPER = new Map()
 
 var G_MAP_PROCESSED_PERSON = new Map() //All Individus
 var G_MAP_PROCESSED_FAMILY = new Map() //All famillies
 
-var G_MAX_POSITION_X = 0;
-var G_MAX_POSITION_Y = 0;
+var G_MAX_POSITION_X = 0
+var G_MAX_POSITION_Y = 0
 
 var progressBar = null
 var taskOrchestrator = null
@@ -71,22 +70,12 @@ function init(){
       }
     });
   }
-
-  document.getElementById('panel').classList.toggle('minify')
-  document.getElementById('panel_open').addEventListener('click', function(e) {
-    hiddePdfobjectWrapper()
-    togglePanel()
-  });
-  document.getElementById('panel_close').addEventListener('click', function(e) {
-    hiddePdfobjectWrapper()
-    togglePanel()
-  });
-  document.getElementById('pdf1').addEventListener('click', function(e) {
-    pdf()
-  });
-  document.getElementById('svg').addEventListener('click', function(e) {
-    hiddePdfobjectWrapper()
-  });
+  document.getElementById('pdf1').addEventListener('click', pdf);
+  document.getElementById('svg').addEventListener('click', hiddePdfobjectWrapper);
+  document.getElementById('inputRoot').addEventListener('keyup', typingRoot);
+  document.getElementById('execRoot').addEventListener('click', changeRoot);
+  document.getElementById('cancelRoot').addEventListener('click', cancelRoot);
+  document.getElementById('switchRoot').addEventListener('click', showRoot);
 
   progressBar = new ProgressBar(8)
 }
@@ -281,14 +270,14 @@ function exploit(sosaWrapper, position){
     }
 
     let previousSosaWrapper = null
-    if(exploitHelper.has(sosaWrapper.getGeneration())){
-      previousSosaWrapper = exploitHelper.get(sosaWrapper.getGeneration())
+    if(G_MAP_EXPLOIT_HELPER.has(sosaWrapper.getGeneration())){
+      previousSosaWrapper = G_MAP_EXPLOIT_HELPER.get(sosaWrapper.getGeneration())
       // Set "nextSosaWrapper" of previous
       if(G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).has(previousSosaWrapper)){
         G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).get(previousSosaWrapper)['nextSosaWrapper'] = sosaWrapper
       }
     }
-    exploitHelper.set(sosaWrapper.getGeneration(),sosaWrapper)
+    G_MAP_EXPLOIT_HELPER.set(sosaWrapper.getGeneration(),sosaWrapper)
 
 
     G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).set(sosaWrapper.getSosa(),
@@ -361,10 +350,6 @@ function compress(sosaWrapper){
     if(myselfX < previousX){
       //special case : 2 generations with != box
       let shift = previousX - myselfX
-      //if(sosaWrapper.getGeneration() == 5){
-      //  shift = previousX
-    //  }
-
       let ancestorsSosa = getAllAncestorsMapOfSosaWrapper(sosaWrapper)
 
       let len =  ancestorsSosa.length
@@ -423,10 +408,9 @@ function getXPositionOnLeftBox(sosaWrapper){
   let previousSosaWrapper = G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).get(sosaWrapper.getSosa())['previousSosaWrapper']
   let box = null
   if(previousSosaWrapper !== null){
-    box = G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).get(previousSosaWrapper.getSosa())['box']
+    box = G_MAP_ALL_BY_SOSA_BY_GEN.get(previousSosaWrapper.getGeneration()).get(previousSosaWrapper.getSosa())['box']
     return box.getX() + widthPlusWidthPadding
   } else {
-    box = G_MAP_ALL_BY_SOSA_BY_GEN.get(sosaWrapper.getGeneration()).get(sosaWrapper.getSosa())['box']
     return leftMargin;
   }
 }
@@ -455,7 +439,7 @@ function getMaxSizeOfDrawing(){
 
   for (var i=1; i <= G_MAX_GENERATION_PROCESSED; i++){
 
-      tmp_box = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(exploitHelper.get(i).getSosa())['box']
+      tmp_box = G_MAP_ALL_BY_SOSA_BY_GEN.get(i).get(G_MAP_EXPLOIT_HELPER.get(i).getSosa())['box']
       let maxXOfGen = tmp_box.getX()
       if(maxXOfGen > G_MAX_POSITION_X){
         G_MAX_POSITION_X = maxXOfGen
@@ -474,6 +458,7 @@ function getMaxSizeOfDrawing(){
 }
 
 function draw(){
+  document.getElementById("header").classList.remove('hidden')
   drawPdf = new DrawPdf('#svg', G_MAX_POSITION_X, G_MAX_POSITION_Y, G_MAX_GENERATION_PROCESSED)
   drawPdf.drawProxy(G_MAP_ALL_BY_SOSA_BY_GEN)
 }
@@ -485,9 +470,106 @@ function pdf(){
 function hiddePdfobjectWrapper(){
   document.getElementById("pdfobjectWrapper").classList.add("hidden")
 }
-function togglePanel(){
-  document.getElementById('panel').classList.toggle('show')
-  document.getElementById('panel').classList.toggle('minify')
-  document.getElementById('panel_open').classList.toggle('hidden')
-  document.getElementById('panel_close').classList.toggle('hidden')
+
+function cancelRoot(){
+  document.getElementById("selectRootWrapper").classList.add("hidden")
+}
+
+function showRoot(){
+  document.getElementById("selectRootWrapper").classList.remove("hidden")
+}
+
+function typingRoot(){
+  var search = document.getElementById('inputRoot').value.trim()
+  if(search.length < 4) {
+    document.getElementById("startType").classList.remove('hidden')
+    document.getElementById("resultsRoot").classList.add('hidden')
+    document.getElementById("execRoot").classList.add('hidden')
+    document.getElementById("noResult").classList.add('hidden')
+    return
+  } else {
+    document.getElementById("startType").classList.add('hidden')
+  }
+  var key
+  var value
+  var results = []
+  for(let [key, value] of G_MAP_PROCESSED_PERSON.entries()){
+    if(value['firstname'].includes(search) || value['lastname'].includes(search) ){
+      results.push(key)
+    }
+  }
+  showRoots(results)
+}
+function showRoots(results){
+
+  if(results.length == 0){
+    document.getElementById("resultsRoot").classList.add('hidden')
+    document.getElementById("execRoot").classList.add('hidden')
+    document.getElementById("noResult").classList.remove('hidden')
+  } else {
+    document.getElementById("resultsRoot").classList.remove('hidden')
+    document.getElementById("execRoot").classList.remove('hidden')
+    document.getElementById("noResult").classList.add('hidden')
+  }
+  var textnode
+  var node
+
+  var select = document.getElementById("resultsRoot");
+  while (select.firstChild) {
+    select.removeChild(select.firstChild);
+  }
+
+  for(let result of results){
+    textnode = document.createTextNode(G_MAP_PROCESSED_PERSON.get(result)['firstname']
+          + " "
+          + G_MAP_PROCESSED_PERSON.get(result)['lastname']
+          + " ("
+          + (G_MAP_PROCESSED_PERSON.get(result)['birthDate'] !== undefined?G_MAP_PROCESSED_PERSON.get(result)['birthDate']:"?")
+          + "-"
+          + (G_MAP_PROCESSED_PERSON.get(result)['deathDate'] !== undefined?G_MAP_PROCESSED_PERSON.get(result)['deathDate']:"?")
+          + ")");
+    node = document.createElement("OPTION")
+    node.setAttribute("value", result);
+    node.appendChild(textnode);
+    console.info(node)
+    document.getElementById('resultsRoot').appendChild(node)
+  }
+}
+
+function changeRoot(){
+
+  var key = document.getElementById("resultsRoot").value
+
+  //Purge SVG
+  var svgWrapper = document.getElementById("svg");
+  while (svgWrapper.firstChild) {
+    svgWrapper.removeChild(svgWrapper.firstChild);
+  }
+
+  //Reset var
+  G_MAP_BOXES = new Map()
+  G_MAP_ALL_BY_SOSA_BY_GEN = new Map()
+  G_MAX_GENERATION_PROCESSED = null
+  G_MAX_SOSA_PROCESSED = 1
+  G_MAP_GENERATION_Y_POSITION = new Map()
+  G_MAP_EXPLOIT_HELPER = new Map()
+
+  G_MAX_POSITION_X = 0
+  G_MAX_POSITION_Y = 0
+
+  for(let [key, value] of G_MAP_PROCESSED_PERSON.entries()){
+    value['isProcessed'] = false
+  }
+
+  taskOrchestrator = new TaskOrchestrator()
+  let sosaOne = new SosaWrapper(1)
+
+  taskOrchestrator.add(exploit, [sosaOne, key], "Exploiting Gedcom Data")
+  taskOrchestrator.add(compress, [sosaOne], "Compressing your Ancestors")
+  taskOrchestrator.add(getMaxSizeOfDrawing, [], "Calculate size of graph")
+  taskOrchestrator.add(draw, [], "Drawing your graph")
+
+  taskOrchestrator.run()
+
+  cancelRoot()
 }

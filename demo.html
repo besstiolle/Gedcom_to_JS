@@ -38,19 +38,34 @@
       <div class="box__error">Error! <span></span>.</div>
     </form>
 
-    <div id="panel" class="hidden">
-      <div id="panel_open" class="">&raquo;<br/>&raquo;<br/> &raquo;</div>
-      <div id="panel_close" class="hidden">&laquo;<br/>&laquo;<br/>&laquo;</div>
-      <img id='pdf1' class='action' src='medias/pdf_full.png' alt='Generate full PDF'/>
-      <label for="pdf1">Full Size</label>
-      <img id='pdf2' class='action' src='medias/pdf_cutted.png' alt='A4 PDF'/>
-      <label for="pdf2">A4 PDF</label>
+
+    <div id='header' class='hidden'>
+      <span id='pdf1' class='entry'>Export full size PDF</span>
+      <span>|</span>
+      <span id='switchRoot' class='entry'>Change Root of Graph</span>
+      <span>|</span>
+      <a href='index.html'><span class='entry'>Return to home</span></a>
     </div>
 
 
+    <div id='selectRootWrapper' class='hidden'>
+      <div id='selectRoot'>
+        <div><input id='inputRoot' type='text' placeholder="Name or Surname"/></div>
+        <div>
+          <select id='resultsRoot' class='hidden'></select>
+        </div>
+        <div class='buttons'>
+          <span id='cancelRoot' class='button'>Close panel</span>
+          <span id='execRoot' class='button hidden'>Change Root of Graph</span>
+        </div>
+        <div><span id='startType' class='label'>Please start typing (4 chars min)</span></div>
+        <div><span id='noResult' class='label hidden'>There is no result</span></div>
+      </div>
+    </div>
 
-      <div id="pdfobjectWrapper" class='hidden'></div>
 
-      <div id="svg"></div>
+    <div id="pdfobjectWrapper" class='hidden'></div>
+
+    <div id="svg"></div>
   </body>
 </html>
