@@ -7,15 +7,15 @@ class DrawPdf {
     this.maxGeneration = maxGeneration
   }
 
-  drawProxy(generationMap){
+  drawProxy(mapStore, mapGenerationSosa){
     this.svgViewBox()
     this.polyline([0,0 , 0,this.maxY , this.maxX,this.maxY , this.maxX,0, 0,0])
-    this.drawLoop(1, generationMap)
+    this.drawLoop(1, mapStore, mapGenerationSosa)
 
     document.getElementById('box').classList.add('hidden')
   }
 
-  drawLoop(generation, generationMap){
+  drawLoop(generation, mapStore, mapGenerationSosa){
 
     if(generation > this.maxGeneration){
       return
@@ -43,34 +43,37 @@ class DrawPdf {
       height = Box.height()
     }
 
+    let sosas = mapGenerationSosa.get(generation)
+    let len = sosas.length
+    let key = null
+    for (let i=0; i < len; i++){
 
-    for (var key of generationMap.get(generation).keys()) {
-
-        sosaWrapper = generationMap.get(generation).get(key)['sosaWrapper']
-        box = generationMap.get(generation).get(key)['box']
-        name = generationMap.get(generation).get(key)['firstname'] + " " + generationMap.get(generation).get(key)['lastname']
+        key = sosas[i]
+        sosaWrapper = mapStore.get(key).getSosaWrapper()
+        box = mapStore.get(key).getBox()
+        name = mapStore.get(key).getFirstname() + " " + mapStore.get(key).getLastname()
         yIncrement = 15
 
         birth = ""
-        if(generationMap.get(generation).get(key)['birthDate'] != undefined || generationMap.get(generation).get(key)['birthPlace'] != undefined){
+        if(mapStore.get(key).getBirthDate() != undefined || mapStore.get(key).getBirthPlace() != undefined){
           birth += "✪"
-          if(generationMap.get(generation).get(key)['birthDate'] != undefined){
-            birth += " " + generationMap.get(generation).get(key)['birthDate']
+          if(mapStore.get(key).getBirthDate() != undefined){
+            birth += " " + mapStore.get(key).getBirthDate()
           }
-          if(generationMap.get(generation).get(key)['birthPlace'] != undefined){
-            tmpStr = generationMap.get(generation).get(key)['birthPlace'].split(',')
+          if(mapStore.get(key).getBirthPlace() != undefined){
+            tmpStr = mapStore.get(key).getBirthPlace().split(',')
             birth += " " + tmpStr[0] + ", "+ tmpStr[1]
           }
         }
 
         death = ""
-        if(generationMap.get(generation).get(key)['deathDate'] != undefined || generationMap.get(generation).get(key)['deathPlace'] != undefined){
+        if(mapStore.get(key).getDeathDate() != undefined || mapStore.get(key).getDeathPlace() != undefined){
           death += "✞"
-          if(generationMap.get(generation).get(key)['deathDate'] != undefined){
-            death += " " + generationMap.get(generation).get(key)['deathDate']
+          if(mapStore.get(key).getDeathDate() != undefined){
+            death += " " + mapStore.get(key).getDeathDate()
           }
-          if(generationMap.get(generation).get(key)['deathPlace'] != undefined){
-            tmpStr = generationMap.get(generation).get(key)['deathPlace'].split(',')
+          if(mapStore.get(key).getDeathPlace() != undefined){
+            tmpStr = mapStore.get(key).getDeathPlace().split(',')
             death += " " + tmpStr[0] + "," + tmpStr[1]
           }
         }
@@ -105,8 +108,8 @@ class DrawPdf {
         }
 
         //Si père existe : liaison
-        if(generationMap.has(generation+1) && generationMap.get(generation+1).has(sosaWrapper.getVirtualFather())){
-          let father = generationMap.get(generation+1).get(sosaWrapper.getVirtualFather())['box']
+        if(mapStore.has(sosaWrapper.getVirtualFather())){
+          let father = mapStore.get(sosaWrapper.getVirtualFather()).getBox()
           let middleY = (father.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
 
           this.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
@@ -115,8 +118,8 @@ class DrawPdf {
                         ,father.getBottomJunctionPoint().x, father.getBottomJunctionPoint().y])
         }
         //Si mère existe : liaison
-        if(generationMap.has(generation+1) && generationMap.get(generation+1).has(sosaWrapper.getVirtualMother())){
-          let mother = generationMap.get(generation+1).get(sosaWrapper.getVirtualMother())['box']
+        if(mapStore.has(sosaWrapper.getVirtualMother())){
+          let mother = mapStore.get(sosaWrapper.getVirtualMother()).getBox()
           let middleY = (mother.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
 
           this.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
@@ -128,7 +131,7 @@ class DrawPdf {
 
     generation++
     setTimeout(() => {
-      this.drawLoop(generation, generationMap)
+      this.drawLoop(generation, mapStore, mapGenerationSosa)
     }, 1);
 }
 

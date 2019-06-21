@@ -3,8 +3,8 @@ CONST_WIDTH_V = 95 //width of box in px
 CONST_HEIGHT_V = 150 //height of box in px
 
 class BoxV extends BoxAbstract {
-  constructor(sosa, generation, maxGeneration) {
-    super(sosa, generation, maxGeneration)
+  constructor(sosaWrapper, maxGeneration) {
+    super(sosaWrapper, maxGeneration)
 
     let margin_bottom = (this.CONST_HEIGHT_PADDING + this.CONST_HEIGHT) * 5
 
@@ -16,7 +16,7 @@ class BoxV extends BoxAbstract {
 
 
     let diffSosaTopGen = this.getSosaOfMaxFather() - this.getMinSosaOfGeneration()
-    let diffGen = maxGeneration - generation
+    let diffGen = maxGeneration - this.generation
 
     //Calcul x & y values
     //this.x =  diffSosaTopGen * (this.width() + this.widthPadding()) + this.leftMargin()

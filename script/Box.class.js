@@ -1,10 +1,10 @@
 
 class Box extends BoxAbstract {
-  constructor(sosa, generation, maxGeneration) {
-    super(sosa, generation, maxGeneration)
+  constructor(sosaWrapper, maxGeneration) {
+    super(sosaWrapper, maxGeneration)
 
-    let diffSosaTopGen = this.getSosaOfMaxFather(sosa) - this.getMinSosaOfGeneration(maxGeneration)
-    let diffGen = maxGeneration - generation
+    let diffSosaTopGen = this.getSosaOfMaxFather(sosaWrapper.getSosa()) - this.getMinSosaOfGeneration(maxGeneration)
+    let diffGen = maxGeneration - this.generation
 
     //Calcul x & y values
     //this.x =  diffSosaTopGen * (this.width() + this.widthPadding()) + this.leftMargin()

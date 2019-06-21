@@ -8,10 +8,10 @@ CONST_WIDTH = 200 //width of box in px
 CONST_HEIGHT = 75 //height of box in px
 
 class BoxAbstract {
-  constructor(sosa, generation, maxGeneration) {
+  constructor(sosaWrapper, maxGeneration) {
     this.maxGeneration = maxGeneration
-    this.generation = generation
-    this.sosa=sosa
+    this.generation = sosaWrapper.getGeneration()
+    this.sosa=sosaWrapper.getSosa()
     this.x = 0
     this.y = 0
 
