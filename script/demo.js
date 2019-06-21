@@ -531,7 +531,6 @@ function showRoots(results){
     node = document.createElement("OPTION")
     node.setAttribute("value", result);
     node.appendChild(textnode);
-    console.info(node)
     document.getElementById('resultsRoot').appendChild(node)
   }
 }
