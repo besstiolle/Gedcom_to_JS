@@ -117,8 +117,8 @@ function parsingGedcomData(data) {
   let regexFAMILY = /^0 @F([0-9]*)@ FAM$/
   let regexHUSB = /^1 HUSB @I([0-9]*)@$/
   let regexWIFE = /^1 WIFE @I([0-9]*)@$/
-  let regexBIRTH = /^1 BIRT$/
-  let regexDEATH = /^1 DEAT$/
+  let regexBIRTH = /^1 BIRT[ ]?$/
+  let regexDEATH = /^1 DEAT[ ]?$/
   let regexDATE = /^2 DATE (.*)$/
   let regexPLACE = /^2 PLAC (.*)$/
 
