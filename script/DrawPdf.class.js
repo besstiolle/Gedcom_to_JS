@@ -33,7 +33,7 @@ class DrawPdf {
     let tmpStr = null
 
     const nbCar1em = 26
-    const nbCar07em = 38
+    const nbCar07em = 34
 
     if(generation > 5) {
       width = BoxV.width()
@@ -46,6 +46,10 @@ class DrawPdf {
     let sosas = mapGenerationSosa.get(generation)
     let len = sosas.length
     let key = null
+
+    var regexBefore = /^BEF/i;
+    var regexAfter = /^AFT/i;
+
     for (let i=0; i < len; i++){
 
         key = sosas[i]
@@ -56,9 +60,9 @@ class DrawPdf {
 
         birth = ""
         if(mapStore.get(key).getBirthDate() != undefined || mapStore.get(key).getBirthPlace() != undefined){
-          birth += "✪"
+          birth += "¤"
           if(mapStore.get(key).getBirthDate() != undefined){
-            birth += " " + mapStore.get(key).getBirthDate()
+            birth += " " + mapStore.get(key).getBirthDate().replace(regexBefore, '<').replace(regexAfter, '>')
           }
           if(mapStore.get(key).getBirthPlace() != undefined){
             tmpStr = mapStore.get(key).getBirthPlace().split(',')
@@ -68,9 +72,9 @@ class DrawPdf {
 
         death = ""
         if(mapStore.get(key).getDeathDate() != undefined || mapStore.get(key).getDeathPlace() != undefined){
-          death += "✞"
+          death += "×"
           if(mapStore.get(key).getDeathDate() != undefined){
-            death += " " + mapStore.get(key).getDeathDate()
+            death += " " + mapStore.get(key).getDeathDate().replace(regexBefore, '<').replace(regexAfter, '>')
           }
           if(mapStore.get(key).getDeathPlace() != undefined){
             tmpStr = mapStore.get(key).getDeathPlace().split(',')
@@ -86,25 +90,25 @@ class DrawPdf {
             .radius(10)
 
         //26 car in size 1em
-        this.drawSVG.plain(name.substring(0,nbCar1em))
-        //drawSVG.plain(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]")
-            .move(box.getX() + 5, box.getY() + yIncrement)
-            yIncrement += 15
+        this.drawSVG.plain(name.substring(0,nbCar1em)).move(box.getX() + 5, box.getY() + yIncrement)
+        //this.drawSVG.plain(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]").move(box.getX() + 5, box.getY() + yIncrement)
+        yIncrement += 15
+
         if(name.length > nbCar1em){
           this.drawSVG.plain(name.substring(nbCar1em,2*nbCar1em)).move(box.getX() + 5, box.getY() + yIncrement)
           yIncrement += 15
         }
-        //38 car in size 0.7em
-        this.drawSVG.plain(birth.substring(0,nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+        //34 car in size 0.7em
+        this.drawSVG.plain (birth.substring(0,nbCar07em)).font('size', '10').move(box.getX() + 5, box.getY() + yIncrement)
         if(birth.length > nbCar07em){
           yIncrement += 10
-          this.drawSVG.plain(birth.substring(nbCar07em,2*nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+          this.drawSVG.plain(birth.substring(nbCar07em,2*nbCar07em)).font('size', '10').move(box.getX() + 5, box.getY() + yIncrement)
         }
         yIncrement += 10
-        this.drawSVG.plain(death.substring(0,nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+        this.drawSVG.plain(death.substring(0,nbCar07em)).font('size', '10').move(box.getX() + 5, box.getY() + yIncrement)
         if(death.length > nbCar07em){
           yIncrement += 10
-          this.drawSVG.plain(death.substring(nbCar07em,2*nbCar07em)).font('size', '0.7em').move(box.getX() + 5, box.getY() + yIncrement)
+          this.drawSVG.plain(death.substring(nbCar07em,2*nbCar07em)).font('size', '10').move(box.getX() + 5, box.getY() + yIncrement)
         }
 
         //Si père existe : liaison
