@@ -12,6 +12,7 @@ var progressBar = null
 var taskOrchestrator = null
 var drawPdf = null
 var store = null
+var firstPosition = null
 
 function init(){
   document.getElementById('file').addEventListener('change', function(e) {
@@ -88,15 +89,14 @@ function run(file) {
 
   read.then(function(data) {
 
-        taskOrchestrator = new TaskOrchestrator()
         let sosaOne = new SosaWrapper(1)
 
+        taskOrchestrator = new TaskOrchestrator()
         taskOrchestrator.add(parsingGedcomData, [data], "Parsing Gedcom Data")
-        taskOrchestrator.add(exploit, [sosaOne, "1"], "Exploiting Gedcom Data")
+        taskOrchestrator.add(exploit, [sosaOne], "Exploiting Gedcom Data")
         taskOrchestrator.add(compress, [sosaOne], "Compressing your Ancestors")
         taskOrchestrator.add(getMaxSizeOfDrawing, [], "Calculate size of graph")
         taskOrchestrator.add(draw, [], "Drawing your graph")
-
         taskOrchestrator.run()
 
       });
@@ -110,13 +110,13 @@ function parsingGedcomData(data) {
   var deathInit = false
 
   let matches = null
-  let regexINDI = /^0 @I([0-9]*)@ INDI$/
+  let regexINDI = /^0 @I?([0-9]*)@ INDI$/
   let regexNAME = /^1 NAME (.*)\/(.*)\/$/
-  let regexFAMC = /^1 FAMC @F([0-9]+)@$/
+  let regexFAMC = /^1 FAMC @F?([0-9]+)@$/
   let regexSEX = /^1 SEX ([FM])$/
-  let regexFAMILY = /^0 @F([0-9]*)@ FAM$/
-  let regexHUSB = /^1 HUSB @I([0-9]*)@$/
-  let regexWIFE = /^1 WIFE @I([0-9]*)@$/
+  let regexFAMILY = /^0 @F?([0-9]*)@ FAM$/
+  let regexHUSB = /^1 HUSB @I?([0-9]*)@$/
+  let regexWIFE = /^1 WIFE @I?([0-9]*)@$/
   let regexBIRTH = /^1 BIRT[ ]?$/
   let regexDEATH = /^1 DEAT[ ]?$/
   let regexDATE = /^2 DATE (.*)$/
@@ -140,6 +140,9 @@ function parsingGedcomData(data) {
         G_MAP_PROCESSED_PERSON.set(indi['id'], indi)
         birthInit = false
         deathInit = false
+        if(firstPosition == null){
+          firstPosition = indi['id']
+        }
       }
 
       // Initiate array
@@ -227,9 +230,9 @@ function parsingGedcomData(data) {
   }
 }
 
-function exploit(sosaWrapper, position){
+function exploit(sosaWrapper){
   store = new Store(G_MAP_PROCESSED_PERSON, G_MAP_PROCESSED_FAMILY, MAX_GEN)
-  store.populate(sosaWrapper, position)
+  store.populate(sosaWrapper, firstPosition)
       .setupBoxes()
 }
 
