@@ -230,9 +230,12 @@ function parsingGedcomData(data) {
   }
 }
 
-function exploit(sosaWrapper){
+function exploit(sosaWrapper, position){
+  if(position == null){
+    position = firstPosition
+  }
   store = new Store(G_MAP_PROCESSED_PERSON, G_MAP_PROCESSED_FAMILY, MAX_GEN)
-  store.populate(sosaWrapper, firstPosition)
+  store.populate(sosaWrapper, position)
       .setupBoxes()
 }
 
