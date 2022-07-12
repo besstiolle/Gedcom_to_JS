@@ -56,7 +56,8 @@ a{
   margin: 40px auto 0;
 }
 .box__input{
-  padding: 30% 20px 0 20px;
+  padding: 25vh;
+  /*padding: 30% 20px 0 20px;*/
 }
 .box__dragndrop,
 .box__uploading,
@@ -168,8 +169,8 @@ a{
 }
 
 #selectRoot{
-  width: 300px;
-  margin: 25% auto;
+  width: 350px;
+  margin: 25vh auto;
 }
 
 #inputRoot{

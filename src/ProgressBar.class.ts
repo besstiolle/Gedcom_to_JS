@@ -1,6 +1,13 @@
-class ProgressBar{
+export class ProgressBar{
 
-  constructor(nbSteps){
+  nbSteps:number = null
+  htmlElement:HTMLElement = null
+  advanceHtmlElement:HTMLElement = null
+  textHtmlElement:HTMLElement = null
+  currentStep:number = null
+  message:string = null
+
+  constructor(nbSteps:number){
     this.nbSteps = nbSteps
     this.htmlElement = document.getElementById('progressBar')
     this.advanceHtmlElement = document.getElementById('subProgressBar')
@@ -10,13 +17,13 @@ class ProgressBar{
     this.render()
   }
 
-  initiateProgressBar(message){
+  initiateProgressBar(message:string){
     this.message = message
     this.currentStep = 0
     this.render()
   }
 
-  movingProgressBar(message){
+  movingProgressBar(message:string){
     this.message = message
     this.currentStep++
     this.render()

@@ -3,3 +3,9 @@
 [Experimental] Allow you to process your own Gedcom file to render an ascendant graph with nothing more than vanilla JS.
 
 See more on our live demo on [GitHub Pages](https://besstiolle.github.io/Gedcom_to_JS).
+
+## To install :
+
+ - npm install
+ - npm run build
+ - npm run start (will start a webserver on port 9000)
