@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Gedcom to Pdf - Live Demo</title>
+  <link rel="icon" href="favicon.png"><script defer src="runtime.8c88f067b3cd6db73caf.js"></script><script defer src="vendors.5f2c63ab0a266f261b7a.js"></script><script defer src="demo.c754ecec7116d04ae1d0.js"></script></head>
+  <body>
+    <form id="box" method="post" action="" enctype="multipart/form-data">
+      <div class="box__input">
+
+        <div><img src='/static/download.png' id='downloadPic' alt='Choose a Gedcom file or drag it here'/></div>
+        <div><input class="box__file" type="file" name="files[]" accept=".gedcom, .ged" id="file"/>
+        <label for="file"><strong>Choose a Gedcom file (.ged)</strong><span class="box__dragndrop"> or drag it here</span>.</label></div>
+        <button class="box__button" type="submit">Upload</button>
+        <div id='progressBar' class="hidden">
+            <div id='subProgressBar' style="width: 0px;"></div>
+            <div id='textProgressBar'></div>
+        </div>
+        <div class='sample'>You don't have any ? why wouldn't you <a href='/static/HAPIOT_Emile_sample.ged'>try with this sample</a> ?</div>
+      </div>
+      <div class="box__error">Error! <span></span>.</div>
+    </form>
+
+
+    <div id='header' class='hidden'>
+      <span id='pdf1' class='entry'>Export full size PDF</span>
+      <span>|</span>
+      <span id='switchRoot' class='entry'>Change Root of Graph</span>
+      <span>|</span>
+      <a href='index.html'><span class='entry'>Return to home</span></a>
+    </div>
+
+
+    <div id='selectRootWrapper' class='hidden'>
+      <div id='selectRoot'>
+        <div><input id='inputRoot' type='text' placeholder="Name or Surname"/></div>
+        <div>
+          <select id='resultsRoot' class='hidden'></select>
+        </div>
+        <div class='buttons'>
+          <span id='cancelRoot' class='button'>Close panel</span>
+          <span id='execRoot' class='button hidden'>Change Root of Graph</span>
+        </div>
+        <div><span id='startType' class='label'>Please start typing (4 chars min)</span></div>
+        <div><span id='noResult' class='label hidden'>There is no result</span></div>
+      </div>
+    </div>
+
+
+    <div id="pdfobjectWrapper" class='hidden'></div>
+
+    <div id="svg"></div>
+  </body>
+</html>
