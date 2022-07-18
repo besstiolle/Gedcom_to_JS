@@ -17,10 +17,10 @@ jobs:
           npm ci
           npm run build
 
-      - name: Copy static webpage 🚚 
-        run: |
-          mkdir -p /dist
-          cp /web_static/* /dist/
+      #- name: Copy static webpage 🚚 
+      #  run: |
+      #    mkdir -p /dist
+      #    cp /web_static/* /dist/
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.3.3
