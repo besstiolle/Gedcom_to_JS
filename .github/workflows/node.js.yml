@@ -19,8 +19,7 @@ jobs:
 
       - name: Copy static webpage 🚚 
         run: |
-          ls -lia
-          cp web_static/* dist/
+          cp -rf web_static/* dist/
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.3.3
