@@ -2,7 +2,7 @@ import './assets/css/demo.css'
 import './assets/imgs/download.png'
 import './assets/gedcom/HAPIOT_Emile_sample.ged'
 
-import { SVGRenderer } from './SVGRenderer'
+import { CanvasRenderer } from './CanvasRenderer'
 import { GedcomParser } from './GedcomParser'
 import { ProgressBar } from './ProgressBar.class'
 import { VirtualGrid, Individual, SosaWrapper } from './struct.class'
@@ -20,7 +20,8 @@ var taskOrchestrator:TaskOrchestrator = null
 const _HTML_ELEMENT__FILE:HTMLInputElement = <HTMLInputElement>document.getElementById('file')
 const _HTML_ELEMENT__FORM:HTMLFormElement = <HTMLFormElement>document.getElementById('box')
 const _HTML_ELEMENT__PDF:HTMLElement = document.getElementById('pdf1')
-const _HTML_ELEMENT__SVG:HTMLElement = document.getElementById('svg')
+const _HTML_ELEMENT__CANVAS:HTMLElement = document.getElementById('canvas')
+const _HTML_ELEMENT__CANVAS_MINIMAP:HTMLElement = document.getElementById('canvas_minimap')
 const _HTML_ELEMENT__ROOT_INPUT:HTMLInputElement = <HTMLInputElement>document.getElementById('inputRoot')
 const _HTML_ELEMENT__ROOT_EXEC:HTMLElement = document.getElementById('execRoot')
 const _HTML_ELEMENT__ROOT_CANCEL:HTMLElement = document.getElementById('cancelRoot')
@@ -84,7 +85,7 @@ function init(){
     })
   }
   _HTML_ELEMENT__PDF.addEventListener('click', generatePdf)
-  _HTML_ELEMENT__SVG.addEventListener('click', hiddePdfobjectWrapper)
+  _HTML_ELEMENT__CANVAS.addEventListener('click', hiddePdfobjectWrapper)
   _HTML_ELEMENT__ROOT_INPUT.addEventListener('keyup', typingRoot)
   _HTML_ELEMENT__ROOT_EXEC.addEventListener('click', changeRoot)
   _HTML_ELEMENT__ROOT_CANCEL.addEventListener('click', cancelRoot)
@@ -177,10 +178,9 @@ function getMaxSizeOfDrawing(){
 }
 
 function draw(){
-  //console.info(container.getMapContainer().has(96))
-  //console.info(container.getMapContainer())
-  show([_HTML_ELEMENT__HEADER])
-  SVGRenderer.drawSVG('#svg')
+  show([_HTML_ELEMENT__HEADER, _HTML_ELEMENT__CANVAS])
+  hide([_HTML_ELEMENT__FORM])
+  CanvasRenderer.draw(_HTML_ELEMENT__CANVAS, _HTML_ELEMENT__CANVAS_MINIMAP)
 }
 
 function hiddePdfobjectWrapper(){
@@ -262,10 +262,10 @@ function changeRoot(){
   let key:number = parseInt(_HTML_ELEMENT__ROOT_RESULTS.value)
   let sosaOne = new SosaWrapper(1)
 
-  //Purge SVG
+  //Purge Canvas
   // .innerHtml='' is not recommended because it doesn’t remove the event handlers of the child nodes, which might cause a memory leak.
-  while (_HTML_ELEMENT__SVG.firstChild) {
-    _HTML_ELEMENT__SVG.removeChild(_HTML_ELEMENT__SVG.firstChild)
+  while (_HTML_ELEMENT__CANVAS.firstChild) {
+    _HTML_ELEMENT__CANVAS.removeChild(_HTML_ELEMENT__CANVAS.firstChild)
   }
 
   //Reset var

@@ -1,17 +1,14 @@
-import '@svgdotjs/svg.panzoom.js'
 import { jsPDF } from "jspdf"
-import { svg2pdf } from "svg2pdf.js"
 import { Store } from "./Store"
-import { SVGRenderer } from "./SVGRenderer"
 
 
 export function generatePdf(){
 
-  pdfViewBox()
+/*  pdfViewBox()*/
 
   const con = 4 //Ratio px => mm
   const pdfobjectWrapper = document.getElementById("pdfobjectWrapper")
-  const svgElement = document.getElementsByTagName("svg")[0]
+  const canvas = document.getElementById("canvas")
   let pdfobject:HTMLEmbedElement = <HTMLEmbedElement>document.getElementById("pdfobject")
 
   //Show Wrapper
@@ -21,20 +18,26 @@ export function generatePdf(){
   if(Store.positionYMax > Store.positionXMax){
     orientation = 'p'
   }
-  const pdf = new jsPDF(orientation, 'mm', [Store.positionXMax / con, Store.positionYMax / con])
+
+  // idea : https://stackoverflow.com/questions/23681325/convert-canvas-to-pdf
+  let imgData = canvas.toDataURL("image/jpeg", 1.0)
+
+  let pdf = new jsPDF(orientation, 'mm', [Store.positionXMax / con, Store.positionYMax / con])
+  pdf.addImage(imgData, 'JPEG', 0, 0)
   
   // render the svg element
-  svg2pdf(svgElement, pdf, {
+ /* svg2pdf(svgElement, pdf, {
     x:0,
     y:0,
     width:Store.positionXMax / con,
     height:Store.positionYMax / con
     //scale:1
-  }).then(() => {
+  }).then(() => {*/
     const uri = pdf.output('datauristring')
     if(uri.length < 5000000){
 
       //TODO : creating HTMLEmbededElement in template.
+      //TODO : better naming like in timelineProject's download
       if(pdfobject == undefined){
         pdfobject = document.createElement("embed")
         pdfobject.setAttribute("src", uri)
@@ -45,16 +48,17 @@ export function generatePdf(){
         pdfobject.setAttribute("src", uri)
       }
     } else {
+      //TODO : better naming
       pdf.save('myPDF.pdf')
     }
     
     //Reset information post pdf generation
     //TODO restoring previous position 
-    SVGRenderer.svgViewBox()
-  })    
+ /*   SVGRenderer.svgViewBox()*/
+/*  })*/    
 
 }
-
+/*
 
 export function pdfViewBox(){
   
@@ -77,4 +81,4 @@ export function pdfViewBox(){
     //.size(window.innerWidth , window.innerHeight)
     .size(window.innerWidth , window.innerHeight)
     .zoom(10)
-}
+}*/
