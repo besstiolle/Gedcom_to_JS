@@ -8,7 +8,7 @@
     <form id="box" method="post" action="" enctype="multipart/form-data">
       <div class="box__input">
 
-        <div><img src='/static/download.png' id='downloadPic' alt='Choose a Gedcom file or drag it here'/></div>
+        <div><img src='./static/download.png' id='downloadPic' alt='Choose a Gedcom file or drag it here'/></div>
         <div><input class="box__file" type="file" name="files[]" accept=".gedcom, .ged" id="file"/>
         <label for="file"><strong>Choose a Gedcom file (.ged)</strong><span class="box__dragndrop"> or drag it here</span>.</label></div>
         <button class="box__button" type="submit">Upload</button>
@@ -16,7 +16,7 @@
             <div id='subProgressBar' style="width: 0px;"></div>
             <div id='textProgressBar'></div>
         </div>
-        <div class='sample'>You don't have any ? why wouldn't you <a href='/static/HAPIOT_Emile_sample.ged'>try with this sample</a> ?</div>
+        <div class='sample'>You don't have any ? why wouldn't you <a href='./static/HAPIOT_Emile_sample.ged'>try with this sample</a> ?</div>
       </div>
       <div class="box__error">Error! <span></span>.</div>
     </form>
