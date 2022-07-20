@@ -5,33 +5,21 @@ import './assets/gedcom/HAPIOT_Emile_sample.ged'
 import { SVGRenderer } from './SVGRenderer'
 import { GedcomParser } from './GedcomParser'
 import { ProgressBar } from './ProgressBar.class'
-import { VirtualGrid, Individual, SosaWrapper } from './struct.class'
+import { Individual, SosaWrapper } from './struct.class'
 import { TaskOrchestrator } from './TaskOrchestrator.class'
 import { Store } from './Store'
 import { Logger } from './Logger'
 import { Box, BoxV } from './Box.class'
 import { populateGrid, setupBoxForGridEntry, compressContainer } from './ContainerFactory'
 import { generatePdf } from './PDFRenderer'
+import { takeshot } from './ImgRenderer'
+import { hide, show, _HTML_ELEMENT__FILE, _HTML_ELEMENT__FORM, _HTML_ELEMENT__HEADER, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__PDF_ACTION_BUTTON, _HTML_ELEMENT__PNG_ACTION_BUTTON, _HTML_ELEMENT__PROGRESSBAR, _HTML_ELEMENT__ROOT_CANCEL, _HTML_ELEMENT__ROOT_EXEC, _HTML_ELEMENT__ROOT_INPUT, _HTML_ELEMENT__ROOT_NORESULT, _HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_SELECTWRAPPER, _HTML_ELEMENT__ROOT_SWITCH, _HTML_ELEMENT__STARTTYPE, _HTML_ELEMENT__SVGWRAPPER } from './HtmlElements'
 
 const SOSA_ONE = new SosaWrapper(1)
 var progressBar:ProgressBar = null
 var taskOrchestrator:TaskOrchestrator = null
 
-const _HTML_ELEMENT__FILE:HTMLInputElement = <HTMLInputElement>document.getElementById('file')
-const _HTML_ELEMENT__FORM:HTMLFormElement = <HTMLFormElement>document.getElementById('box')
-const _HTML_ELEMENT__PDF:HTMLElement = document.getElementById('pdf1')
-const _HTML_ELEMENT__SVG:HTMLElement = document.getElementById('svg')
-const _HTML_ELEMENT__ROOT_INPUT:HTMLInputElement = <HTMLInputElement>document.getElementById('inputRoot')
-const _HTML_ELEMENT__ROOT_EXEC:HTMLElement = document.getElementById('execRoot')
-const _HTML_ELEMENT__ROOT_CANCEL:HTMLElement = document.getElementById('cancelRoot')
-const _HTML_ELEMENT__ROOT_SWITCH:HTMLElement = document.getElementById('switchRoot')
-const _HTML_ELEMENT__ROOT_RESULTS:HTMLSelectElement = <HTMLSelectElement>document.getElementById('resultsRoot')
-const _HTML_ELEMENT__ROOT_SELECTWRAPPER:HTMLElement = document.getElementById('selectRootWrapper')
-const _HTML_ELEMENT__ROOT_NORESULT:HTMLElement = document.getElementById('noResult')
-const _HTML_ELEMENT__PROGRESSBAR:HTMLElement = document.getElementById('progressBar')
-const _HTML_ELEMENT__HEADER:HTMLElement = document.getElementById('header')
-const _HTML_ELEMENT__PDFWRAPPER:HTMLElement = document.getElementById('pdfobjectWrapper')
-const _HTML_ELEMENT__STARTTYPE:HTMLElement = document.getElementById('startType')
+   
    
 
 function init(){
@@ -83,8 +71,9 @@ function init(){
       }
     })
   }
-  _HTML_ELEMENT__PDF.addEventListener('click', generatePdf)
-  _HTML_ELEMENT__SVG.addEventListener('click', hiddePdfobjectWrapper)
+  _HTML_ELEMENT__PNG_ACTION_BUTTON.addEventListener('click', takeshot)
+  _HTML_ELEMENT__PDF_ACTION_BUTTON.addEventListener('click', generatePdf)
+  _HTML_ELEMENT__SVGWRAPPER.addEventListener('click', hiddePdfobjectWrapper)
   _HTML_ELEMENT__ROOT_INPUT.addEventListener('keyup', typingRoot)
   _HTML_ELEMENT__ROOT_EXEC.addEventListener('click', changeRoot)
   _HTML_ELEMENT__ROOT_CANCEL.addEventListener('click', cancelRoot)
@@ -179,8 +168,8 @@ function getMaxSizeOfDrawing(){
 function draw(){
   //console.info(container.getMapContainer().has(96))
   //console.info(container.getMapContainer())
-  show([_HTML_ELEMENT__HEADER])
-  SVGRenderer.drawSVG('#svg')
+  show([_HTML_ELEMENT__HEADER, _HTML_ELEMENT__SVGWRAPPER])
+  SVGRenderer.drawSVG()
 }
 
 function hiddePdfobjectWrapper(){
@@ -264,8 +253,8 @@ function changeRoot(){
 
   //Purge SVG
   // .innerHtml='' is not recommended because it doesn’t remove the event handlers of the child nodes, which might cause a memory leak.
-  while (_HTML_ELEMENT__SVG.firstChild) {
-    _HTML_ELEMENT__SVG.removeChild(_HTML_ELEMENT__SVG.firstChild)
+  while (_HTML_ELEMENT__SVGWRAPPER.firstChild) {
+    _HTML_ELEMENT__SVGWRAPPER.removeChild(_HTML_ELEMENT__SVGWRAPPER.firstChild)
   }
 
   //Reset var
@@ -288,15 +277,5 @@ function changeRoot(){
   cancelRoot()
 }
 
-function hide(htmlElementIds:HTMLElement[]){
-  htmlElementIds.forEach(htmlElement => {
-    htmlElement.classList.add('hidden')
-  })
-}
-function show(htmlElementIds:HTMLElement[]){
-  htmlElementIds.forEach(htmlElement => {
-    htmlElement.classList.remove('hidden')
-  })
-}
 
 init()

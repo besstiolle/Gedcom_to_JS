@@ -4,7 +4,6 @@ html, body {
   font-family: Roboto, sans-serif;
   color: #0f3c4b;
   background-color: #e5edf1;
-  overflow: hidden;
 }
 
 
@@ -119,7 +118,7 @@ a{
 /* SVG Render Box */
 /*****************/
 
-#svg{
+#svgWrapper{
 
   font-family: monospace;
   background-color: #b7d0f4;
@@ -128,6 +127,8 @@ a{
   outline-offset: -10px;
   -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
   transition: outline-offset .15s ease-in-out, background-color .15s linear;
+  height: calc(100% - 60px);
+  width: calc(100% - 20px);
 }
 
 /******************/
@@ -223,4 +224,27 @@ select{
 #pdfobject{
   width: 100%;
   height: 100%;
+}
+/**************************/
+/* Overlay when user wait */
+/**************************/
+
+#wait{
+  width: 100%;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.9);
+  height: 100%;
+  display: block;
+  top: 0;
+  cursor:wait;
+}
+
+#wait span{
+  display: inline-block;
+  width: 100%;
+  font-size: 2em;
+  top: 40%;
+  position: absolute;
+  text-align: center;
+  color:#FFF;
 }

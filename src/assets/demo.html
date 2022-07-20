@@ -23,6 +23,8 @@
 
 
     <div id='header' class='hidden'>
+      <span id='img1' class='entry'>Export full size PNG</span>
+      <span>|</span>
       <span id='pdf1' class='entry'>Export full size PDF</span>
       <span>|</span>
       <span id='switchRoot' class='entry'>Change Root of Graph</span>
@@ -45,10 +47,13 @@
         <div><span id='noResult' class='label hidden'>There is no result</span></div>
       </div>
     </div>
+    
+    <div id="svgWrapper" class='hidden'></div>
 
+    <div id="pdfobjectWrapper" class='hidden'>
+      <embed id="pdfobject" src="#" type = "application/pdf" />
+    </div>
 
-    <div id="pdfobjectWrapper" class='hidden'></div>
-
-    <div id="svg"></div>
+    <div id="wait" class="hidden toExcludeFromSnapshot"><span>Please wait a few seconds</span></div>
   </body>
 </html>

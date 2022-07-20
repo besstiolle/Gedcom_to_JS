@@ -3,19 +3,20 @@ import '@svgdotjs/svg.panzoom.js'
 import { VirtualGridEntry } from "./struct.class"
 import { Box, BoxV } from "./Box.class"
 import { Store } from "./Store"
+import { hide, _HTML_ELEMENT__FORM, _HTML_ELEMENT__SVGWRAPPER } from "./HtmlElements"
 
 export class SVGRenderer {
   
   static container:Container = null
 
-  static drawSVG(htmlId:string){
+  static drawSVG(){
 
-    SVGRenderer.container = SVG().addTo(htmlId)
+    SVGRenderer.container = SVG().addTo(_HTML_ELEMENT__SVGWRAPPER)
     SVGRenderer.svgViewBox()
     SVGRenderer.polyline([0,0 , 0,Store.positionYMax , Store.positionXMax,Store.positionYMax , Store.positionXMax,0, 0,0])
     SVGRenderer.drawLoop(1)
 
-    document.getElementById('box').classList.add('hidden')
+    hide([_HTML_ELEMENT__FORM])
   }
 
   private static drawLoop(generation:number){ 
