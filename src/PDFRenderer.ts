@@ -6,13 +6,15 @@ import { Store } from "./Store"
 import { SVGRenderer } from "./SVGRenderer"
 
 
+const RATIO_PX_2_CM = 40 //Default Ratio px => cm
+const PDF_HARD_LIMIT = 5080 //PDF is limited to 5080 mm max https://github.com/parallax/jsPDF/issues/705
+
 export function generatePdf(){
 
   show([_HTML_ELEMENT__WAIT])
 
   pdfViewBox()
 
-  const RATIO_PX_2_MM = 4 //Ratio px => mm
   const svgElement = document.getElementsByTagName("svg")[0]
 
   //Show Wrapper
@@ -22,14 +24,23 @@ export function generatePdf(){
   if(Store.positionYMax > Store.positionXMax){
     orientation = 'p'
   }
-  const pdf = new jsPDF(orientation, 'mm', [Store.positionXMax / RATIO_PX_2_MM, Store.positionYMax / RATIO_PX_2_MM])
+
+  let ratioUsed = RATIO_PX_2_CM
+  if(orientation == 'l' && Store.positionXMax / RATIO_PX_2_CM * 10 > PDF_HARD_LIMIT){
+    ratioUsed = Store.positionXMax * 10 / PDF_HARD_LIMIT
+  }
+  if(orientation == 'p' && Store.positionYMax / RATIO_PX_2_CM * 10 > PDF_HARD_LIMIT){
+    ratioUsed = Store.positionYMax * 10 / PDF_HARD_LIMIT
+  }
+
+  const pdf = new jsPDF(orientation, 'cm', [Store.positionXMax / ratioUsed, Store.positionYMax / ratioUsed])
 
   // render the svg element
   svg2pdf(svgElement, pdf, {
     x:0,
     y:0,
-    width:Store.positionXMax / RATIO_PX_2_MM,
-    height:Store.positionYMax / RATIO_PX_2_MM
+    width:Store.positionXMax / ratioUsed,
+    height:Store.positionYMax / ratioUsed
   }).then(() => {
     const uri = pdf.output('datauristring')
     if(uri.length < 5000000){
