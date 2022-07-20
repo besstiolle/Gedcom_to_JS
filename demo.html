@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8"/>
     <title>Gedcom to Pdf - Live Demo</title>
-  <link rel="icon" href="favicon.png"><script defer src="runtime.8c88f067b3cd6db73caf.js"></script><script defer src="vendors.5f2c63ab0a266f261b7a.js"></script><script defer src="demo.c754ecec7116d04ae1d0.js"></script></head>
+  <link rel="icon" href="favicon.png"><script defer src="runtime.8c88f067b3cd6db73caf.js"></script><script defer src="vendors.3184f0c181e53126a55f.js"></script><script defer src="demo.3e314f0081b67a31192d.js"></script></head>
   <body>
     <form id="box" method="post" action="" enctype="multipart/form-data">
       <div class="box__input">
@@ -23,6 +23,8 @@
 
 
     <div id='header' class='hidden'>
+      <span id='img1' class='entry'>Export full size PNG</span>
+      <span>|</span>
       <span id='pdf1' class='entry'>Export full size PDF</span>
       <span>|</span>
       <span id='switchRoot' class='entry'>Change Root of Graph</span>
@@ -45,10 +47,15 @@
         <div><span id='noResult' class='label hidden'>There is no result</span></div>
       </div>
     </div>
+    
+    <div id="svgWrapper" class='hidden'></div>
 
+    <div id="pdfobjectWrapper" class='hidden'>
+      <embed id="pdfobject" src="#" type = "application/pdf" />
+    </div>
 
-    <div id="pdfobjectWrapper" class='hidden'></div>
+    <div id="wait" class="hidden toExcludeFromSnapshot"><span>Please wait a few seconds</span></div>
 
-    <div id="svg"></div>
+    <div id="message" class="hidden"></div>
   </body>
 </html>
