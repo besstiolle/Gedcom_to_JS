@@ -6,7 +6,7 @@ import { Store } from "./Store"
 import { SVGRenderer } from "./SVGRenderer"
 
 
-const RATIO_PX_2_CM = 40 //Default Ratio px => cm
+export const RATIO_PX_2_CM = 40 //Default Ratio px => cm
 const PDF_HARD_LIMIT = 5080 //PDF is limited to 5080 mm max https://github.com/parallax/jsPDF/issues/705
 
 export function generatePdf(){

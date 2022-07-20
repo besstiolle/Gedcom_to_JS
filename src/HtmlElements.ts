@@ -19,6 +19,7 @@ export const _HTML_ELEMENT__PDFWRAPPER:HTMLElement = document.getElementById('pd
 export const _HTML_ELEMENT__PDF:HTMLEmbedElement = <HTMLEmbedElement>document.getElementById('pdfobject')
 export const _HTML_ELEMENT__STARTTYPE:HTMLElement = document.getElementById('startType')
 export const _HTML_ELEMENT__WAIT:HTMLElement = document.getElementById('wait')
+export const _HTML_ELEMENT__MESSAGE:HTMLElement = document.getElementById('message')
 
 
 export function hide(htmlElementIds:HTMLElement[]){

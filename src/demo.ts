@@ -11,9 +11,9 @@ import { Store } from './Store'
 import { Logger } from './Logger'
 import { Box, BoxV } from './Box.class'
 import { populateGrid, setupBoxForGridEntry, compressContainer } from './ContainerFactory'
-import { generatePdf } from './PDFRenderer'
+import { generatePdf, RATIO_PX_2_CM } from './PDFRenderer'
 import { takeshot } from './ImgRenderer'
-import { hide, show, _HTML_ELEMENT__FILE, _HTML_ELEMENT__FORM, _HTML_ELEMENT__HEADER, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__PDF_ACTION_BUTTON, _HTML_ELEMENT__PNG_ACTION_BUTTON, _HTML_ELEMENT__PROGRESSBAR, _HTML_ELEMENT__ROOT_CANCEL, _HTML_ELEMENT__ROOT_EXEC, _HTML_ELEMENT__ROOT_INPUT, _HTML_ELEMENT__ROOT_NORESULT, _HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_SELECTWRAPPER, _HTML_ELEMENT__ROOT_SWITCH, _HTML_ELEMENT__STARTTYPE, _HTML_ELEMENT__SVGWRAPPER } from './HtmlElements'
+import { hide, show, _HTML_ELEMENT__FILE, _HTML_ELEMENT__FORM, _HTML_ELEMENT__HEADER, _HTML_ELEMENT__MESSAGE, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__PDF_ACTION_BUTTON, _HTML_ELEMENT__PNG_ACTION_BUTTON, _HTML_ELEMENT__PROGRESSBAR, _HTML_ELEMENT__ROOT_CANCEL, _HTML_ELEMENT__ROOT_EXEC, _HTML_ELEMENT__ROOT_INPUT, _HTML_ELEMENT__ROOT_NORESULT, _HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_SELECTWRAPPER, _HTML_ELEMENT__ROOT_SWITCH, _HTML_ELEMENT__STARTTYPE, _HTML_ELEMENT__SVGWRAPPER } from './HtmlElements'
 
 const SOSA_ONE = new SosaWrapper(1)
 var progressBar:ProgressBar = null
@@ -111,21 +111,12 @@ function run(file:File) {
 }
 
 function exploit(sosaWrapper:SosaWrapper, position:number){
-  //console.info(Store.firstGedTechIdParsed)
-  //console.info(Store.mapCodeFamily.size)
-  //console.info(Store.mapGedTechIdToIndividual.size)
-  //console.info(Store.mapGedTechIdToIndividual)
-
   if(position == null){
     position = Store.firstGedTechIdParsed
   }
 
   populateGrid(sosaWrapper, position)
   setupBoxForGridEntry()
-
-  //let test = new Map([...container.getMapContainer().entries()].sort());
-  //console.info(test)
-  //console.info(test.get(96))
 }
 
 
@@ -163,6 +154,10 @@ function getMaxSizeOfDrawing(){
   Store.positionXMax += widthBox + 20
   Store.positionYMax += heightBox + 20
 
+  //Control of size
+  show([_HTML_ELEMENT__MESSAGE])
+  _HTML_ELEMENT__MESSAGE.innerHTML = `Expected size of PDF : ${Store.positionXMax / RATIO_PX_2_CM}cm * ${Store.positionYMax / RATIO_PX_2_CM}cm<br/>
+                                      Expected size of PNG : ${Store.positionXMax+20}px * ${Store.positionYMax+20}px`
 }
 
 function draw(){

@@ -248,3 +248,14 @@ select{
   text-align: center;
   color:#FFF;
 }
+
+/***************************/
+/* Message boc left bottom */
+/***************************/
+#message{
+  position: fixed;
+  display: block;
+  bottom: 20px;
+  left: 20px;
+  font-family: monospace;
+}
