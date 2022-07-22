@@ -112,6 +112,8 @@ function run(file:File) {
 }
 
 function exploit(sosaWrapper:SosaWrapper, position:number){
+  hide([_HTML_ELEMENT__FORM])
+
   if(position == null){
     position = Store.firstGedTechIdParsed
   }

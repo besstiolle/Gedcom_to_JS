@@ -16,7 +16,8 @@ export class SVGRenderer {
     SVGRenderer.polyline([0,0 , 0,Store.positionYMax , Store.positionXMax,Store.positionYMax , Store.positionXMax,0, 0,0])
     SVGRenderer.drawLoop(1)
 
-    hide([_HTML_ELEMENT__FORM])
+    
+
   }
 
   private static drawLoop(generation:number){ 
