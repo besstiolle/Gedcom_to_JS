@@ -11,18 +11,19 @@ const PDF_HARD_LIMIT = 5080 //PDF is limited to 5080 mm max https://github.com/p
 
 export function generatePdf(){
 
-  show([_HTML_ELEMENT__WAIT])
+  //Show Waiting spinner & PDF Wrapper
+  show([_HTML_ELEMENT__WAIT, _HTML_ELEMENT__PDFWRAPPER])
+  
+  //Clear previous SRC value
+  _HTML_ELEMENT__PDF.removeAttribute('src')
 
   pdfViewBox()
 
   const svgElement = document.getElementsByTagName("svg")[0]
 
-  //Show Wrapper
-  show([_HTML_ELEMENT__PDFWRAPPER])
-
-  let orientation:'p'|'l' = 'l'
-  if(Store.positionYMax > Store.positionXMax){
-    orientation = 'p'
+  let orientation:'p'|'l' = 'p'
+  if(Store.positionYMax < Store.positionXMax){
+    orientation = 'l'
   }
 
   let ratioUsed = RATIO_PX_2_CM
@@ -51,7 +52,6 @@ export function generatePdf(){
 
   }).finally(()=>{
       hide([_HTML_ELEMENT__WAIT])
-        
     
       //Reset information post pdf generation
       //TODO restoring previous position 

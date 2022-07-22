@@ -249,6 +249,10 @@ select{
   color:#FFF;
 }
 
+#wait_cpt{
+  margin-top: 40px;
+}
+
 /***************************/
 /* Message boc left bottom */
 /***************************/
