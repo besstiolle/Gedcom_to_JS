@@ -1,74 +1,47 @@
-import '@svgdotjs/svg.panzoom.js'
 import { jsPDF } from "jspdf"
 import { svg2pdf } from "svg2pdf.js"
-import { hide, show, _HTML_ELEMENT__PDF, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__WAIT } from './HtmlElements'
+import { AbstractPdfRenderer } from './AbstractPdfRenderer'
+import { _HTML_ELEMENT__PDF, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__WAIT } from './HtmlElements'
 import { Store } from "./Store"
-import { SVGRenderer } from "./SVGRenderer"
 
 
-export const RATIO_PX_2_CM = 40 //Default Ratio px => cm
+
 const PDF_HARD_LIMIT = 5080 //PDF is limited to 5080 mm max https://github.com/parallax/jsPDF/issues/705
 
-export function generatePdf(){
-
-  //Show Waiting spinner & PDF Wrapper
-  show([_HTML_ELEMENT__WAIT, _HTML_ELEMENT__PDFWRAPPER])
+export class PDFRenderer extends AbstractPdfRenderer{
   
-  //Clear previous SRC value
-  _HTML_ELEMENT__PDF.removeAttribute('src')
+  constructor(){super()}
 
-  pdfViewBox()
+  generatePdf(){
 
-  const svgElement = document.getElementsByTagName("svg")[0]
+    super.generatePdf()
 
-  let orientation:'p'|'l' = 'p'
-  if(Store.positionYMax < Store.positionXMax){
-    orientation = 'l'
-  }
-
-  let ratioUsed = RATIO_PX_2_CM
-  if(orientation == 'l' && Store.positionXMax / RATIO_PX_2_CM * 10 > PDF_HARD_LIMIT){
-    ratioUsed = Store.positionXMax * 10 / PDF_HARD_LIMIT
-  }
-  if(orientation == 'p' && Store.positionYMax / RATIO_PX_2_CM * 10 > PDF_HARD_LIMIT){
-    ratioUsed = Store.positionYMax * 10 / PDF_HARD_LIMIT
-  }
-
-  const pdf = new jsPDF(orientation, 'cm', [Store.positionXMax / ratioUsed, Store.positionYMax / ratioUsed])
-
-  // render the svg element
-  svg2pdf(svgElement, pdf, {
-    x:0,
-    y:0,
-    width:Store.positionXMax / ratioUsed,
-    height:Store.positionYMax / ratioUsed
-  }).then(() => {
-    const uri = pdf.output('datauristring')
-    if(uri.length < 5000000){
-      _HTML_ELEMENT__PDF.setAttribute("src", uri)
-    } else {
-      pdf.save('myPDF.pdf')
+    if(Store.positionYMax < Store.positionXMax){
+      this.orientation = 'l'
     }
 
-  }).finally(()=>{
-      hide([_HTML_ELEMENT__WAIT])
-    
-      //Reset information post pdf generation
-      //TODO restoring previous position 
-      SVGRenderer.svgViewBox()
+    let ratioUsed = PDFRenderer.RATIO_PX_2_CM
+    if(this.orientation == 'l' && Store.positionXMax / PDFRenderer.RATIO_PX_2_CM * 10 > PDF_HARD_LIMIT){
+      ratioUsed = Store.positionXMax * 10 / PDF_HARD_LIMIT
+    }
+    if(this.orientation == 'p' && Store.positionYMax / PDFRenderer.RATIO_PX_2_CM * 10 > PDF_HARD_LIMIT){
+      ratioUsed = Store.positionYMax * 10 / PDF_HARD_LIMIT
+    }
 
-    })    
-}
+    this.pdf = new jsPDF(this.orientation, 'cm', [Store.positionXMax / ratioUsed, Store.positionYMax / ratioUsed])
 
+    // render the svg element
+    let promise = svg2pdf(this.svgElement, this.pdf, {
+      x:0,
+      y:0,
+      width:Store.positionXMax / ratioUsed,
+      height:Store.positionYMax / ratioUsed
+    })
 
-export function pdfViewBox(){
-  
-  let w = 100
-  if(Store.positionXMax / window.innerWidth < Store.positionYMax / window.innerHeight){
-    w = (window.innerWidth * 100 / (Store.positionYMax * window.innerHeight / window.innerWidth))
+    this.resolveSvg2Pdf(promise)
   }
 
-  SVGRenderer.container
-    .viewbox( 0,  0 , Store.positionXMax ,Store.positionYMax)
-    .size(w + '%', '100%')
+  static expectedSize(){
+    return {x:Store.positionXMax / PDFRenderer.RATIO_PX_2_CM, y:Store.positionYMax / PDFRenderer.RATIO_PX_2_CM}
+  }
 }

@@ -11,18 +11,16 @@ import { Store } from './Store'
 import { Logger } from './Logger'
 import { Box, BoxV } from './Box.class'
 import { populateGrid, setupBoxForGridEntry, compressContainer } from './ContainerFactory'
-import { generatePdf, RATIO_PX_2_CM } from './PDFRenderer'
+
 import { takeshot } from './ImgRenderer'
 import { hide, purge, show, _HTML_ELEMENT__FILE, _HTML_ELEMENT__FORM, _HTML_ELEMENT__HEADER, _HTML_ELEMENT__MESSAGE, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__PDF_ACTION_BUTTON, _HTML_ELEMENT__PDF_MULTIPAGE_ACTION_BUTTON, _HTML_ELEMENT__PNG_ACTION_BUTTON, _HTML_ELEMENT__PROGRESSBAR, _HTML_ELEMENT__ROOT_CANCEL, _HTML_ELEMENT__ROOT_EXEC, _HTML_ELEMENT__ROOT_INPUT, _HTML_ELEMENT__ROOT_NORESULT, _HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_SELECTWRAPPER, _HTML_ELEMENT__ROOT_SWITCH, _HTML_ELEMENT__STARTTYPE, _HTML_ELEMENT__SVGWRAPPER } from './HtmlElements'
 import { cancelRoot, showRoot, typingRoot } from './RootSwitcher'
-import { generateMultipagePdf } from './MultiPDFRenderer'
+import { MultiPDFRenderer } from './MultiPDFRenderer'
+import { PDFRenderer } from './PDFRenderer'
 
 const SOSA_ONE = new SosaWrapper(1)
-var progressBar:ProgressBar = null
-var taskOrchestrator:TaskOrchestrator = null
-
-   
-   
+let progressBar:ProgressBar = null
+let taskOrchestrator:TaskOrchestrator = null   
 
 function init(){
   _HTML_ELEMENT__FILE.addEventListener('change', function(e) {
@@ -161,14 +159,12 @@ function getMaxSizeOfDrawing(){
 
   //Control of size
   show([_HTML_ELEMENT__MESSAGE])
-  _HTML_ELEMENT__MESSAGE.innerHTML = `Expected size of PDF : ${Store.positionXMax / RATIO_PX_2_CM}cm * ${Store.positionYMax / RATIO_PX_2_CM}cm<br/>
-                                      Experted pages of A4 PDF : ${Math.ceil(Store.positionXMax / RATIO_PX_2_CM / (21 - 2)) * Math.ceil(Store.positionYMax / RATIO_PX_2_CM / (29.7 -2))} pages<br/>
+  _HTML_ELEMENT__MESSAGE.innerHTML = `Expected size of PDF : ${PDFRenderer.expectedSize().x}cm * ${PDFRenderer.expectedSize().y}cm<br/>
+                                      Experted pages of A4 PDF : ${MultiPDFRenderer.expectedPageCount()} pages<br/>
                                       Expected size of PNG : ${Store.positionXMax+20}px * ${Store.positionYMax+20}px`
 }
 
 function draw(){
-  //console.info(container.getMapContainer().has(96))
-  //console.info(container.getMapContainer())
   show([_HTML_ELEMENT__HEADER, _HTML_ELEMENT__SVGWRAPPER])
   SVGRenderer.drawSVG()
 }
@@ -177,6 +173,15 @@ function hiddePdfobjectWrapper(){
   hide([_HTML_ELEMENT__PDFWRAPPER])
 }
 
+function generatePdf(){
+  let renderer = new PDFRenderer()
+  renderer.generatePdf()
+}
+
+function generateMultipagePdf(){
+  let renderer = new MultiPDFRenderer()
+  renderer.generatePdf()
+}
   
 function reDraw(){
     
