@@ -17,7 +17,6 @@ export const _HTML_ELEMENT__PROGRESSBAR_SUB:HTMLElement = document.getElementByI
 export const _HTML_ELEMENT__PROGRESSBAR_TXT:HTMLElement = document.getElementById('textProgressBar')
 export const _HTML_ELEMENT__HEADER:HTMLElement = document.getElementById('header')
 export const _HTML_ELEMENT__PDFWRAPPER:HTMLElement = document.getElementById('pdfobjectWrapper')
-export const _HTML_ELEMENT__PDF:HTMLEmbedElement = <HTMLEmbedElement>document.getElementById('pdfobject')
 export const _HTML_ELEMENT__STARTTYPE:HTMLElement = document.getElementById('startType')
 export const _HTML_ELEMENT__WAIT:HTMLElement = document.getElementById('wait')
 export const _HTML_ELEMENT__WAIT_CPT:HTMLElement = document.getElementById('wait_cpt')

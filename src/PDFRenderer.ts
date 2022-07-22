@@ -1,7 +1,6 @@
 import { jsPDF } from "jspdf"
 import { svg2pdf } from "svg2pdf.js"
 import { AbstractPdfRenderer } from './AbstractPdfRenderer'
-import { _HTML_ELEMENT__PDF, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__WAIT } from './HtmlElements'
 import { Store } from "./Store"
 
 

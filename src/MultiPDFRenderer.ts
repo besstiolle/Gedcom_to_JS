@@ -1,8 +1,7 @@
-import '@svgdotjs/svg.panzoom.js'
 import { jsPDF } from "jspdf"
 import { svg2pdf } from "svg2pdf.js"
 import { AbstractPdfRenderer } from './AbstractPdfRenderer'
-import { hide, show, _HTML_ELEMENT__PDF, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__WAIT, _HTML_ELEMENT__WAIT_CPT } from './HtmlElements'
+import { _HTML_ELEMENT__WAIT_CPT } from './HtmlElements'
 import { Store } from "./Store"
 import { SVGRenderer } from "./SVGRenderer"
 

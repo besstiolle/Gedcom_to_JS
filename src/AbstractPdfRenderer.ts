@@ -1,6 +1,5 @@
-import { Box } from "@svgdotjs/svg.js"
 import jsPDF from "jspdf"
-import { hide, show, _HTML_ELEMENT__PDF, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__SVGWRAPPER, _HTML_ELEMENT__WAIT } from "./HtmlElements"
+import { hide, purge, show, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__SVGWRAPPER, _HTML_ELEMENT__WAIT } from "./HtmlElements"
 import { Store } from "./Store"
 import { SVGRenderer } from "./SVGRenderer"
 
@@ -20,9 +19,9 @@ export class AbstractPdfRenderer{
         
         //Show Waiting spinner & PDF Wrapper
         show([_HTML_ELEMENT__WAIT, _HTML_ELEMENT__PDFWRAPPER])
-        
-        //Clear previous SRC value
-        _HTML_ELEMENT__PDF.removeAttribute('src')
+
+        //Purge all previous <embed /> tag generated
+        purge(_HTML_ELEMENT__PDFWRAPPER)
 
         //Saving current setting
         let comp = window.getComputedStyle(_HTML_ELEMENT__SVGWRAPPER)
@@ -39,7 +38,11 @@ export class AbstractPdfRenderer{
         promise.then((jspdf) => {
         const uri = jspdf.output('datauristring')
         if(uri.length < 5000000){
-            _HTML_ELEMENT__PDF.setAttribute("src", uri)
+            let pdfobject = document.createElement("embed")
+            pdfobject.setAttribute("src", uri)
+            pdfobject.id = "pdfobject"
+            pdfobject.type = "application/pdf"
+            _HTML_ELEMENT__PDFWRAPPER.appendChild(pdfobject)
         } else {
             jspdf.save('myPDF.pdf')
         }
