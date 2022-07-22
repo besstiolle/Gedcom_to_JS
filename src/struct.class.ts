@@ -9,6 +9,7 @@ export class VirtualGrid {
   mapSosaToGridEntry:Map<number, VirtualGridEntry> = null
   mapGenerationYPosition:Map<number, number> = null //list of Y position for each sosa
   mapGenerationSosa:Map<number, number[]> = null
+  implexes:number[] = null //List of sosa Implexes
 
   constructor(){
     this.positionProcessed = []
@@ -18,6 +19,7 @@ export class VirtualGrid {
     this.mapSosaToGridEntry = new Map<number, VirtualGridEntry>()
     this.mapGenerationYPosition = new Map<number, number>()
     this.mapGenerationSosa = new Map<number, number[]>()
+    this.implexes = []
   }
 }
 

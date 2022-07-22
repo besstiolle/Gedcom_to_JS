@@ -159,7 +159,9 @@ function getMaxSizeOfDrawing(){
 
   //Control of size
   show([_HTML_ELEMENT__MESSAGE])
-  _HTML_ELEMENT__MESSAGE.innerHTML = `Expected size of PDF : ${PDFRenderer.expectedSize().x}cm * ${PDFRenderer.expectedSize().y}cm<br/>
+  _HTML_ELEMENT__MESSAGE.innerHTML = `Max Generation presented : ${Store.grid.maxGenerationProcessed}<br/>
+  ${Store.grid.mapSosaToGridEntry.size} individuals presented, ${Store.grid.implexes.length} of which are <u><span title='FR : Implexes'>Pedigree collapse</span></u><br/>
+  Expected size of PDF : ${PDFRenderer.expectedSize().x}cm * ${PDFRenderer.expectedSize().y}cm<br/>
                                       Experted pages of A4 PDF : ${MultiPDFRenderer.expectedPageCount()} pages<br/>
                                       Expected size of PNG : ${Store.positionXMax+20}px * ${Store.positionYMax+20}px`
 }

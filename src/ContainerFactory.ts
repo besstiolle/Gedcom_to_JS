@@ -42,8 +42,7 @@ export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
     //Case of Implexe
     if(Store.grid.positionProcessed.indexOf(gedTechId) !== -1){
       console.debug("implexe detected with gedTechId %o. Sosa was %o", gedTechId, sosaWrapper.sosa)
-      //TODO maybe a customized box with/without parent
-      // return
+      Store.grid.implexes.push(sosaWrapper.sosa)
     }
     Store.grid.positionProcessed.push(gedTechId)
 
