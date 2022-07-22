@@ -23,12 +23,18 @@ export const _HTML_ELEMENT__MESSAGE:HTMLElement = document.getElementById('messa
 
 
 export function hide(htmlElementIds:HTMLElement[]){
-    htmlElementIds.forEach(htmlElement => {
-      htmlElement.classList.add('hidden')
-    })
-  }
+  htmlElementIds.forEach(htmlElement => {
+    htmlElement.classList.add('hidden')
+  })
+}
 export function show(htmlElementIds:HTMLElement[]){
-htmlElementIds.forEach(htmlElement => {
-    htmlElement.classList.remove('hidden')
-})
+  htmlElementIds.forEach(htmlElement => {
+      htmlElement.classList.remove('hidden')
+  })
+}
+export function purge(htmlElement:HTMLElement){
+  // .innerHtml='' is not recommended because it doesn’t remove the event handlers of the child nodes, which might cause a memory leak.
+  while (htmlElement.firstChild) {
+    htmlElement.removeChild(htmlElement.firstChild)
+  }
 }

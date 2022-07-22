@@ -13,7 +13,8 @@ import { Box, BoxV } from './Box.class'
 import { populateGrid, setupBoxForGridEntry, compressContainer } from './ContainerFactory'
 import { generatePdf, RATIO_PX_2_CM } from './PDFRenderer'
 import { takeshot } from './ImgRenderer'
-import { hide, show, _HTML_ELEMENT__FILE, _HTML_ELEMENT__FORM, _HTML_ELEMENT__HEADER, _HTML_ELEMENT__MESSAGE, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__PDF_ACTION_BUTTON, _HTML_ELEMENT__PNG_ACTION_BUTTON, _HTML_ELEMENT__PROGRESSBAR, _HTML_ELEMENT__ROOT_CANCEL, _HTML_ELEMENT__ROOT_EXEC, _HTML_ELEMENT__ROOT_INPUT, _HTML_ELEMENT__ROOT_NORESULT, _HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_SELECTWRAPPER, _HTML_ELEMENT__ROOT_SWITCH, _HTML_ELEMENT__STARTTYPE, _HTML_ELEMENT__SVGWRAPPER } from './HtmlElements'
+import { hide, purge, show, _HTML_ELEMENT__FILE, _HTML_ELEMENT__FORM, _HTML_ELEMENT__HEADER, _HTML_ELEMENT__MESSAGE, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__PDF_ACTION_BUTTON, _HTML_ELEMENT__PNG_ACTION_BUTTON, _HTML_ELEMENT__PROGRESSBAR, _HTML_ELEMENT__ROOT_CANCEL, _HTML_ELEMENT__ROOT_EXEC, _HTML_ELEMENT__ROOT_INPUT, _HTML_ELEMENT__ROOT_NORESULT, _HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_SELECTWRAPPER, _HTML_ELEMENT__ROOT_SWITCH, _HTML_ELEMENT__STARTTYPE, _HTML_ELEMENT__SVGWRAPPER } from './HtmlElements'
+import { cancelRoot, showRoot, typingRoot } from './RootSwitcher'
 
 const SOSA_ONE = new SosaWrapper(1)
 var progressBar:ProgressBar = null
@@ -75,7 +76,7 @@ function init(){
   _HTML_ELEMENT__PDF_ACTION_BUTTON.addEventListener('click', generatePdf)
   _HTML_ELEMENT__SVGWRAPPER.addEventListener('click', hiddePdfobjectWrapper)
   _HTML_ELEMENT__ROOT_INPUT.addEventListener('keyup', typingRoot)
-  _HTML_ELEMENT__ROOT_EXEC.addEventListener('click', changeRoot)
+  _HTML_ELEMENT__ROOT_EXEC.addEventListener('click', reDraw)
   _HTML_ELEMENT__ROOT_CANCEL.addEventListener('click', cancelRoot)
   _HTML_ELEMENT__ROOT_SWITCH.addEventListener('click', showRoot)
 
@@ -171,71 +172,9 @@ function hiddePdfobjectWrapper(){
   hide([_HTML_ELEMENT__PDFWRAPPER])
 }
 
-function cancelRoot(){
-  hide([_HTML_ELEMENT__ROOT_SELECTWRAPPER])
-}
-
-function showRoot(){
-  show([_HTML_ELEMENT__ROOT_SELECTWRAPPER])
-}
-
-function typingRoot(){
-  var search = _HTML_ELEMENT__ROOT_INPUT.value.trim()
-  if(search.length < 4) {
-    hide([_HTML_ELEMENT__STARTTYPE,_HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_EXEC, _HTML_ELEMENT__ROOT_NORESULT])
-    return
-  } else {
-    hide([_HTML_ELEMENT__STARTTYPE])
-  }
-
-  var listSosa:number[] = []
-  Store.mapGedTechIdToIndividual.forEach((individual:Individual, sosa:number)=>{
-    if(individual.firstname.includes(search) || individual.lastname.includes(search) ){
-      listSosa.push(sosa)
-    }
-  })
-
-  showRoots(listSosa)
-}
-
-/**
- *  Fill the list of Sosa to show in the selector
- * @param listSosa the list of Sosa to show in the selector
- */
-function showRoots(listSosa:number[]){
-
-  if(listSosa.length == 0){
-    hide([_HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_EXEC])
-    show([_HTML_ELEMENT__ROOT_NORESULT])
-  } else {
-    show([_HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_EXEC])
-    hide([_HTML_ELEMENT__ROOT_NORESULT])
-  }
   
-  // .innerHtml='' is not recommended because it doesn’t remove the event handlers of the child nodes, which might cause a memory leak.
-  while (_HTML_ELEMENT__ROOT_RESULTS.firstChild) {
-    _HTML_ELEMENT__ROOT_RESULTS.removeChild(_HTML_ELEMENT__ROOT_RESULTS.firstChild)
-  }
-  
-  let textnode:Text = null
-  let node:HTMLElement = null
-  let bDate:string = null
-  let dDate:string = null
-  let individual:Individual = null
-  for(let oneSosa of listSosa){
-    individual = Store.mapGedTechIdToIndividual.get(oneSosa)
-    bDate = individual.birthDate !== undefined?individual.birthDate:"?"
-    dDate = individual.deathDate !== undefined?individual.deathDate:"?"
-    textnode = document.createTextNode(`${individual.firstname} ${individual.lastname} (${bDate}-${dDate})`)
-    node = document.createElement("OPTION")
-    node.setAttribute("value", oneSosa + "")
-    node.appendChild(textnode)
-    _HTML_ELEMENT__ROOT_RESULTS.appendChild(node)
-  }
-}
-
-function changeRoot(){
-  
+function reDraw(){
+    
   //Init the Logger system
   Logger.init()
   Logger.log("starting purging data")
@@ -247,10 +186,7 @@ function changeRoot(){
   let sosaOne = new SosaWrapper(1)
 
   //Purge SVG
-  // .innerHtml='' is not recommended because it doesn’t remove the event handlers of the child nodes, which might cause a memory leak.
-  while (_HTML_ELEMENT__SVGWRAPPER.firstChild) {
-    _HTML_ELEMENT__SVGWRAPPER.removeChild(_HTML_ELEMENT__SVGWRAPPER.firstChild)
-  }
+  purge(_HTML_ELEMENT__SVGWRAPPER)
 
   //Reset var
   Store.positionXMax = 0
@@ -271,6 +207,5 @@ function changeRoot(){
 
   cancelRoot()
 }
-
 
 init()
