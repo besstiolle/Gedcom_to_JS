@@ -21,8 +21,6 @@ export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
     let curSosa = sosaWrapper.sosa
     let curGen = sosaWrapper.generation
 
-    //console.info(curSosa,gedTechId, individual.id)
-
     //Limitation
     if(curGen > Store.generationMax){
       console.warn("the Store.generationMax limite of %o was reached. Sosa was %o'", Store.generationMax, sosaWrapper.sosa)

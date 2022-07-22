@@ -11,13 +11,14 @@ import { SVGRenderer } from './SVGRenderer';
 export function takeshot():void {  
 
     show([_HTML_ELEMENT__WAIT])
+
     let comp = window.getComputedStyle(_HTML_ELEMENT__SVGWRAPPER)
+    
+    let previous = {viewbox:SVGRenderer.container.viewbox().toString(), 
+        w:comp.getPropertyValue('width'), 
+        h:comp.getPropertyValue('height'), 
+        zoom:SVGRenderer.container.zoom()}
 
-    let w = comp.getPropertyValue('width')
-    let h = comp.getPropertyValue('height')
-
-    let viewbox = SVGRenderer.container.viewbox()
-    let zoom = SVGRenderer.container.zoom()
 
     _HTML_ELEMENT__SVGWRAPPER.style.width = Store.positionXMax + 'px'
     _HTML_ELEMENT__SVGWRAPPER.style.height = Store.positionYMax + 'px'
@@ -38,10 +39,11 @@ export function takeshot():void {
     }).finally(()=>{
         hide([_HTML_ELEMENT__WAIT])
         
+        //Reset information post pdf generation                  
         SVGRenderer.container
-            .viewbox(viewbox)
-            .size(w, h)
-            .zoom(zoom)
+            .viewbox(previous.viewbox)
+            .size(previous.w, previous.h)
+            .zoom(previous.zoom)
 
         _HTML_ELEMENT__SVGWRAPPER.style.width = ""
         _HTML_ELEMENT__SVGWRAPPER.style.height = ""

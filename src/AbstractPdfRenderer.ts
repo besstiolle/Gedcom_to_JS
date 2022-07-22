@@ -31,8 +31,6 @@ export class AbstractPdfRenderer{
                         w:comp.getPropertyValue('width'), 
                         h:comp.getPropertyValue('height'), 
                         zoom:SVGRenderer.container.zoom()}
-        let zoom = 
-
 
         this.pdfViewBox()        
     }

@@ -1,6 +1,5 @@
 import { SosaWrapper } from "./struct.class"
 
-
 const CONST_LEFT_MARGIN = 20 // left margin
 const CONST_TOP_MARGIN = 20 // top margin
 const CONST_WIDTH_PADDING = 10 // horizontal padding between box
@@ -23,15 +22,6 @@ export class BoxAbstract {
     this.sosa=sosaWrapper.sosa
     this.x = 0
     this.y = 0
-
-
-    //let diffSosaTopGen = this.getSosaOfMaxFather() - this.getMinSosaOfGeneration()
-    //let diffGen = maxGeneration - generation
-
-    //Calcul x & y values
-    //this.x = diffSosaTopGen * (this.width() + this.widthPadding()) + this.leftMargin()
-    //this.y = diffGen * (this.height() + this.heightPadding()) + this.leftMargin()
-
   }
 
   setX(value:number):void{
@@ -67,17 +57,6 @@ export class BoxAbstract {
 export class Box extends BoxAbstract {
   constructor(sosaWrapper:SosaWrapper, maxGeneration:number) {
     super(sosaWrapper, maxGeneration)
-    
-    //FIXME post TS : code unused
-
-    let diffSosaTopGen = this.getSosaOfMaxFather() - this.getMinSosaOfGeneration()
-    //TODO verify this line below after swtching to TS
-    //let diffSosaTopGen = this.getSosaOfMaxFather(sosaWrapper.getSosa()) - this.getMinSosaOfGeneration(maxGeneration)
-    let diffGen = maxGeneration - this.generation
-
-    //Calcul x & y values
-    //this.x =  diffSosaTopGen * (this.width() + this.widthPadding()) + this.leftMargin()
-    //this.y = diffGen * (this.height() + this.heightPadding()) + this.leftMargin()
   }
 
   getBottomJunctionPoint(){
@@ -95,28 +74,6 @@ export class Box extends BoxAbstract {
 export class BoxV extends BoxAbstract {
   constructor(sosaWrapper:SosaWrapper, maxGeneration:number) {
     super(sosaWrapper, maxGeneration)
-
-    //FIXME post TS : code unused
-
-    let margin_bottom = (BoxAbstract.heightPadding() + BoxV.height()) * 5
-
-    //this.CONST_LEFT_MARGIN = 20 // left margin
-    //this.CONST_WIDTH_PADDING = 10 // horizontal padding between box
-    //this.CONST_HEIGHT_PADDING = 30 // vertical padding between box
-    //this.CONST_WIDTH = 50 //width of box in px
-    //this.CONST_HEIGHT = 150 //height of box in px
-
-
-    let diffSosaTopGen = this.getSosaOfMaxFather() - this.getMinSosaOfGeneration()
-    let diffGen = maxGeneration - this.generation
-
-    //Calcul x & y values
-    //this.x =  diffSosaTopGen * (this.width() + this.widthPadding()) + this.leftMargin()
-    //this.y = (diffGen - 5) * (this.height() + this.heightPadding()) + this.leftMargin() + margin_bottom
-
-
-  //  width(){return 50;} //width of box in px
-//    height(){return 150;} //height of box in px
   }
   getBottomJunctionPoint(){
     return {"x" : this.x + BoxV.width() / 2 , "y" : this.y + BoxV.height()}
@@ -129,6 +86,7 @@ export class BoxV extends BoxAbstract {
   //Not ready for a production use
   //static width(){return CONST_WIDTH_V}
   //static height(){return CONST_HEIGHT_V}
+
   static width(){return CONST_WIDTH}
   static height(){return CONST_HEIGHT}
 }
