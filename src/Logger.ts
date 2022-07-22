@@ -1,6 +1,6 @@
 export class Logger{
-    static timerStart:number = null
-    static timerStep:number = null
+    private static timerStart:number = null
+    private static timerStep:number = null
 
     static init(){
 
