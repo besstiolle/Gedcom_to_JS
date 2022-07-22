@@ -151,7 +151,8 @@ export class SVGRenderer {
     }
 
     generation++
-    //TODO verifier ce code
+    
+    //Allow refreshing IHM
     setTimeout(() => {
       this.drawLoop(generation)
     }, 1)

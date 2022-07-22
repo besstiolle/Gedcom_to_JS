@@ -1,5 +1,6 @@
+import { Box } from "@svgdotjs/svg.js"
 import jsPDF from "jspdf"
-import { hide, show, _HTML_ELEMENT__PDF, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__WAIT } from "./HtmlElements"
+import { hide, show, _HTML_ELEMENT__PDF, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__SVGWRAPPER, _HTML_ELEMENT__WAIT } from "./HtmlElements"
 import { Store } from "./Store"
 import { SVGRenderer } from "./SVGRenderer"
 
@@ -11,6 +12,8 @@ export class AbstractPdfRenderer{
     protected static RATIO_PX_2_CM = 40 //Default Ratio px => cm
     protected pdf:jsPDF = null
 
+    protected previous = {viewbox:'', w:'0', h:'0', zoom:0}
+
     constructor(){}
 
     protected generatePdf(){
@@ -20,6 +23,16 @@ export class AbstractPdfRenderer{
         
         //Clear previous SRC value
         _HTML_ELEMENT__PDF.removeAttribute('src')
+
+        //Saving current setting
+        let comp = window.getComputedStyle(_HTML_ELEMENT__SVGWRAPPER)
+
+        this.previous = {viewbox:SVGRenderer.container.viewbox().toString(), 
+                        w:comp.getPropertyValue('width'), 
+                        h:comp.getPropertyValue('height'), 
+                        zoom:SVGRenderer.container.zoom()}
+        let zoom = 
+
 
         this.pdfViewBox()        
     }
@@ -36,9 +49,11 @@ export class AbstractPdfRenderer{
         }).finally(()=>{
             hide([_HTML_ELEMENT__WAIT])
         
-            //Reset information post pdf generation
-            //TODO restoring previous position 
-            SVGRenderer.svgViewBox()
+            //Reset information post pdf generation                  
+            SVGRenderer.container
+                .viewbox(this.previous.viewbox)
+                .size(this.previous.w, this.previous.h)
+                .zoom(this.previous.zoom)
 
         })    
     }
