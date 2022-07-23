@@ -35,6 +35,9 @@ export class VirtualGridEntry{
   birthPlace:string = null
   deathDate:string = null
   deathPlace:string = null
+  mariageDate:string = null
+  mariagePlace:string = null
+  occupation:string = null
   box:Box | BoxV = null
   previousSosaWrapper:SosaWrapper = null
   nextSosaWrapper:SosaWrapper = null
@@ -48,6 +51,9 @@ export class VirtualGridEntry{
     this.birthPlace = individual.birthPlace
     this.deathDate = individual.deathDate
     this.deathPlace = individual.deathPlace
+    this.mariageDate = individual.mariageDate
+    this.mariagePlace = individual.mariagePlace
+    this.occupation = individual.occupation
     this.box = null
     this.previousSosaWrapper = previousSosaWrapper
     this.nextSosaWrapper = null
@@ -96,10 +102,15 @@ export class Individual{
   deathPlace:string
   birthDate:string
   deathDate:string
+  occupation:string
+  mariageDate:string
+  mariagePlace:string
 }
 
 export class Family{
   id:number = null // Tech Id inside the GedCom File. not the SOSA
   father:number = null // Tech Id of the father
   mother:number = null // Tech Id of the mother
+  tmpMariageDate:string // a tempory information, don't use it
+  tmpMariagePlace:string // a tempory information, don't use it
 }

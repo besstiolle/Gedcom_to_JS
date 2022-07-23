@@ -16,9 +16,6 @@ export class SVGRenderer {
     SVGRenderer.svgViewBox()
     SVGRenderer.polyline([0,0 , 0,Store.positionYMax , Store.positionXMax,Store.positionYMax , Store.positionXMax,0, 0,0])
     SVGRenderer.drawLoop(1)
-
-    
-
   }
 
   private static drawLoop(generation:number){ 
@@ -28,16 +25,14 @@ export class SVGRenderer {
     }
 
     let sosaWrapper = null
-    let box = null
+    let box:Box|BoxV = null
     let width = null
     let height = null
     let birth = null
     let death = null
+    let mariage = null
+    let occupation = null
     let yIncrement = null
-    let tmpStr = null
-
-    const nbCar1em = 26
-    const nbCar07em = 34
 
     if(generation > 5) {
       width = BoxV.width()
@@ -52,7 +47,6 @@ export class SVGRenderer {
     let key = null
     let name = null
     let gridEntry:VirtualGridEntry = null
-    let filling:string|Element = null
     
     const regexBefore = /^BEF/i
     const regexAfter = /^AFT/i
@@ -73,34 +67,49 @@ export class SVGRenderer {
         }
 
         gridEntry = Store.grid.mapSosaToGridEntry.get(key)
-
+        yIncrement = 15
         sosaWrapper = gridEntry.sosaWrapper
         box = gridEntry.box
         name = gridEntry.firstname + " " + gridEntry.lastname
-        yIncrement = 15
 
-        birth = ""
-        if(gridEntry.birthDate != undefined || gridEntry.birthPlace != undefined){
-          birth += "¤"
-          if(gridEntry.birthDate != undefined){
-            birth += " " + gridEntry.birthDate.replace(regexBefore, '<').replace(regexAfter, '>')
+        let cleanDate = function (date:string):string{
+          if(date != undefined){
+            return date.replace(regexBefore, '<').replace(regexAfter, '>')
           }
-          if(gridEntry.birthPlace != undefined){
-            tmpStr = gridEntry.birthPlace.split(',')
-            birth += " " + tmpStr[0] + ", "+ tmpStr[1]
+          return ""
+        }
+        let cleanPlace = function (place:string):string{
+          if(place != undefined){
+            return place.split(',')[0].trim()
           }
+          return ""
+        }
+        let cleanPlaceCode = function (place:string):string{
+          if(place != undefined){
+            return place.split(',')[1].trim()
+          }
+          return ""
+        }
+        let cleanOccupation = function (occupation:string):string{
+          if(occupation != undefined){
+            return occupation
+          }
+          return ""
         }
 
-        death = ""
-        if(gridEntry.deathDate != undefined || gridEntry.deathPlace != undefined){
-          death += "×"
-          if(gridEntry.deathDate != undefined){
-            death += " " + gridEntry.deathDate.replace(regexBefore, '<').replace(regexAfter, '>')
-          }
-          if(gridEntry.deathPlace != undefined){
-            tmpStr = gridEntry.deathPlace.split(',')
-            death += " " + tmpStr[0] + "," + tmpStr[1]
-          }
+        birth = `¤ ${cleanDate(gridEntry.birthDate)} ${cleanPlace(gridEntry.birthPlace)} ${cleanPlaceCode(gridEntry.birthPlace)}`
+        mariage = `∩ ${cleanDate(gridEntry.mariageDate)} ${cleanPlace(gridEntry.mariagePlace)} ${cleanPlaceCode(gridEntry.mariagePlace)}`
+        death = `X ${cleanDate(gridEntry.deathDate)} ${cleanPlace(gridEntry.deathPlace)} ${cleanPlaceCode(gridEntry.deathPlace)}`
+        occupation = cleanOccupation(gridEntry.occupation)
+
+        if(birth.trim().length == 1){
+          birth = ''
+        }
+        if(mariage.trim().length == 1){
+          mariage = ''
+        }
+        if(death.trim().length == 1){
+          death = ''
         }
 
         if(sosaWrapper.isImplexe && (Store.getOptions().implexes == ImplexesType.color || Store.getOptions().implexes == ImplexesType.colorHide) ){
@@ -123,27 +132,11 @@ export class SVGRenderer {
         //name = '#'+ gridEntry.sosaWrapper.sosa + " " + name
         //For debug only
 
-        //26 car in size 1em
-        SVGRenderer.container.plain(name.substring(0,nbCar1em)).move(box.getX() + 5, box.getY() + yIncrement)
-        //DrawPdf.drawSVG.plain(sosaWrapper.getSosa() + " [" + box.getX()  + '/' + box.getY() + "]").move(box.getX() + 5, box.getY() + yIncrement)
-        yIncrement += 15
-
-        if(name.length > nbCar1em){
-          SVGRenderer.container.plain(name.substring(nbCar1em,2*nbCar1em)).move(box.getX() + 5, box.getY() + yIncrement)
-          yIncrement += 15
-        }
-        //34 car in size 0.7em
-        SVGRenderer.container.plain (birth.substring(0,nbCar07em)).font('size', '10').move(box.getX() + 5, box.getY() + yIncrement)
-        if(birth.length > nbCar07em){
-          yIncrement += 10
-          SVGRenderer.container.plain(birth.substring(nbCar07em,2*nbCar07em)).font('size', '10').move(box.getX() + 5, box.getY() + yIncrement)
-        }
-        yIncrement += 10
-        SVGRenderer.container.plain(death.substring(0,nbCar07em)).font('size', '10').move(box.getX() + 5, box.getY() + yIncrement)
-        if(death.length > nbCar07em){
-          yIncrement += 10
-          SVGRenderer.container.plain(death.substring(nbCar07em,2*nbCar07em)).font('size', '10').move(box.getX() + 5, box.getY() + yIncrement)
-        }
+        yIncrement += SVGRenderer.h1(name, box, yIncrement)
+        yIncrement += SVGRenderer.h2(birth, box, yIncrement)
+        yIncrement += SVGRenderer.h2(mariage, box, yIncrement)
+        yIncrement += SVGRenderer.h2(death, box, yIncrement)
+        yIncrement += SVGRenderer.h2(occupation, box, yIncrement)
 
         //Si père existe : liaison
         if(Store.grid.mapSosaToGridEntry.has(sosaWrapper.sosaFather)){
@@ -173,7 +166,32 @@ export class SVGRenderer {
     setTimeout(() => {
       this.drawLoop(generation)
     }, 1)
-}
+  }
+
+  private static caracH1 = {carMax:26, fontSize:'13', increm:15}
+  private static caracH2 = {carMax:34, fontSize:'10', increm:10}
+
+  private static h1(str:string, box:Box|BoxV, yIncrement:number):number{
+    return SVGRenderer.h0(str, SVGRenderer.caracH1, box, yIncrement)
+  }
+  private static h2(str:string, box:Box|BoxV, yIncrement:number):number{
+    return SVGRenderer.h0(str, SVGRenderer.caracH2, box, yIncrement)    
+  }
+
+  private static h0(str:string, carac:any, box:Box|BoxV, yIncrement:number):number{
+    if(str.trim() == ''){
+      return 0
+    }
+
+    SVGRenderer.container.plain(str.substring(0,carac['carMax'])).font('size', carac['fontSize']).move(box.getX() + 5, box.getY() + yIncrement - 10)
+    if(str.length > carac['carMax']){
+      SVGRenderer.container.plain(str.substring(carac['carMax'],2*carac['carMax'])).font('size', carac['fontSize']).move(box.getX() + 5, box.getY() + yIncrement - 10 + carac['increm'])
+      return 2 * carac['increm']
+    } else {
+      return 1 * carac['increm']
+    }
+  }
+
   static svgViewBox(){
                     // X position of the SOSA #1
     let viewboxX = Store.grid.mapSosaToGridEntry.get(1).box.getX() - ((window.innerWidth - 10) / 2) + Box.width() / 2

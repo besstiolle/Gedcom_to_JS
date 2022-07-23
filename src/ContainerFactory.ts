@@ -1,4 +1,4 @@
-import { VirtualGridEntry, SosaWrapper } from "./struct.class"
+import { VirtualGridEntry, SosaWrapper, Family } from "./struct.class"
 import { Store } from "./Store"
 import { Box, BoxAbstract, BoxV } from "./Box.class"
 import { ImplexesType } from "./Options"
@@ -77,23 +77,25 @@ export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
       }
     }
 
-    Store.grid.mapRightSosaByGeneration.set(curGen,sosaWrapper)
+    //retrive Family of Individual
+    let family = new Family()
+    if(Store.mapCodeFamily.has(individual.famc)) {
+      family = Store.mapCodeFamily.get(individual.famc)
+    }
 
+    Store.grid.mapRightSosaByGeneration.set(curGen,sosaWrapper)
     Store.grid.mapSosaToGridEntry.set(curSosa, new VirtualGridEntry(sosaWrapper, individual, previousSosaWrapper))
 
     //Process parent only if not an Implexe & option said so.
     if(!sosaWrapper.isImplexe || (Store.getOptions().implexes !== ImplexesType.colorHide && Store.getOptions().implexes !== ImplexesType.hide)){
-      //Process his father and mothers
-      let familyId = individual.famc
-      if(Store.mapCodeFamily.has(familyId)) {
-        let family = Store.mapCodeFamily.get(familyId)
+
         if(family.father != null && family.father != undefined) {
           populateGrid(new SosaWrapper(sosaWrapper.sosaFather), family.father)
         }
         if(family.mother != null && family.mother != undefined) {
           populateGrid(new SosaWrapper(sosaWrapper.sosaMother), family.mother)
         }
-      }
+      
     } 
 
     return
