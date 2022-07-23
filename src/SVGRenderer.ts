@@ -1,9 +1,10 @@
-import { Container, PointArrayAlias, Svg, SVG } from "@svgdotjs/svg.js"
+import { Container, Element, PointArrayAlias, Svg, SVG } from "@svgdotjs/svg.js"
 import '@svgdotjs/svg.panzoom.js'
 import { VirtualGridEntry } from "./struct.class"
 import { Box, BoxV } from "./Box.class"
 import { Store } from "./Store"
 import { _HE_FORM, _HE_SVGWRAPPER } from "./HtmlElements"
+import { ImplexesType } from "./Options"
 
 export class SVGRenderer {
   
@@ -51,9 +52,16 @@ export class SVGRenderer {
     let key = null
     let name = null
     let gridEntry:VirtualGridEntry = null
+    let filling:string|Element = null
     
     const regexBefore = /^BEF/i
     const regexAfter = /^AFT/i
+
+    //Pattern for implexe with coloration
+    let patternImplexe = SVGRenderer.container.pattern(9.5,9.5,function(add) {
+      add.rect(9.5,9.5).fill('#fff')
+      add.line(0,0,5,9.5).stroke({ color: '#d9f2ce', width: 1 })
+    })
 
     for (let i=0; i < len; i++){
 
@@ -95,12 +103,21 @@ export class SVGRenderer {
           }
         }
 
-        // Dessin de la box
-        SVGRenderer.container.rect(width, height)
-            .fill('#eee')
+        if(sosaWrapper.isImplexe && (Store.getOptions().implexes == ImplexesType.color || Store.getOptions().implexes == ImplexesType.colorHide) ){
+          // Dessin de la box
+          SVGRenderer.container.rect(width, height)
+            .fill(patternImplexe)
             .move(box.getX(), box.getY())
             .stroke({ width: 1, color: '#ccc' })
             .radius(10)
+        } else {
+          // Dessin de la box
+          SVGRenderer.container.rect(width, height)
+            .fill("#EEE")
+            .move(box.getX(), box.getY())
+            .stroke({ width: 1, color: '#ccc' })
+            .radius(10)
+        }
 
         //For debug only
         //name = '#'+ gridEntry.sosaWrapper.sosa + " " + name

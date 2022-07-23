@@ -1,6 +1,7 @@
 import { VirtualGridEntry, SosaWrapper } from "./struct.class"
 import { Store } from "./Store"
 import { Box, BoxAbstract, BoxV } from "./Box.class"
+import { ImplexesType } from "./Options"
 
 
 /**
@@ -25,6 +26,10 @@ export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
     let individual = Store.mapGedTechIdToIndividual.get(gedTechId)
     let curSosa = sosaWrapper.sosa
     let curGen = sosaWrapper.generation
+    //Case of Implexe
+    let hasImplexe = Store.grid.positionProcessed.indexOf(gedTechId)
+    let otherImplexeSosa:number = null
+    let otherImplexeGridEntry:VirtualGridEntry = null
 
     //Limitation
     if(Store.getOptions().maxGeneration != -1 && curGen > Store.getOptions().maxGeneration){
@@ -44,12 +49,22 @@ export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
     
     Store.grid.mapGenerationSosa.get(curGen).push(curSosa)
 
-    //Case of Implexe
-    if(Store.grid.positionProcessed.indexOf(gedTechId) !== -1){
+    if(hasImplexe !== -1){
       console.debug("implexe detected with gedTechId %o. Sosa was %o", gedTechId, sosaWrapper.sosa)
+      sosaWrapper.isImplexe = true      
+
+      //Update the other part of the implexe
+      otherImplexeSosa = Store.grid.mapGedTechIdInGridToSosa.get(gedTechId)
+      otherImplexeGridEntry = Store.grid.mapSosaToGridEntry.get(otherImplexeSosa)
+      otherImplexeGridEntry.sosaWrapper.isImplexe = true
+      Store.grid.mapSosaToGridEntry.set(otherImplexeSosa,otherImplexeGridEntry)
+
+
       Store.grid.implexes.push(sosaWrapper.sosa)
     }
     Store.grid.positionProcessed.push(gedTechId)
+    //Setting here after the code for implexes to avoid a false auto-detection
+    Store.grid.mapGedTechIdInGridToSosa.set(gedTechId, sosaWrapper.sosa)
 
 
     let previousSosaWrapper = null
@@ -61,21 +76,25 @@ export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
         previousSosaWrapper = Store.grid.mapSosaToGridEntry.get(previousSosa).sosaWrapper
       }
     }
+
     Store.grid.mapRightSosaByGeneration.set(curGen,sosaWrapper)
 
     Store.grid.mapSosaToGridEntry.set(curSosa, new VirtualGridEntry(sosaWrapper, individual, previousSosaWrapper))
 
-    //Process his father and mothers
-    let familyId = individual.famc
-    if(Store.mapCodeFamily.has(familyId)) {
-      let family = Store.mapCodeFamily.get(familyId)
-      if(family.father != null && family.father != undefined) {
-        populateGrid(new SosaWrapper(sosaWrapper.sosaFather), family.father)
+    //Process parent only if not an Implexe & option said so.
+    if(!sosaWrapper.isImplexe || (Store.getOptions().implexes !== ImplexesType.colorHide && Store.getOptions().implexes !== ImplexesType.hide)){
+      //Process his father and mothers
+      let familyId = individual.famc
+      if(Store.mapCodeFamily.has(familyId)) {
+        let family = Store.mapCodeFamily.get(familyId)
+        if(family.father != null && family.father != undefined) {
+          populateGrid(new SosaWrapper(sosaWrapper.sosaFather), family.father)
+        }
+        if(family.mother != null && family.mother != undefined) {
+          populateGrid(new SosaWrapper(sosaWrapper.sosaMother), family.mother)
+        }
       }
-      if(family.mother != null && family.mother != undefined) {
-        populateGrid(new SosaWrapper(sosaWrapper.sosaMother), family.mother)
-      }
-    }
+    } 
 
     return
   }

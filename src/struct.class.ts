@@ -9,6 +9,7 @@ export class VirtualGrid {
   mapSosaToGridEntry:Map<number, VirtualGridEntry> = null
   mapGenerationYPosition:Map<number, number> = null //list of Y position for each sosa
   mapGenerationSosa:Map<number, number[]> = null
+  mapGedTechIdInGridToSosa:Map<number, number> = null     // map GetTechId / Sosa currently in Grid
   implexes:number[] = null //List of sosa Implexes
 
   constructor(){
@@ -19,6 +20,7 @@ export class VirtualGrid {
     this.mapSosaToGridEntry = new Map<number, VirtualGridEntry>()
     this.mapGenerationYPosition = new Map<number, number>()
     this.mapGenerationSosa = new Map<number, number[]>()
+    this.mapGedTechIdInGridToSosa = new Map<number, number>()
     this.implexes = []
   }
 }
@@ -61,6 +63,7 @@ export class SosaWrapper {
   sosaMother:number = null
   leftSosa:number = null
   rightSosa:number = null
+  isImplexe:boolean = false
 
   constructor(sosa:number) {
     this.sosa = sosa
@@ -76,6 +79,9 @@ export class SosaWrapper {
     // Sosa available on the left/right with the same generation
     this.leftSosa = null
     this.rightSosa = null
+
+    // Boolean is Implexe
+    this.isImplexe = false
   }
 }
 
