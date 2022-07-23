@@ -1,4 +1,6 @@
+import { reDraw } from "./demo"
 import { hide, show, _HE_OPTIONS, _HE_OPTIONS_IMPLEXES_COLOR, _HE_OPTIONS_IMPLEXES_COLOR_HIDE, _HE_OPTIONS_IMPLEXES_HIDE, _HE_OPTIONS_IMPLEXES_NOTHING, _HE_OPTIONS_MAXGEN, _HE_OPTIONS_TEMPLATE, _HE_OPTIONS_WALL } from "./HtmlElements"
+import { Store } from "./Store"
 
 export class ImplexesType {
 	static nothing = "nothing"
@@ -129,10 +131,16 @@ export class OptionBusiness{
         }
         let options = new Options(implexes, _HE_OPTIONS_MAXGEN.value, _HE_OPTIONS_TEMPLATE.value)
         
+        //reset cache of Store
+        Store.setOptions(options)
+
         //saving options 
         OptionRepository.saveOptions(options)
         
         OptionBusiness.hideOptions()
+
+        //Redraw
+        reDraw(true)
     }
 
     static hideOptions(){

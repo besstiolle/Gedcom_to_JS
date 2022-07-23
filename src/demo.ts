@@ -77,7 +77,7 @@ function init(){
   _HE_PDF_MULTIPAGE_ACTION_BUTTON.addEventListener('click', generateMultipagePdf)
   _HE_SVGWRAPPER.addEventListener('click', hiddePdfobjectWrapper)
   _HE_ROOT_INPUT.addEventListener('keyup', typingRoot)
-  _HE_ROOT_EXEC.addEventListener('click', reDraw)
+  _HE_ROOT_EXEC.addEventListener('click', changeRootAndRedraw)
   _HE_ROOT_CANCEL.addEventListener('click', cancelRoot)
   _HE_ROOT_SWITCH.addEventListener('click', showRoot)
   _HE_OPTIONS_ACTION_BUTTON.addEventListener('click', OptionBusiness.refreshOptionsIntoUI)
@@ -163,10 +163,14 @@ function getMaxSizeOfDrawing(){
 
   //Control of size
   show([_HE_MESSAGE])
-  _HE_MESSAGE.innerHTML = `Max Generation presented : ${Store.grid.maxGenerationProcessed}<br/>
-  ${Store.grid.mapSosaToGridEntry.size} individuals presented, ${Store.grid.implexes.length} of which are <u><span title='FR : Implexes'>Pedigree collapse</span></u><br/>
-  Expected size of PDF : ${PDFRenderer.expectedSize().x}cm * ${PDFRenderer.expectedSize().y}cm<br/>
-                                      Experted pages of A4 PDF : ${MultiPDFRenderer.expectedPageCount()} pages<br/>
+  let limitByOption = ''
+  if(Store.getOptions().maxGeneration == Store.grid.maxGenerationProcessed){
+    limitByOption = ' Check the options to change this limit.'
+  }
+  _HE_MESSAGE.innerHTML = `Max Generation presented : ${Store.grid.maxGenerationProcessed}.${limitByOption}<br/>
+  ${Store.grid.mapSosaToGridEntry.size} individuals presented, ${Store.grid.implexes.length} of which are <u><span title='FR : Implexes'>Pedigree collapse</span></u>.<br/>
+  Expected size of PDF : ${PDFRenderer.expectedSize().x}cm * ${PDFRenderer.expectedSize().y}cm.<br/>
+                                      Experted pages of A4 PDF : ${MultiPDFRenderer.expectedPageCount()} pages.<br/>
                                       Expected size of PNG : ${Store.positionXMax+20}px * ${Store.positionYMax+20}px`
 }
 
@@ -188,8 +192,12 @@ function generateMultipagePdf(){
   let renderer = new MultiPDFRenderer()
   renderer.generatePdf()
 }
-  
-function reDraw(){
+
+function changeRootAndRedraw(){
+  reDraw(false)
+}
+
+export function reDraw(sameIdTech:boolean){
     
   //Init the Logger system
   Logger.init()
@@ -198,7 +206,15 @@ function reDraw(){
   // Purge Store values for a new draw
   Store.resetForRedraw()
 
-  let key:number = parseInt(_HE_ROOT_RESULTS.value)
+
+  let key:number
+  if(sameIdTech){
+    //retieve current idTech
+    key = Store.firstGedTechIdInGrid
+  } else {
+    key = parseInt(_HE_ROOT_RESULTS.value)
+    Store.firstGedTechIdInGrid=null
+  }
   let sosaOne = new SosaWrapper(1)
 
   //Purge SVG

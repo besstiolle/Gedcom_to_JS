@@ -11,6 +11,11 @@ import { Box, BoxAbstract, BoxV } from "./Box.class"
  */
 export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
 
+    //Set firstGedTechInGrid for a smart redraw in UI
+    if(Store.firstGedTechIdInGrid == null){
+      Store.firstGedTechIdInGrid = gedTechId
+    }
+
     //Avoid unecessary processing
     if(!Store.mapGedTechIdToIndividual.has(gedTechId)){
       console.warn("gedTechId %o Not found in 'map GedTechId To Individual'. Sosa was %o", gedTechId, sosaWrapper.sosa)
@@ -22,8 +27,8 @@ export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
     let curGen = sosaWrapper.generation
 
     //Limitation
-    if(curGen > Store.generationMax){
-      console.warn("the Store.generationMax limite of %o was reached. Sosa was %o'", Store.generationMax, sosaWrapper.sosa)
+    if(Store.getOptions().maxGeneration != -1 && curGen > Store.getOptions().maxGeneration){
+      console.warn("the generationMax limit of %o was reached. Sosa was %o'. Take a look at the options to change this limit", Store.getOptions().maxGeneration, sosaWrapper.sosa)
       return
     }
 
