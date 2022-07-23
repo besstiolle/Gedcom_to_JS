@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf"
 import { svg2pdf } from "svg2pdf.js"
 import { AbstractPdfRenderer } from './AbstractPdfRenderer'
-import { _HTML_ELEMENT__WAIT_CPT } from './HtmlElements'
+import { _HE_WAIT_CPT } from './HtmlElements'
 import { Store } from "./Store"
 import { SVGRenderer } from "./SVGRenderer"
 
@@ -63,7 +63,7 @@ export class MultiPDFRenderer extends AbstractPdfRenderer{
         } else {
           pdf.addPage()
           step++
-          _HTML_ELEMENT__WAIT_CPT.innerHTML=`${step} / ${totalPages}`
+          _HE_WAIT_CPT.innerHTML=`${step} / ${totalPages}`
           setTimeout(() => {
             this.addPage(svgElement, pdf, _x, padWidthCm, _y, padHeightCm, step, totalPages).then(()=>{
               resolve(pdf)

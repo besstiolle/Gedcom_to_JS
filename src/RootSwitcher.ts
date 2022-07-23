@@ -1,24 +1,24 @@
-import { hide, purge, show, _HTML_ELEMENT__ROOT_EXEC, _HTML_ELEMENT__ROOT_INPUT, _HTML_ELEMENT__ROOT_NORESULT, _HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_SELECTWRAPPER, _HTML_ELEMENT__STARTTYPE, _HTML_ELEMENT__SVGWRAPPER } from "./HtmlElements"
+import { hide, purge, show, _HE_ROOT_EXEC, _HE_ROOT_INPUT, _HE_ROOT_NORESULT, _HE_ROOT_RESULTS, _HE_ROOT_SELECTWRAPPER, _HE_STARTTYPE, _HE_SVGWRAPPER } from "./HtmlElements"
 import { Logger } from "./Logger"
 import { Store } from "./Store"
 import { Individual } from "./struct.class"
 
 
 export function cancelRoot(){
-    hide([_HTML_ELEMENT__ROOT_SELECTWRAPPER])
+    hide([_HE_ROOT_SELECTWRAPPER])
 }
 
 export function showRoot(){
-    show([_HTML_ELEMENT__ROOT_SELECTWRAPPER])
+    show([_HE_ROOT_SELECTWRAPPER])
 }
 
 export function typingRoot(){
-    var searchTyped = _HTML_ELEMENT__ROOT_INPUT.value.trim()
+    var searchTyped = _HE_ROOT_INPUT.value.trim()
     if(searchTyped.length < 4) {
-        hide([_HTML_ELEMENT__STARTTYPE,_HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_EXEC, _HTML_ELEMENT__ROOT_NORESULT])
+        hide([_HE_STARTTYPE,_HE_ROOT_RESULTS, _HE_ROOT_EXEC, _HE_ROOT_NORESULT])
         return
     } else {
-        hide([_HTML_ELEMENT__STARTTYPE])
+        hide([_HE_STARTTYPE])
     }
 
     var listSosa:number[] = []
@@ -72,15 +72,15 @@ export function typingRoot(){
  export function showRoots(mapResultByPriority:Map<number,number[]>, maxPrio:number){
 
     if(maxPrio == 0){
-        hide([_HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_EXEC])
-        show([_HTML_ELEMENT__ROOT_NORESULT])
+        hide([_HE_ROOT_RESULTS, _HE_ROOT_EXEC])
+        show([_HE_ROOT_NORESULT])
     } else {
-        show([_HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_EXEC])
-        hide([_HTML_ELEMENT__ROOT_NORESULT])
+        show([_HE_ROOT_RESULTS, _HE_ROOT_EXEC])
+        hide([_HE_ROOT_NORESULT])
     }
     
     //Purge Select
-    purge(_HTML_ELEMENT__ROOT_RESULTS)
+    purge(_HE_ROOT_RESULTS)
 
     let textnode:Text = null
     let node:HTMLElement = null
@@ -102,7 +102,7 @@ export function typingRoot(){
                 node = document.createElement("OPTION")
                 node.setAttribute("value", oneSosa + "")
                 node.appendChild(textnode)
-                _HTML_ELEMENT__ROOT_RESULTS.appendChild(node)
+                _HE_ROOT_RESULTS.appendChild(node)
             }
         }
     }

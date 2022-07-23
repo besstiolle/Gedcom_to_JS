@@ -1,4 +1,4 @@
-import { hide, _HTML_ELEMENT__PROGRESSBAR, _HTML_ELEMENT__PROGRESSBAR_SUB, _HTML_ELEMENT__PROGRESSBAR_TXT } from "./HtmlElements"
+import { hide, _HE_PROGRESSBAR, _HE_PROGRESSBAR_SUB, _HE_PROGRESSBAR_TXT } from "./HtmlElements"
 
 export class ProgressBar{
 
@@ -26,11 +26,11 @@ export class ProgressBar{
   }
 
   hidingProgressBar(){
-    hide([_HTML_ELEMENT__PROGRESSBAR])
+    hide([_HE_PROGRESSBAR])
   }
 
   render(){
-    _HTML_ELEMENT__PROGRESSBAR_SUB.style.width = this.currentStep * (100 / this.nbSteps) + '%'
-    _HTML_ELEMENT__PROGRESSBAR_TXT.innerHTML = this.message
+    _HE_PROGRESSBAR_SUB.style.width = this.currentStep * (100 / this.nbSteps) + '%'
+    _HE_PROGRESSBAR_TXT.innerHTML = this.message
   }
 }

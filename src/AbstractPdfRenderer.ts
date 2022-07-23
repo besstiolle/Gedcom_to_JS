@@ -1,5 +1,5 @@
 import jsPDF from "jspdf"
-import { hide, purge, show, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__SVGWRAPPER, _HTML_ELEMENT__WAIT } from "./HtmlElements"
+import { hide, purge, show, _HE_PDFWRAPPER, _HE_SVGWRAPPER, _HE_WAIT } from "./HtmlElements"
 import { Store } from "./Store"
 import { SVGRenderer } from "./SVGRenderer"
 
@@ -18,13 +18,13 @@ export class AbstractPdfRenderer{
     protected generatePdf(){
         
         //Show Waiting spinner & PDF Wrapper
-        show([_HTML_ELEMENT__WAIT, _HTML_ELEMENT__PDFWRAPPER])
+        show([_HE_WAIT, _HE_PDFWRAPPER])
 
         //Purge all previous <embed /> tag generated
-        purge(_HTML_ELEMENT__PDFWRAPPER)
+        purge(_HE_PDFWRAPPER)
 
         //Saving current setting
-        let comp = window.getComputedStyle(_HTML_ELEMENT__SVGWRAPPER)
+        let comp = window.getComputedStyle(_HE_SVGWRAPPER)
 
         this.previous = {viewbox:SVGRenderer.container.viewbox().toString(), 
                         w:comp.getPropertyValue('width'), 
@@ -42,13 +42,13 @@ export class AbstractPdfRenderer{
             pdfobject.setAttribute("src", uri)
             pdfobject.id = "pdfobject"
             pdfobject.type = "application/pdf"
-            _HTML_ELEMENT__PDFWRAPPER.appendChild(pdfobject)
+            _HE_PDFWRAPPER.appendChild(pdfobject)
         } else {
             jspdf.save('myPDF.pdf')
         }
 
         }).finally(()=>{
-            hide([_HTML_ELEMENT__WAIT])
+            hide([_HE_WAIT])
         
             //Reset information post pdf generation                  
             SVGRenderer.container

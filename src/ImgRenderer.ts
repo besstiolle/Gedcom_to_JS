@@ -1,7 +1,7 @@
 
 
 import html2canvas from 'html2canvas';
-import { hide, show, _HTML_ELEMENT__SVGWRAPPER as _HTML_ELEMENT__SVGWRAPPER, _HTML_ELEMENT__WAIT } from './HtmlElements';
+import { hide, show, _HE_SVGWRAPPER as _HE_SVGWRAPPER, _HE_WAIT } from './HtmlElements';
 import { Store } from './Store';
 import { SVGRenderer } from './SVGRenderer';
 
@@ -10,9 +10,9 @@ import { SVGRenderer } from './SVGRenderer';
  */
 export function takeshot():void {  
 
-    show([_HTML_ELEMENT__WAIT])
+    show([_HE_WAIT])
 
-    let comp = window.getComputedStyle(_HTML_ELEMENT__SVGWRAPPER)
+    let comp = window.getComputedStyle(_HE_SVGWRAPPER)
     
     let previous = {viewbox:SVGRenderer.container.viewbox().toString(), 
         w:comp.getPropertyValue('width'), 
@@ -20,8 +20,8 @@ export function takeshot():void {
         zoom:SVGRenderer.container.zoom()}
 
 
-    _HTML_ELEMENT__SVGWRAPPER.style.width = Store.positionXMax + 'px'
-    _HTML_ELEMENT__SVGWRAPPER.style.height = Store.positionYMax + 'px'
+    _HE_SVGWRAPPER.style.width = Store.positionXMax + 'px'
+    _HE_SVGWRAPPER.style.height = Store.positionYMax + 'px'
 
     SVGRenderer.container
         .viewbox(0, 0, Store.positionXMax ,Store.positionYMax)
@@ -29,7 +29,7 @@ export function takeshot():void {
         .zoom(1)
 
 
-    html2canvas(_HTML_ELEMENT__SVGWRAPPER, {
+    html2canvas(_HE_SVGWRAPPER, {
         ignoreElements: function (el) {return el.classList.contains('toExcludeFromSnapshot')},
         logging:false
     }).then(function (canvas) {
@@ -37,7 +37,7 @@ export function takeshot():void {
             download(blob, ".png")      
         })        
     }).finally(()=>{
-        hide([_HTML_ELEMENT__WAIT])
+        hide([_HE_WAIT])
         
         //Reset information post pdf generation                  
         SVGRenderer.container
@@ -45,8 +45,8 @@ export function takeshot():void {
             .size(previous.w, previous.h)
             .zoom(previous.zoom)
 
-        _HTML_ELEMENT__SVGWRAPPER.style.width = ""
-        _HTML_ELEMENT__SVGWRAPPER.style.height = ""
+        _HE_SVGWRAPPER.style.width = ""
+        _HE_SVGWRAPPER.style.height = ""
 
     })
 }

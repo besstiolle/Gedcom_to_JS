@@ -13,18 +13,19 @@ import { Box, BoxV } from './Box.class'
 import { populateGrid, setupBoxForGridEntry, compressContainer } from './ContainerFactory'
 
 import { takeshot } from './ImgRenderer'
-import { hide, purge, show, _HTML_ELEMENT__FILE, _HTML_ELEMENT__FORM, _HTML_ELEMENT__HEADER, _HTML_ELEMENT__MESSAGE, _HTML_ELEMENT__PDFWRAPPER, _HTML_ELEMENT__PDF_ACTION_BUTTON, _HTML_ELEMENT__PDF_MULTIPAGE_ACTION_BUTTON, _HTML_ELEMENT__PNG_ACTION_BUTTON, _HTML_ELEMENT__PROGRESSBAR, _HTML_ELEMENT__ROOT_CANCEL, _HTML_ELEMENT__ROOT_EXEC, _HTML_ELEMENT__ROOT_INPUT, _HTML_ELEMENT__ROOT_NORESULT, _HTML_ELEMENT__ROOT_RESULTS, _HTML_ELEMENT__ROOT_SELECTWRAPPER, _HTML_ELEMENT__ROOT_SWITCH, _HTML_ELEMENT__STARTTYPE, _HTML_ELEMENT__SVGWRAPPER } from './HtmlElements'
+import { hide, purge, show, _HE_FILE, _HE_FORM, _HE_HEADER, _HE_MESSAGE, _HE_PDFWRAPPER, _HE_PDF_ACTION_BUTTON, _HE_PDF_MULTIPAGE_ACTION_BUTTON, _HE_PNG_ACTION_BUTTON, _HE_PROGRESSBAR, _HE_ROOT_CANCEL, _HE_ROOT_EXEC, _HE_ROOT_INPUT, _HE_ROOT_NORESULT, _HE_ROOT_RESULTS, _HE_ROOT_SELECTWRAPPER, _HE_ROOT_SWITCH, _HE_STARTTYPE, _HE_SVGWRAPPER } from './HtmlElements'
 import { cancelRoot, showRoot, typingRoot } from './RootSwitcher'
 import { MultiPDFRenderer } from './MultiPDFRenderer'
 import { PDFRenderer } from './PDFRenderer'
+import { OptionRepository } from './Options'
 
 const SOSA_ONE = new SosaWrapper(1)
 let progressBar:ProgressBar = null
 let taskOrchestrator:TaskOrchestrator = null   
 
 function init(){
-  _HTML_ELEMENT__FILE.addEventListener('change', function(e) {
-    run(_HTML_ELEMENT__FILE.files[0])
+  _HE_FILE.addEventListener('change', function(e) {
+    run(_HE_FILE.files[0])
   })
 
   let isAdvancedUpload = function() {
@@ -33,35 +34,35 @@ function init(){
   }()
 
   if (isAdvancedUpload) {
-    _HTML_ELEMENT__FORM.classList.add('has-advanced-upload')
+    _HE_FORM.classList.add('has-advanced-upload')
 
     let funcDrag = function(e: Event) {
       e.preventDefault()
       e.stopPropagation()
     }
     let funcDragOver = function() {
-      _HTML_ELEMENT__FORM.classList.add('is-dragover')
+      _HE_FORM.classList.add('is-dragover')
     }
     let funcDragLeave = function() {
-      _HTML_ELEMENT__FORM.classList.remove('is-dragover')
+      _HE_FORM.classList.remove('is-dragover')
     }
 
-    _HTML_ELEMENT__FORM.addEventListener('drag', funcDrag)
-    _HTML_ELEMENT__FORM.addEventListener('dragstart', funcDrag)
-    _HTML_ELEMENT__FORM.addEventListener('dragend', funcDrag)
-    _HTML_ELEMENT__FORM.addEventListener('dragover', funcDrag)
-    _HTML_ELEMENT__FORM.addEventListener('dragenter', funcDrag)
-    _HTML_ELEMENT__FORM.addEventListener('dragleave', funcDrag)
-    _HTML_ELEMENT__FORM.addEventListener('drop', funcDrag)
+    _HE_FORM.addEventListener('drag', funcDrag)
+    _HE_FORM.addEventListener('dragstart', funcDrag)
+    _HE_FORM.addEventListener('dragend', funcDrag)
+    _HE_FORM.addEventListener('dragover', funcDrag)
+    _HE_FORM.addEventListener('dragenter', funcDrag)
+    _HE_FORM.addEventListener('dragleave', funcDrag)
+    _HE_FORM.addEventListener('drop', funcDrag)
 
-    _HTML_ELEMENT__FORM.addEventListener('dragover', funcDragOver)
-    _HTML_ELEMENT__FORM.addEventListener('dragenter', funcDragOver)
+    _HE_FORM.addEventListener('dragover', funcDragOver)
+    _HE_FORM.addEventListener('dragenter', funcDragOver)
 
-    _HTML_ELEMENT__FORM.addEventListener('dragleave', funcDragLeave)
-    _HTML_ELEMENT__FORM.addEventListener('dragend', funcDragLeave)
-    _HTML_ELEMENT__FORM.addEventListener('drop', funcDragLeave)
+    _HE_FORM.addEventListener('dragleave', funcDragLeave)
+    _HE_FORM.addEventListener('dragend', funcDragLeave)
+    _HE_FORM.addEventListener('drop', funcDragLeave)
 
-    _HTML_ELEMENT__FORM.addEventListener('drop', function(e) {
+    _HE_FORM.addEventListener('drop', function(e) {
       let droppedFiles = e.dataTransfer.files
       for(var i = 0; i < droppedFiles.length; i++){
         if(droppedFiles[i]['name'].endsWith('.gedcom') || droppedFiles[i]['name'].endsWith('.ged')){
@@ -71,14 +72,14 @@ function init(){
       }
     })
   }
-  _HTML_ELEMENT__PNG_ACTION_BUTTON.addEventListener('click', takeshot)
-  _HTML_ELEMENT__PDF_ACTION_BUTTON.addEventListener('click', generatePdf)
-  _HTML_ELEMENT__PDF_MULTIPAGE_ACTION_BUTTON.addEventListener('click', generateMultipagePdf)
-  _HTML_ELEMENT__SVGWRAPPER.addEventListener('click', hiddePdfobjectWrapper)
-  _HTML_ELEMENT__ROOT_INPUT.addEventListener('keyup', typingRoot)
-  _HTML_ELEMENT__ROOT_EXEC.addEventListener('click', reDraw)
-  _HTML_ELEMENT__ROOT_CANCEL.addEventListener('click', cancelRoot)
-  _HTML_ELEMENT__ROOT_SWITCH.addEventListener('click', showRoot)
+  _HE_PNG_ACTION_BUTTON.addEventListener('click', takeshot)
+  _HE_PDF_ACTION_BUTTON.addEventListener('click', generatePdf)
+  _HE_PDF_MULTIPAGE_ACTION_BUTTON.addEventListener('click', generateMultipagePdf)
+  _HE_SVGWRAPPER.addEventListener('click', hiddePdfobjectWrapper)
+  _HE_ROOT_INPUT.addEventListener('keyup', typingRoot)
+  _HE_ROOT_EXEC.addEventListener('click', reDraw)
+  _HE_ROOT_CANCEL.addEventListener('click', cancelRoot)
+  _HE_ROOT_SWITCH.addEventListener('click', showRoot)
 
 }
 
@@ -89,7 +90,7 @@ function run(file:File) {
   //Init the Logger system
   Logger.init()
 
-  show([_HTML_ELEMENT__PROGRESSBAR])
+  show([_HE_PROGRESSBAR])
   progressBar = new ProgressBar(8)
   progressBar.movingProgressBar("Reading File")
 
@@ -112,7 +113,7 @@ function run(file:File) {
 }
 
 function exploit(sosaWrapper:SosaWrapper, position:number){
-  hide([_HTML_ELEMENT__FORM])
+  hide([_HE_FORM])
 
   if(position == null){
     position = Store.firstGedTechIdParsed
@@ -158,8 +159,8 @@ function getMaxSizeOfDrawing(){
   Store.positionYMax += heightBox + 20
 
   //Control of size
-  show([_HTML_ELEMENT__MESSAGE])
-  _HTML_ELEMENT__MESSAGE.innerHTML = `Max Generation presented : ${Store.grid.maxGenerationProcessed}<br/>
+  show([_HE_MESSAGE])
+  _HE_MESSAGE.innerHTML = `Max Generation presented : ${Store.grid.maxGenerationProcessed}<br/>
   ${Store.grid.mapSosaToGridEntry.size} individuals presented, ${Store.grid.implexes.length} of which are <u><span title='FR : Implexes'>Pedigree collapse</span></u><br/>
   Expected size of PDF : ${PDFRenderer.expectedSize().x}cm * ${PDFRenderer.expectedSize().y}cm<br/>
                                       Experted pages of A4 PDF : ${MultiPDFRenderer.expectedPageCount()} pages<br/>
@@ -167,12 +168,12 @@ function getMaxSizeOfDrawing(){
 }
 
 function draw(){
-  show([_HTML_ELEMENT__HEADER, _HTML_ELEMENT__SVGWRAPPER])
+  show([_HE_HEADER, _HE_SVGWRAPPER])
   SVGRenderer.drawSVG()
 }
 
 function hiddePdfobjectWrapper(){
-  hide([_HTML_ELEMENT__PDFWRAPPER])
+  hide([_HE_PDFWRAPPER])
 }
 
 function generatePdf(){
@@ -194,11 +195,11 @@ function reDraw(){
   // Purge Store values for a new draw
   Store.resetForRedraw()
 
-  let key:number = parseInt(_HTML_ELEMENT__ROOT_RESULTS.value)
+  let key:number = parseInt(_HE_ROOT_RESULTS.value)
   let sosaOne = new SosaWrapper(1)
 
   //Purge SVG
-  purge(_HTML_ELEMENT__SVGWRAPPER)
+  purge(_HE_SVGWRAPPER)
 
   //Reset var
   Store.positionXMax = 0
