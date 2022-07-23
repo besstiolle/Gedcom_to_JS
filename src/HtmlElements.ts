@@ -1,9 +1,12 @@
 
 export const _HE_FILE:HTMLInputElement = <HTMLInputElement>document.getElementById('file')
 export const _HE_FORM:HTMLFormElement = <HTMLFormElement>document.getElementById('box')
+
 export const _HE_PDF_ACTION_BUTTON:HTMLElement = document.getElementById('pdf1')
 export const _HE_PDF_MULTIPAGE_ACTION_BUTTON:HTMLElement = document.getElementById('pdf2')
 export const _HE_PNG_ACTION_BUTTON:HTMLElement = document.getElementById('img1')
+export const _HE_OPTIONS_ACTION_BUTTON:HTMLElement = document.getElementById('showOptions')
+
 export const _HE_SVGWRAPPER:HTMLElement = document.getElementById('svgWrapper')
 export const _HE_ROOT_INPUT:HTMLInputElement = <HTMLInputElement>document.getElementById('inputRoot')
 export const _HE_ROOT_EXEC:HTMLElement = document.getElementById('execRoot')
@@ -21,6 +24,18 @@ export const _HE_STARTTYPE:HTMLElement = document.getElementById('startType')
 export const _HE_WAIT:HTMLElement = document.getElementById('wait')
 export const _HE_WAIT_CPT:HTMLElement = document.getElementById('wait_cpt')
 export const _HE_MESSAGE:HTMLElement = document.getElementById('message')
+
+
+/* Options section */
+export const _HE_OPTIONS:HTMLElement = document.getElementById('options')
+export const _HE_OPTIONS_WALL:HTMLElement = document.getElementById('optionsWall')
+export const _HE_OPTIONS_IMPLEXES_NOTHING:HTMLInputElement = <HTMLInputElement>document.getElementById('nothing')
+export const _HE_OPTIONS_IMPLEXES_HIDE:HTMLInputElement = <HTMLInputElement>document.getElementById('hide')
+export const _HE_OPTIONS_IMPLEXES_COLOR:HTMLInputElement = <HTMLInputElement>document.getElementById('color')
+export const _HE_OPTIONS_IMPLEXES_COLOR_HIDE:HTMLInputElement = <HTMLInputElement>document.getElementById('colorHide')
+export const _HE_OPTIONS_TEMPLATE:HTMLInputElement = <HTMLInputElement>document.getElementById('tpl')
+export const _HE_OPTIONS_MAXGEN:HTMLInputElement = <HTMLInputElement>document.getElementById('maxGeneration')
+export const _HE_OPTIONS_SUBMIT:HTMLInputElement = <HTMLInputElement>document.getElementById('submitOptions')
 
 export function hide(htmlElementIds:HTMLElement[]){
   htmlElementIds.forEach(htmlElement => {

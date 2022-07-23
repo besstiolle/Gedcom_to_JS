@@ -13,11 +13,11 @@ import { Box, BoxV } from './Box.class'
 import { populateGrid, setupBoxForGridEntry, compressContainer } from './ContainerFactory'
 
 import { takeshot } from './ImgRenderer'
-import { hide, purge, show, _HE_FILE, _HE_FORM, _HE_HEADER, _HE_MESSAGE, _HE_PDFWRAPPER, _HE_PDF_ACTION_BUTTON, _HE_PDF_MULTIPAGE_ACTION_BUTTON, _HE_PNG_ACTION_BUTTON, _HE_PROGRESSBAR, _HE_ROOT_CANCEL, _HE_ROOT_EXEC, _HE_ROOT_INPUT, _HE_ROOT_NORESULT, _HE_ROOT_RESULTS, _HE_ROOT_SELECTWRAPPER, _HE_ROOT_SWITCH, _HE_STARTTYPE, _HE_SVGWRAPPER } from './HtmlElements'
+import { hide, purge, show, _HE_FILE, _HE_FORM, _HE_HEADER, _HE_MESSAGE, _HE_OPTIONS_ACTION_BUTTON, _HE_OPTIONS_SUBMIT, _HE_OPTIONS_WALL, _HE_PDFWRAPPER, _HE_PDF_ACTION_BUTTON, _HE_PDF_MULTIPAGE_ACTION_BUTTON, _HE_PNG_ACTION_BUTTON, _HE_PROGRESSBAR, _HE_ROOT_CANCEL, _HE_ROOT_EXEC, _HE_ROOT_INPUT, _HE_ROOT_NORESULT, _HE_ROOT_RESULTS, _HE_ROOT_SELECTWRAPPER, _HE_ROOT_SWITCH, _HE_STARTTYPE, _HE_SVGWRAPPER } from './HtmlElements'
 import { cancelRoot, showRoot, typingRoot } from './RootSwitcher'
 import { MultiPDFRenderer } from './MultiPDFRenderer'
 import { PDFRenderer } from './PDFRenderer'
-import { OptionRepository } from './Options'
+import { OptionBusiness } from './Options'
 
 const SOSA_ONE = new SosaWrapper(1)
 let progressBar:ProgressBar = null
@@ -80,6 +80,9 @@ function init(){
   _HE_ROOT_EXEC.addEventListener('click', reDraw)
   _HE_ROOT_CANCEL.addEventListener('click', cancelRoot)
   _HE_ROOT_SWITCH.addEventListener('click', showRoot)
+  _HE_OPTIONS_ACTION_BUTTON.addEventListener('click', OptionBusiness.refreshOptionsIntoUI)
+  _HE_OPTIONS_SUBMIT.addEventListener('click', OptionBusiness.saveOptionsfromUI)
+  _HE_OPTIONS_WALL.addEventListener('click', OptionBusiness.hideOptions)
 
 }
 

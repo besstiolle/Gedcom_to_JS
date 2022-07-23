@@ -181,7 +181,7 @@ a{
   font-size: 1.2em;
 }
 
-select{
+#selectRootWrapper select{
   font-size: 1.2em;
   margin: 10px auto;
   width: 100%;
@@ -225,17 +225,21 @@ select{
   width: 100%;
   height: 100%;
 }
-/**************************/
-/* Overlay when user wait */
-/**************************/
 
-#wait{
+.wall{
   width: 100%;
   position: fixed;
   background-color: rgba(0, 0, 0, 0.9);
   height: 100%;
   display: block;
   top: 0;
+}
+
+/**************************/
+/* Overlay when user wait */
+/**************************/
+
+#wait{
   cursor:wait;
 }
 
@@ -254,7 +258,7 @@ select{
 }
 
 /***************************/
-/* Message boc left bottom */
+/* Message box left bottom */
 /***************************/
 #message{
   position: fixed;
@@ -262,4 +266,56 @@ select{
   bottom: 20px;
   left: 20px;
   font-family: monospace;
+}
+
+/***************/
+/* Options Box */
+/***************/
+#optionsWall{
+  cursor: pointer;
+}
+#options {
+  width: 80%;
+  margin: 100px;
+  padding: 10px;
+  position: fixed;
+  background-color: #FFF;
+  top: 20%;
+}
+
+#options .option {
+
+}
+
+#options fieldset {
+  border: 0px none;
+}
+
+#options legend {
+
+}
+
+#options .option div {
+
+}
+
+#options label {
+
+}
+
+#options input[type='button'] {
+  background-color: #93d89c;
+  border-radius: 2px;
+  border: 0px none;
+  display: block;
+  margin:auto;
+  padding:5px;
+}
+#options input[type='button']:hover{
+  background-color: #8dc995;
+  cursor: pointer;
+}
+#options input[type='button']:active{
+  transform: translateY(2px);
+  background-color: #8dc995;
 }
