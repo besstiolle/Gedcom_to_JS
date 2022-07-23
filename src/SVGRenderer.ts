@@ -3,7 +3,7 @@ import '@svgdotjs/svg.panzoom.js'
 import { VirtualGridEntry } from "./struct.class"
 import { Box, BoxV } from "./Box.class"
 import { Store } from "./Store"
-import { hide, _HE_FORM, _HE_SVGWRAPPER } from "./HtmlElements"
+import { _HE_FORM, _HE_SVGWRAPPER } from "./HtmlElements"
 
 export class SVGRenderer {
   
