@@ -31,7 +31,6 @@ export function typingRoot(){
         searchesRegex.push(new RegExp(aSearch, "ig"))
     });
 
-    Logger.log("start A")
     Store.mapGedTechIdToIndividual.forEach((individual:Individual, sosa:number)=>{
         searchesRegex.forEach((oneSearchRegex)=>{            
             if(individual.firstname.search(oneSearchRegex) >=0 || individual.lastname.search(oneSearchRegex) >=0 ){
@@ -44,7 +43,6 @@ export function typingRoot(){
             }
         })        
     })
-    Logger.log("start B")
     
     //A second round to invert map 
     let arrOfSOSA:number[] = []
