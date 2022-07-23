@@ -45,6 +45,7 @@ export class AbstractPdfRenderer{
             _HE_PDFWRAPPER.appendChild(pdfobject)
         } else {
             jspdf.save('myPDF.pdf')
+            hide([_HE_PDFWRAPPER])
         }
 
         }).finally(()=>{
