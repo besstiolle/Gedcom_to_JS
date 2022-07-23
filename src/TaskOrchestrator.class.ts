@@ -35,7 +35,7 @@ export class TaskOrchestrator{
       this.tasks.shift()
       //Rerun myself
       this.run()
-    }, 20)
+    }, 1)
   }
 
 }
