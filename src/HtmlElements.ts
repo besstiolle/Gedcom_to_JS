@@ -8,6 +8,7 @@ export const _HE_PNG_ACTION_BUTTON:HTMLElement = document.getElementById('img1')
 export const _HE_OPTIONS_ACTION_BUTTON:HTMLElement = document.getElementById('showOptions')
 
 export const _HE_SVGWRAPPER:HTMLElement = document.getElementById('svgWrapper')
+export const _HE_MINISVGWRAPPER:HTMLElement = document.getElementById('minimapWrapper')
 export const _HE_ROOT_INPUT:HTMLInputElement = <HTMLInputElement>document.getElementById('inputRoot')
 export const _HE_ROOT_EXEC:HTMLElement = document.getElementById('execRoot')
 export const _HE_ROOT_CANCEL:HTMLElement = document.getElementById('cancelRoot')

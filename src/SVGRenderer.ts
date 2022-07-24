@@ -3,8 +3,9 @@ import '@svgdotjs/svg.panzoom.js'
 import { VirtualGridEntry } from "./struct.class"
 import { Box, BoxV } from "./Box.class"
 import { Store } from "./Store"
-import { _HE_FORM, _HE_SVGWRAPPER } from "./HtmlElements"
+import { _HE_FORM, _HE_MINISVGWRAPPER as _HE_MINIMAPWRAPPER, _HE_SVGWRAPPER } from "./HtmlElements"
 import { ImplexesType} from "./Options"
+import { MinimapRenderer } from "./MinimapRendered"
 
 export class SVGRenderer {
   
@@ -12,10 +13,24 @@ export class SVGRenderer {
 
   static drawSVG(){
 
+    //Prepare first the minimap
+    MinimapRenderer.drawMinimap()
+
     SVGRenderer.container = SVG().addTo(_HE_SVGWRAPPER)
     SVGRenderer.svgViewBox()
     SVGRenderer.polyline([0,0 , 0,Store.positionYMax , Store.positionXMax,Store.positionYMax , Store.positionXMax,0, 0,0])
     SVGRenderer.drawLoop(1)
+
+    //initiate event on the news <svg tags>
+    MinimapRenderer.plugEvents()
+    
+    
+    setTimeout(() => {  
+      //update minimap's focus
+      MinimapRenderer.drawFocus()
+    }, 50)
+
+
   }
 
   private static drawLoop(generation:number){ 
@@ -100,6 +115,12 @@ export class SVGRenderer {
                                             .move(box.getX(), box.getY())
                                             .stroke({ width: 1, color: '#ccc' })
                                             .radius(10)
+
+        //Also add to minimap (simplified)
+        MinimapRenderer.minimap.rect(width, height)
+                          .fill("#EEE")
+                          .move(box.getX(), box.getY())
+                          .stroke({ width: 1, color: '#555' })
 
         if(sosaWrapper.isImplexe && (Store.getOptions().implexes == ImplexesType.color || Store.getOptions().implexes == ImplexesType.colorHide) ){
           rec.fill(patternImplexe)
@@ -211,5 +232,22 @@ export class SVGRenderer {
     SVGRenderer.container.polyline(coord)
         .fill('none')
         .stroke({ width: 1, color: '#000' })
+  }
+
+  static changeFocus(event:MouseEvent){
+    let minimapTag = _HE_MINIMAPWRAPPER.getElementsByTagName("svg")[0]
+    let x = event.clientX - minimapTag.getBoundingClientRect().left
+    let y = event.clientY - minimapTag.getBoundingClientRect().top
+    let w = _HE_MINIMAPWRAPPER.clientWidth
+    let h = _HE_MINIMAPWRAPPER.clientHeight
+
+    let viewBox = SVGRenderer.container.viewbox()
+    let rx = x * Store.positionXMax / w - viewBox.w / 2
+    let ry = y * Store.positionYMax / h - viewBox.h / 2 
+
+    SVGRenderer.container.viewbox(rx, ry, viewBox.w, viewBox.h)
+
+    MinimapRenderer.drawFocus()
+
   }
 }

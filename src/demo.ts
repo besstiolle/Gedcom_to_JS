@@ -13,7 +13,7 @@ import { Box, BoxV } from './Box.class'
 import { populateGrid, setupBoxForGridEntry, compressContainer } from './ContainerFactory'
 
 import { takeshot } from './ImgRenderer'
-import { hide, purge, show, _HE_FILE, _HE_FORM, _HE_HEADER, _HE_MESSAGE, _HE_OPTIONS_ACTION_BUTTON, _HE_OPTIONS_SUBMIT, _HE_OPTIONS_TEMPLATE_RESET, _HE_OPTIONS_WALL, _HE_PDFWRAPPER, _HE_PDF_ACTION_BUTTON, _HE_PDF_MULTIPAGE_ACTION_BUTTON, _HE_PNG_ACTION_BUTTON, _HE_PROGRESSBAR, _HE_ROOT_CANCEL, _HE_ROOT_EXEC, _HE_ROOT_INPUT, _HE_ROOT_NORESULT, _HE_ROOT_RESULTS, _HE_ROOT_SELECTWRAPPER, _HE_ROOT_SWITCH, _HE_STARTTYPE, _HE_SVGWRAPPER } from './HtmlElements'
+import { hide, purge, show, _HE_FILE, _HE_FORM, _HE_HEADER, _HE_MESSAGE, _HE_MINISVGWRAPPER, _HE_OPTIONS_ACTION_BUTTON, _HE_OPTIONS_SUBMIT, _HE_OPTIONS_TEMPLATE_RESET, _HE_OPTIONS_WALL, _HE_PDFWRAPPER, _HE_PDF_ACTION_BUTTON, _HE_PDF_MULTIPAGE_ACTION_BUTTON, _HE_PNG_ACTION_BUTTON, _HE_PROGRESSBAR, _HE_ROOT_CANCEL, _HE_ROOT_EXEC, _HE_ROOT_INPUT, _HE_ROOT_NORESULT, _HE_ROOT_RESULTS, _HE_ROOT_SELECTWRAPPER, _HE_ROOT_SWITCH, _HE_STARTTYPE, _HE_SVGWRAPPER } from './HtmlElements'
 import { cancelRoot, showRoot, typingRoot } from './RootSwitcher'
 import { MultiPDFRenderer } from './MultiPDFRenderer'
 import { PDFRenderer } from './PDFRenderer'
@@ -176,7 +176,7 @@ function getMaxSizeOfDrawing(){
 }
 
 function draw(){
-  show([_HE_HEADER, _HE_SVGWRAPPER])
+  show([_HE_HEADER, _HE_SVGWRAPPER, _HE_MINISVGWRAPPER])
   SVGRenderer.drawSVG()
 }
 
@@ -218,8 +218,9 @@ export function reDraw(sameIdTech:boolean){
   }
   let sosaOne = new SosaWrapper(1)
 
-  //Purge SVG
+  //Purge SVG & minimap
   purge(_HE_SVGWRAPPER)
+  purge(_HE_MINISVGWRAPPER)
 
   //Reset var
   Store.positionXMax = 0
