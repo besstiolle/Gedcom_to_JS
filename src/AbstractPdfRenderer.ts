@@ -6,7 +6,7 @@ import { SVGRenderer } from "./SVGRenderer"
 
 export class AbstractPdfRenderer{
 
-    protected svgElement = document.getElementsByTagName("svg")[0]
+    protected svgElement = _HE_SVGWRAPPER.getElementsByTagName("svg")[0]
     protected orientation:'p'|'l' = 'p'
     protected static RATIO_PX_2_CM = 40 //Default Ratio px => cm
     protected pdf:jsPDF = null

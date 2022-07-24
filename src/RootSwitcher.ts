@@ -1,4 +1,4 @@
-import { hide, purge, show, _HE_ROOT_EXEC, _HE_ROOT_INPUT, _HE_ROOT_NORESULT, _HE_ROOT_RESULTS, _HE_ROOT_SELECTWRAPPER, _HE_STARTTYPE, _HE_SVGWRAPPER } from "./HtmlElements"
+import { hide, purge, show, _HE_ROOT_EXEC, _HE_ROOT_INPUT, _HE_ROOT_NORESULT, _HE_ROOT_RESULTS, _HE_ROOT_SELECTWRAPPER, _HE_STARTTYPE } from "./HtmlElements"
 import { Store } from "./Store"
 import { Individual } from "./struct.class"
 
