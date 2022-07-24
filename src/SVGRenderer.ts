@@ -1,10 +1,10 @@
-import { Container, Element, PointArrayAlias, Svg, SVG } from "@svgdotjs/svg.js"
+import { Container, PointArrayAlias, Rect, Svg, SVG } from "@svgdotjs/svg.js"
 import '@svgdotjs/svg.panzoom.js'
 import { VirtualGridEntry } from "./struct.class"
 import { Box, BoxV } from "./Box.class"
 import { Store } from "./Store"
 import { _HE_FORM, _HE_SVGWRAPPER } from "./HtmlElements"
-import { ImplexesType } from "./Options"
+import { ImplexesType} from "./Options"
 
 export class SVGRenderer {
   
@@ -28,11 +28,7 @@ export class SVGRenderer {
     let box:Box|BoxV = null
     let width = null
     let height = null
-    let birth = null
-    let death = null
-    let mariage = null
-    let occupation = null
-    let yIncrement = null
+    let yIncrement:number = null
 
     if(generation > 5) {
       width = BoxV.width()
@@ -44,8 +40,7 @@ export class SVGRenderer {
 
     let sosas = Store.grid.mapGenerationSosa.get(generation)
     let len = sosas.length
-    let key = null
-    let name = null
+    let sosa:number = null
     let gridEntry:VirtualGridEntry = null
     
     const regexBefore = /^BEF/i
@@ -57,20 +52,23 @@ export class SVGRenderer {
       add.line(0,0,5,9.5).stroke({ color: '#d9f2ce', width: 1 })
     })
 
+    
+    let tplLines = Store.getOptions().template.split(/[\r\n]+/)
+
+
     for (let i=0; i < len; i++){
 
-        key = sosas[i]
+        sosa = sosas[i]
 
-        if(!Store.grid.mapSosaToGridEntry.has(key)){
-          console.info("grid.mapSosaToGridEntry doesn't have key %o", key)
+        if(!Store.grid.mapSosaToGridEntry.has(sosa)){
+          console.info("grid.mapSosaToGridEntry doesn't have sosa %o", sosa)
           continue
         }
 
-        gridEntry = Store.grid.mapSosaToGridEntry.get(key)
+        gridEntry = Store.grid.mapSosaToGridEntry.get(sosa)
         yIncrement = 15
         sosaWrapper = gridEntry.sosaWrapper
         box = gridEntry.box
-        name = gridEntry.firstname + " " + gridEntry.lastname
 
         let cleanDate = function (date:string):string{
           if(date != undefined){
@@ -97,46 +95,49 @@ export class SVGRenderer {
           return ""
         }
 
-        birth = `¤ ${cleanDate(gridEntry.birthDate)} ${cleanPlace(gridEntry.birthPlace)} ${cleanPlaceCode(gridEntry.birthPlace)}`
-        mariage = `∩ ${cleanDate(gridEntry.mariageDate)} ${cleanPlace(gridEntry.mariagePlace)} ${cleanPlaceCode(gridEntry.mariagePlace)}`
-        death = `X ${cleanDate(gridEntry.deathDate)} ${cleanPlace(gridEntry.deathPlace)} ${cleanPlaceCode(gridEntry.deathPlace)}`
-        occupation = cleanOccupation(gridEntry.occupation)
-
-        if(birth.trim().length == 1){
-          birth = ''
-        }
-        if(mariage.trim().length == 1){
-          mariage = ''
-        }
-        if(death.trim().length == 1){
-          death = ''
-        }
+        let rec:Rect = SVGRenderer.container.rect(width, height)
+                                            .fill("#EEE")
+                                            .move(box.getX(), box.getY())
+                                            .stroke({ width: 1, color: '#ccc' })
+                                            .radius(10)
 
         if(sosaWrapper.isImplexe && (Store.getOptions().implexes == ImplexesType.color || Store.getOptions().implexes == ImplexesType.colorHide) ){
-          // Dessin de la box
-          SVGRenderer.container.rect(width, height)
-            .fill(patternImplexe)
-            .move(box.getX(), box.getY())
-            .stroke({ width: 1, color: '#ccc' })
-            .radius(10)
-        } else {
-          // Dessin de la box
-          SVGRenderer.container.rect(width, height)
-            .fill("#EEE")
-            .move(box.getX(), box.getY())
-            .stroke({ width: 1, color: '#ccc' })
-            .radius(10)
-        }
+          rec.fill(patternImplexe)
+        } 
 
         //For debug only
         //name = '#'+ gridEntry.sosaWrapper.sosa + " " + name
         //For debug only
 
-        yIncrement += SVGRenderer.h1(name, box, yIncrement)
-        yIncrement += SVGRenderer.h2(birth, box, yIncrement)
-        yIncrement += SVGRenderer.h2(mariage, box, yIncrement)
-        yIncrement += SVGRenderer.h2(death, box, yIncrement)
-        yIncrement += SVGRenderer.h2(occupation, box, yIncrement)
+        let first = true
+        let str = ''
+        tplLines.forEach(tplLine => {
+          
+          str = tplLine.replace('_SOSA_', sosa+'')
+                      .replace('_FIRSTNAME_', gridEntry.firstname)
+                      .replace('_LASTNAME_', gridEntry.lastname)
+                      .replace('_BIRTH_DATE_', cleanDate(gridEntry.birthDate))
+                      .replace('_BIRTH_PLACE_', cleanPlace(gridEntry.birthPlace))
+                      .replace('_BIRTH_PLACEZIP_', cleanPlaceCode(gridEntry.birthPlace))
+                      .replace('_DEATH_DATE_', cleanDate(gridEntry.deathDate))
+                      .replace('_DEATH_PLACE_', cleanPlace(gridEntry.deathPlace))
+                      .replace('_DEATH_PLACEZIP_', cleanPlaceCode(gridEntry.deathPlace))
+                      .replace('_MARRIAGE_DATE_', cleanDate(gridEntry.mariageDate))
+                      .replace('_MARRIAGE_PLACE_', cleanPlace(gridEntry.mariagePlace))
+                      .replace('_MARRIAGE_PLACEZIP_', cleanPlaceCode(gridEntry.mariagePlace))
+                      .replace('_OCCUPATION_', cleanOccupation(gridEntry.occupation))
+                      .trim()
+
+          if(str.length > 1){
+            if(first){
+              yIncrement += SVGRenderer.h1(str, box, yIncrement)
+              first = false
+            } else {            
+              yIncrement += SVGRenderer.h2(str, box, yIncrement)
+            }       
+          }
+        });
+
 
         //Si père existe : liaison
         if(Store.grid.mapSosaToGridEntry.has(sosaWrapper.sosaFather)){
