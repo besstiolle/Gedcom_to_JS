@@ -280,7 +280,7 @@ a{
   padding: 10px;
   position: fixed;
   background-color: #FFF;
-  top: 20%;
+  top: 0%;
 }
 
 #options .option {
@@ -288,7 +288,7 @@ a{
 }
 
 #options fieldset {
-  border: 0px none;
+  margin-bottom: 10px;
 }
 
 #options legend {
@@ -303,6 +303,31 @@ a{
 
 }
 
+#tpl{
+  display: block;
+  width: 90%;
+  height: 100px;
+}
+
+
+#tplLabel{
+  font-size: 0.9em;
+}
+
+.tpl_left, .tpl_right{
+  width: 50%;
+  float:left;
+}
+.tpl_list{
+  columns: 2;
+  -webkit-columns: 2;
+  -moz-columns: 2;
+  font-size: 0.9em;
+  font-family: monospace;
+}
+.noBullet{
+  list-style: none;
+}
 #options input[type='button'] {
   background-color: #93d89c;
   border-radius: 2px;

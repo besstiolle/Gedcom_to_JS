@@ -34,6 +34,7 @@ export const _HE_OPTIONS_IMPLEXES_HIDE:HTMLInputElement = <HTMLInputElement>docu
 export const _HE_OPTIONS_IMPLEXES_COLOR:HTMLInputElement = <HTMLInputElement>document.getElementById('color')
 export const _HE_OPTIONS_IMPLEXES_COLOR_HIDE:HTMLInputElement = <HTMLInputElement>document.getElementById('colorHide')
 export const _HE_OPTIONS_TEMPLATE:HTMLInputElement = <HTMLInputElement>document.getElementById('tpl')
+export const _HE_OPTIONS_TEMPLATE_RESET:HTMLElement = <HTMLElement>document.getElementById('tpl_reset')
 export const _HE_OPTIONS_MAXGEN:HTMLInputElement = <HTMLInputElement>document.getElementById('maxGeneration')
 export const _HE_OPTIONS_SUBMIT:HTMLInputElement = <HTMLInputElement>document.getElementById('submitOptions')
 

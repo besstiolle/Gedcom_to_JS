@@ -9,7 +9,11 @@ export class ImplexesType {
 	static colorHide = "colorHide"
 }
 
-const DEFAULT_TEMPLATE = 'foo${bar}'
+const DEFAULT_TEMPLATE = `_FIRSTNAME_ _LASTNAME_
+¤ _BIRTH_DATE_ _BIRTH_PLACE_
+∩ _MARRIAGE_DATE_ _MARRIAGE_PLACE_
+X _DEATH_DATE_ _DEATH_PLACE_
+_OCCUPATION_`
 
 export class Options{
     implexes:ImplexesType = ImplexesType.nothing
@@ -88,6 +92,10 @@ export class OptionRepository{
 }
 
 export class OptionBusiness{
+
+    static refreshTemplateIntoUI(){
+        _HE_OPTIONS_TEMPLATE.value = DEFAULT_TEMPLATE
+    }
 
     static refreshOptionsIntoUI(){
         

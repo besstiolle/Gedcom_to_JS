@@ -74,8 +74,37 @@
 
       <div class="option">
         <fieldset>
-          <legend>Choose your monster's features:</legend>
-          <div><textarea id="tpl"></textarea><label for="tpl">template</label></div>
+          <legend>Rendering template of the individual's box :</legend>
+          <div class="tpl_left"><textarea id="tpl"></textarea>
+            <label id="tplLabel" for="tpl">
+              Rule #1 : The first line will have a bigger font-size than the others<br/>
+              Rule #2 : A line smaller than 2 caracters won't be display<br/>
+              Rule #3 : A large instruction will always be redered on 1 or 2 lines maximum.<br/>
+            </label>
+          </div>
+          <div class="tpl_right">
+            Variables availables : 
+            <ul class="tpl_list">
+              <li>_SOSA_</li>
+              <li>_FIRSTNAME_</li>
+              <li>_LASTNAME_</li>
+              <li class="noBullet">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--- </li>
+              <li>_BIRTH_DATE_</li>
+              <li>_BIRTH_PLACE_</li>
+              <li>_BIRTH_PLACEZIP_</li>
+              <li class="noBullet">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--- </li>
+              <li>_DEATH_DATE_</li>
+              <li>_DEATH_PLACE_</li>
+              <li>_DEATH_PLACEZIP_</li>
+              <li class="noBullet">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--- </li>
+              <li>_MARRIAGE_DATE_</li>
+              <li>_MARRIAGE_PLACE_</li>
+              <li>_MARRIAGE_PLACEZIP_</li>
+              <li class="noBullet">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--- </li>
+              <li>_OCCUPATION_</li>
+            </ul>
+            <a id='tpl_reset' href="#">clic me to reset the template for the default template</a>
+          </div>
         </fieldset>
       </div>
 
@@ -89,7 +118,7 @@
 
       <div class="option">
         <fieldset>
-          <legend>Limit of the max Generation (less is more on a slow computer) :</legend>
+          <legend>Limit of the max Generation (less is more efficient on a slow computer) :</legend>
           <div>
             <select name="maxGeneration" id="maxGeneration">
               <option value="-1">--No Limit--</option>
