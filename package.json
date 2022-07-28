@@ -7,7 +7,7 @@
     "build": "webpack",
     "watch": "webpack --watch",
     "start": "webpack serve --open",
-    "cpdir": "npx * /web /dist"
+    "cpdir": "npx * /web_static /dist"
   },
   "repository": {
     "type": "git",
