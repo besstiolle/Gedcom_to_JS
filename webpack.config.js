@@ -37,7 +37,6 @@ module.exports = {
       },
       resolve: {
         extensions: ['.tsx', '.ts', '.js'],
-  //      exclude:[/vendors/]
       },
       plugins: [
         new HtmlWebpackPlugin({    
@@ -45,7 +44,8 @@ module.exports = {
           favicon: './favicon.png',
           template: 'src/assets/demo.html',
           filename: 'demo.html',
-          excludeChunks: [ 'index' ]
+          //hash: false, // hash for cache bursting
+          //minify: false, // should html file be minified?
         }),    
       ],
     output: {
