@@ -1,4 +1,4 @@
-import { Container, PointArrayAlias, Rect, Svg, SVG } from "@svgdotjs/svg.js"
+import { Container, off, PointArrayAlias, Rect, Svg, SVG } from "@svgdotjs/svg.js"
 import '@svgdotjs/svg.panzoom.js'
 import { VirtualGridEntry } from "./struct.class"
 import { Box, BoxV } from "./Box.class"
@@ -99,7 +99,10 @@ export class SVGRenderer {
         }
         let cleanPlaceCode = function (place:string):string{
           if(place != undefined){
-            return place.split(',')[1].trim()
+            let zip = place.split(',')[1]
+            if(zip != undefined) {
+              return zip.trim()
+            }
           }
           return ""
         }
