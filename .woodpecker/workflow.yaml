@@ -4,7 +4,7 @@ variables:
 
 when:
   - event: [push, pull_request, tag, manual]
-    branch: [main, develop]
+    branch: [master, develop]
 
 steps:
 
