@@ -47,13 +47,13 @@ steps:
       - ssh-keyscan -p $SSH_PORT -H $SSH_HOST >> /root/.ssh/known_hosts
 
       - echo "🔌 Test de connexion SSH"
-      - ssh -p $SSH_PORT $SSH_USER$SSH_HOST "echo '✅ Connexion SSH réussie !'"
+      - ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "echo '✅ Connexion SSH réussie !'"
 
       - echo "📤 Transfert du fichier vers le serveur distant"
-      - scp -P $SSH_PORT $ARCHIVE_NAME $SSH_USER$SSH_HOST:/tmp/$ARCHIVE_NAME
+      - scp -P $SSH_PORT $ARCHIVE_NAME $SSH_USER@$SSH_HOST:/tmp/$ARCHIVE_NAME
 
       - echo "📂 Vérification du fichier sur le serveur distant"
-      - ssh -p $SSH_PORT $SSH_USER$SSH_HOST "ls -lh /tmp/$ARCHIVE_NAME"
+      - ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "ls -lh /tmp/$ARCHIVE_NAME"
 
       - echo "📥 Importation de l image Docker sur le serveur distant"
-      - ssh -p $SSH_PORT $SSH_USER$SSH_HOST "docker load < /tmp/$ARCHIVE_NAME"
+      - ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "docker load < /tmp/$ARCHIVE_NAME"
