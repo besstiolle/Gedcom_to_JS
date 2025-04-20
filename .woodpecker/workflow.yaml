@@ -25,13 +25,6 @@ steps:
       - echo "💾 Sauvegarde de l'image Docker dans un fichier $ARCHIVE_NAME"
       - docker save $DOCKER_IMAGE_NAME | gzip > $ARCHIVE_NAME
 
-  #    - echo "📁 Vérification du fichier local :"
-  #    - ls -lh $ARCHIVE_NAME
-  #    - cp $ARCHIVE_NAME test2.tar.gz
-  #    - gunzip test2.tar.gz
-  #    - tar -tf test2.tar | head
-
-
   - name: Copy on remote
     image: alpine:latest
     environment:
@@ -43,6 +36,8 @@ steps:
         from_secret: SSH_PORT
       SSH_KEY:
         from_secret: SSH_KEY
+      SSH_USER:
+        from_secret: SSH_USER
     commands:
       - echo "🔐 Préparation SSH"
       - apk add --no-cache openssh
@@ -52,13 +47,13 @@ steps:
       - ssh-keyscan -p $SSH_PORT -H $SSH_HOST >> /root/.ssh/known_hosts
 
       - echo "🔌 Test de connexion SSH"
-      - ssh -p $SSH_PORT root@$SSH_HOST "echo '✅ Connexion SSH réussie !'"
+      - ssh -p $SSH_PORT $SSH_USER$SSH_HOST "echo '✅ Connexion SSH réussie !'"
 
       - echo "📤 Transfert du fichier vers le serveur distant"
-      - scp -P $SSH_PORT $ARCHIVE_NAME root@$SSH_HOST:/tmp/$ARCHIVE_NAME
+      - scp -P $SSH_PORT $ARCHIVE_NAME $SSH_USER$SSH_HOST:/tmp/$ARCHIVE_NAME
 
       - echo "📂 Vérification du fichier sur le serveur distant"
-      - ssh -p $SSH_PORT root@$SSH_HOST "ls -lh /tmp/$ARCHIVE_NAME"
+      - ssh -p $SSH_PORT $SSH_USER$SSH_HOST "ls -lh /tmp/$ARCHIVE_NAME"
 
       - echo "📥 Importation de l image Docker sur le serveur distant"
-      - ssh -p $SSH_PORT root@$SSH_HOST "docker load < /tmp/$ARCHIVE_NAME"
+      - ssh -p $SSH_PORT $SSH_USER$SSH_HOST "docker load < /tmp/$ARCHIVE_NAME"
