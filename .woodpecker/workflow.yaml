@@ -1,6 +1,7 @@
 variables:
   - &DOCKER_IMAGE_NAME gedcom-website
   - &ARCHIVE_NAME gedcom-website.tar.gz
+  # PENSER à CHANGER LIGNE 74 AU BESOIN
 
 when:
   - event: [push, pull_request, tag, manual]
@@ -57,3 +58,33 @@ steps:
 
       - echo "📥 Importation de l image Docker sur le serveur distant"
       - ssh -p $SSH_PORT $SSH_USER@$SSH_HOST "docker load < /tmp/$ARCHIVE_NAME"
+
+  - name: Restart Docker Compose
+    image: appleboy/drone-ssh
+    settings:
+      host:
+        from_secret: SSH_HOST
+      port:
+        from_secret: SSH_PORT
+      username:
+        from_secret: SSH_USER
+      key:
+        from_secret: SSH_KEY
+      script: |
+        # PENSER à CHANGER AU BESOIN
+        DOCKER_IMAGE_NAME=gedcom-website
+        DOCKER_COMPOSE_PATH=/home/docker-service/compose
+
+        echo "try restart docker compose $DOCKER_COMPOSE_PATH/$DOCKER_IMAGE_NAME/docker-compose.yml"
+
+        if [ -d "$DOCKER_COMPOSE_PATH/$DOCKER_IMAGE_NAME" ] && [ -f "$DOCKER_COMPOSE_PATH/$DOCKER_IMAGE_NAME/docker-compose.yml" ]; then
+          echo "🧹 Restart du docker compose $DOCKER_COMPOSE_PATH/$DOCKER_IMAGE_NAME"
+          (
+            cd $DOCKER_COMPOSE_PATH/$DOCKER_IMAGE_NAME || exit
+            docker compose pull
+            docker compose up -d
+          )
+        else
+          echo "🔥 $DOCKER_COMPOSE_PATH/$DOCKER_IMAGE_NAME is not a directory"
+          exit 1
+        fi
