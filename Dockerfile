@@ -1,5 +1,5 @@
 # Étape 1 : Build avec Node et Webpack
-FROM node:23-slim AS builder
+FROM node:24-slim AS builder
 
 WORKDIR /app
 
