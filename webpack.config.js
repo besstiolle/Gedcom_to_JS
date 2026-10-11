@@ -57,10 +57,11 @@ module.exports = {
     devtool: 'inline-source-map',
     devServer: {
         static: {
-            directory: './dist',
+          directory: path.join(__dirname, 'dist'),
         },
-        port: 9000
-    },  
+        port: 9000,
+        open: true,
+    },
     optimization: {
       moduleIds: 'deterministic',
       runtimeChunk: 'single',
@@ -76,11 +77,5 @@ module.exports = {
     },
     stats:{
       errorDetails:true
-    },
-   /* externals: {
-      // only define the dependencies you are NOT using as externals!
-      canvg: "canvg",
-      html2canvas: "html2canvas",
-      dompurify: "dompurify",
-    }*/
+    }
 };

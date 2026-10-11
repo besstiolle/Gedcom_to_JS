@@ -7,7 +7,7 @@
     "build": "webpack",
     "watch": "webpack --watch",
     "start": "webpack serve --open",
-    "cpdir": "npx * /web_static /dist"
+    "cpdir": "copyfiles -u 1 web_static/* dist/"
   },
   "repository": {
     "type": "git",
@@ -32,13 +32,15 @@
     "svg2pdf.js": "^2.8.1"
   },
   "devDependencies": {
-    "css-loader": "^6.11.0",
+    "@types/node": "^26.6.5",
+    "copyfiles": "^2.4.1",
+    "css-loader": "^7.1.5",
     "html-webpack-plugin": "^5.6.8",
-    "style-loader": "^3.3.4",
+    "style-loader": "^4.0.0",
     "ts-loader": "^9.6.2",
     "typescript": "^5.9.3",
     "webpack": "^5.111.1",
-    "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.15.2"
+    "webpack-cli": "^7.2.3",
+    "webpack-dev-server": "^6.0.0"
   }
 }
