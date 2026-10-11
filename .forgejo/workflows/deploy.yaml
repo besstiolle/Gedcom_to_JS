@@ -1,0 +1,91 @@
+name: Build et Déploiement distant
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['*']
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch: # Permet le déclenchement manuel
+
+env:
+  DOCKER_IMAGE_NAME: kdanezis-website
+  ARCHIVE_NAME: kdanezis-website.tar.gz
+  DOCKER_COMPOSE_PATH: /home/docker-service/compose
+
+jobs:
+  build-and-deploy:
+    runs-on: docker
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      # 1. Mise en cache et installation de buildctl
+      - name: Cache buildctl
+        id: cache-buildctl
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/buildctl
+          key: buildctl-v0.19.0
+
+      - name: Installation de buildctl
+        if: steps.cache-buildctl.outputs.cache-hit != 'true'
+        run: |
+          wget -qO- https://github.com/moby/buildkit/releases/download/v0.19.0/buildkit-v0.19.0.linux-amd64.tar.gz | tar -xz bin/buildctl
+          mv bin/buildctl /usr/local/bin/
+          chmod +x /usr/local/bin/buildctl
+
+      # 2. Build via BuildKit et exportation directe en archive tar.gz
+      - name: Build et exportation de l'image Docker
+        env:
+          BUILDKIT_HOST: tcp://buildkit:1234
+        run: |
+          echo "🔧 Build de l'image $DOCKER_IMAGE_NAME via BuildKit..."
+          buildctl build \
+            --frontend=dockerfile.v0 \
+            --local context=. \
+            --local dockerfile=. \
+            --output type=docker,name=${DOCKER_IMAGE_NAME}:latest,dest=image.tar
+
+          echo "📦 Compression de l'image en $ARCHIVE_NAME..."
+          gzip -f image.tar
+          mv image.tar.gz ${ARCHIVE_NAME}
+
+      # 3 & 4. Transfert, Import et Redémarrage via SSH natif
+      - name: Déploiement sur le serveur distant
+        env:
+          SSH_HOST: ${{ secrets.SSH_DMZ01_HOST }}
+          SSH_PORT: ${{ secrets.SSH_DMZ01_PORT }}
+          SSH_KEY: ${{ secrets.SSH_DMZ01_KEY }}
+          SSH_USER: ${{ secrets.SSH_DMZ01_USER }}
+        run: |
+          echo "🔐 Configuration du client SSH..."
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p $SSH_PORT -H $SSH_HOST >> ~/.ssh/known_hosts
+
+          echo "📤 Transfert de l'archive vers le serveur distant..."
+          scp -P $SSH_PORT $ARCHIVE_NAME $SSH_USER@$SSH_HOST:/tmp/$ARCHIVE_NAME
+
+          echo "🚀 Import Docker et Redémarrage (Exécution distante)..."
+          # L'utilisation de << 'EOF' permet d'envoyer un bloc de script complet au serveur distant
+          ssh -p $SSH_PORT $SSH_USER@$SSH_HOST << 'EOF'
+            # 1. Chargement de l'image
+            echo "📥 Importation de l'image Docker..."
+            docker load < /tmp/${{ env.ARCHIVE_NAME }}
+            rm /tmp/${{ env.ARCHIVE_NAME }}
+
+            # 2. Redémarrage de Docker Compose
+            TARGET_DIR="${{ env.DOCKER_COMPOSE_PATH }}/${{ env.DOCKER_IMAGE_NAME }}"
+            echo "🧹 Vérification du répertoire $TARGET_DIR..."
+            
+            if [ -d "$TARGET_DIR" ] && [ -f "$TARGET_DIR/docker-compose.yml" ]; then
+              echo "🔄 Redémarrage des conteneurs..."
+              cd "$TARGET_DIR" || exit 1
+              docker compose up -d --force-recreate
+            else
+              echo "🔥 Erreur : $TARGET_DIR/docker-compose.yml introuvable."
+              exit 1
+            fi
+          EOF
