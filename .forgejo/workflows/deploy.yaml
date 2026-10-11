@@ -9,8 +9,8 @@ on:
   workflow_dispatch: # Permet le déclenchement manuel
 
 env:
-  DOCKER_IMAGE_NAME: kdanezis-website
-  ARCHIVE_NAME: kdanezis-website.tar.gz
+  DOCKER_IMAGE_NAME: gedcom-website
+  ARCHIVE_NAME: gedcom-website.tar.gz
   DOCKER_COMPOSE_PATH: /home/docker-service/compose
 
 jobs:
