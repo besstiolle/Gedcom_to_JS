@@ -37,7 +37,7 @@ export function typingRoot(){
                 if(!mapResult.has(sosa)){
                     mapResult.set(sosa, 1)
                 } else {
-                    mapResult.set(sosa, mapResult.get(sosa) +1 )
+                    mapResult.set(sosa, mapResult.get(sosa) as number +1 )
                 }
             }
         })        
@@ -51,7 +51,7 @@ export function typingRoot(){
         if(!mapResultByPriority.has(value)){
             arrOfSOSA = []
         } else {
-            arrOfSOSA = mapResultByPriority.get(value)
+            arrOfSOSA = mapResultByPriority.get(value) as number[]
         }
         arrOfSOSA.push(key)
         mapResultByPriority.set(value, arrOfSOSA)
@@ -79,11 +79,11 @@ export function typingRoot(){
     //Purge Select
     purge(_HE_ROOT_RESULTS)
 
-    let textnode:Text = null
-    let node:HTMLElement = null
-    let bDate:string = null
-    let dDate:string = null
-    let individual:Individual = null
+    let textnode:Text
+    let node:HTMLElement
+    let bDate:string
+    let dDate:string
+    let individual:Individual
 
     let emoj1:string  = "❤️"
     let prefix:string =""
@@ -91,8 +91,8 @@ export function typingRoot(){
     for(let i = maxPrio; i>0; i--){
         prefix = emoj1.repeat(i)
         if(mapResultByPriority.has(i)){
-            for(let oneSosa of mapResultByPriority.get(i)){
-                individual = Store.mapGedTechIdToIndividual.get(oneSosa)
+            for(let oneSosa of mapResultByPriority.get(i) as number[]){
+                individual = Store.mapGedTechIdToIndividual.get(oneSosa) as Individual
                 bDate = individual.birthDate !== undefined?individual.birthDate:"?"
                 dDate = individual.deathDate !== undefined?individual.deathDate:"?"
                 textnode = document.createTextNode(`${prefix} ${individual.firstname} ${individual.lastname} (${bDate}-${dDate})`)

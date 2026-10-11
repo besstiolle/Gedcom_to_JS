@@ -2,20 +2,20 @@ import { Box, BoxV } from "./Box.class"
 
 export class VirtualGrid {
 
-  positionProcessed:number[] = null //List of sosa already processed to identifie implexe
-  maxSosaProcessed:number = null // memory of the max Sosa to help re-calculate maxGenerationProcessed
-  maxGenerationProcessed:number = null // memory of the max gen of all the sosa to help calculate the heigh of the grid
-  mapRightSosaByGeneration:Map<number, SosaWrapper> = null //Map of generation / the far-right SosaWrapper processed
-  mapSosaToGridEntry:Map<number, VirtualGridEntry> = null
-  mapGenerationYPosition:Map<number, number> = null //list of Y position for each sosa
-  mapGenerationSosa:Map<number, number[]> = null
-  mapGedTechIdInGridToSosa:Map<number, number> = null     // map GetTechId / Sosa currently in Grid
-  implexes:number[] = null //List of sosa Implexes
+  positionProcessed:number[] = [] //List of sosa already processed to identifie implexe
+  maxSosaProcessed:number = 0 // memory of the max Sosa to help re-calculate maxGenerationProcessed
+  maxGenerationProcessed:number = 0 // memory of the max gen of all the sosa to help calculate the heigh of the grid
+  mapRightSosaByGeneration:Map<number, SosaWrapper> = new Map<number, SosaWrapper>() //Map of generation / the far-right SosaWrapper processed
+  mapSosaToGridEntry:Map<number, VirtualGridEntry> = new Map<number, VirtualGridEntry>()
+  mapGenerationYPosition:Map<number, number> = new Map<number, number>() //list of Y position for each sosa
+  mapGenerationSosa:Map<number, number[]> = new Map<number, number[]>()
+  mapGedTechIdInGridToSosa:Map<number, number> = new Map<number, number>()     // map GetTechId / Sosa currently in Grid
+  implexes:number[] = [] //List of sosa Implexes
 
   constructor(){
     this.positionProcessed = []
-    this.maxSosaProcessed = null
-    this.maxGenerationProcessed = null
+    this.maxSosaProcessed = 0
+    this.maxGenerationProcessed = 0
     this.mapRightSosaByGeneration = new Map<number, SosaWrapper>()
     this.mapSosaToGridEntry = new Map<number, VirtualGridEntry>()
     this.mapGenerationYPosition = new Map<number, number>()
@@ -28,22 +28,22 @@ export class VirtualGrid {
 
 export class VirtualGridEntry{
 
-  sosaWrapper:SosaWrapper = null
-  firstname:string = null
-  lastname:string = null
-  birthDate:string = null
-  birthPlace:string = null
-  deathDate:string = null
-  deathPlace:string = null
-  mariageDate:string = null
-  mariagePlace:string = null
-  occupation:string = null
-  box:Box | BoxV = null
-  previousSosaWrapper:SosaWrapper = null
-  nextSosaWrapper:SosaWrapper = null
+  sosaWrapper:SosaWrapper
+  firstname:string
+  lastname:string
+  birthDate:string
+  birthPlace:string
+  deathDate:string
+  deathPlace:string
+  mariageDate:string
+  mariagePlace:string
+  occupation:string
+  box:Box | BoxV | null = null
+  previousSosaWrapper:SosaWrapper|null
+  nextSosaWrapper:SosaWrapper | null
 
 
-  constructor(sosaWrapper:SosaWrapper, individual:Individual, previousSosaWrapper:SosaWrapper){
+  constructor(sosaWrapper:SosaWrapper, individual:Individual, previousSosaWrapper:SosaWrapper|null){
     this.sosaWrapper = sosaWrapper
     this.firstname = individual.firstname
     this.lastname = individual.lastname
@@ -63,12 +63,12 @@ export class VirtualGridEntry{
 
 export class SosaWrapper {
 
-  sosa:number = null
-  generation:number = null
-  sosaFather:number = null
-  sosaMother:number = null
-  leftSosa:number = null
-  rightSosa:number = null
+  sosa:number = 0
+  generation:number = 0
+  sosaFather:number = 0
+  sosaMother:number = 0
+  leftSosa:number|null = null
+  rightSosa:number|null = null
   isImplexe:boolean = false
 
   constructor(sosa:number) {
@@ -92,25 +92,25 @@ export class SosaWrapper {
 }
 
 export class Individual{
-  id:number = null // Tech Id inside the GedCom File. not the SOSA
-  firstname:string = null
-  lastname:string = null
-  famc:number = null // Tech Id inside the GedCom File. not the SOSA
-  sex:string = null
+  id:number = 0 // Tech Id inside the GedCom File. not the SOSA
+  firstname:string  = ""
+  lastname:string  = ""
+  famc:number = 0 // Tech Id inside the GedCom File. not the SOSA
+  sex:string  = ""
   isProcessed:boolean = false
-  birthPlace:string
-  deathPlace:string
-  birthDate:string
-  deathDate:string
-  occupation:string
-  mariageDate:string
-  mariagePlace:string
+  birthPlace:string = ""
+  deathPlace:string = ""
+  birthDate:string = ""
+  deathDate:string = ""
+  occupation:string = ""
+  mariageDate:string = ""
+  mariagePlace:string = ""
 }
 
 export class Family{
-  id:number = null // Tech Id inside the GedCom File. not the SOSA
-  father:number = null // Tech Id of the father
-  mother:number = null // Tech Id of the mother
-  tmpMariageDate:string // a tempory information, don't use it
-  tmpMariagePlace:string // a tempory information, don't use it
+  id:number = 0 // Tech Id inside the GedCom File. not the SOSA
+  father:number = 0 // Tech Id of the father
+  mother:number = 0 // Tech Id of the mother
+  tmpMariageDate:string = "" // a tempory information, don't use it
+  tmpMariagePlace:string = "" // a tempory information, don't use it
 }

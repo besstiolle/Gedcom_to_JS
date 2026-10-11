@@ -2,8 +2,8 @@ import { Logger } from "./Logger"
 import { ProgressBar } from "./ProgressBar.class"
 
 export class TaskOrchestrator{
-  tasks:any[] = null
-  progressBar:ProgressBar = null
+  tasks:any[]
+  progressBar:ProgressBar
 
   constructor(progressBar:ProgressBar){
       this.tasks = []

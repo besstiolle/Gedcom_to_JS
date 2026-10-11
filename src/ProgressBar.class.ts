@@ -2,9 +2,9 @@ import { hide, _HE_PROGRESSBAR, _HE_PROGRESSBAR_SUB, _HE_PROGRESSBAR_TXT } from 
 
 export class ProgressBar{
 
-  nbSteps:number = null
-  currentStep:number = null
-  message:string = null
+  nbSteps:number = 0
+  currentStep:number = 0
+  message:string = ""
 
   constructor(nbSteps:number){
     this.nbSteps = nbSteps

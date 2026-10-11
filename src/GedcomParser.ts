@@ -19,11 +19,11 @@ const REGEX_REPLACE_NAME = /"/g
 export class GedcomParser{
 
   static parse(gedcomContent:string) {
-    let line:string = null
-    let individual:Individual = null // One Individu
-    let family:Family = null //One Familly
+    let line:string
+    let individual:Individual|null = null // One Individu
+    let family:Family|null = null //One Familly
   
-    let matches:RegExpMatchArray = null
+    let matches:RegExpMatchArray|null
     let lines:string[] = gedcomContent.split(/[\r\n]+/)
 
     let isIndividualPart = false
@@ -136,13 +136,13 @@ export class GedcomParser{
 
       if(isFamilyPart){
         matches = line.match(REGEX_HUSB)
-        if(matches && individual != null) {
+        if(matches && individual != null && family != null) {
           family.father = parseInt(matches[1].trim())
           continue
         }
     
         matches = line.match(REGEX_WIFE)
-        if(matches && individual != null) {
+        if(matches && individual != null && family != null) {
           family.mother = parseInt(matches[1].trim())
           continue
         }
@@ -155,7 +155,7 @@ export class GedcomParser{
         }
 
         matches = line.match(REGEX_DATE)
-        if(matches && individual != null) {
+        if(matches && individual != null && family != null) {
           if(isMariagePart) {  
             family.tmpMariageDate = matches[1].trim()
           } 
@@ -163,7 +163,7 @@ export class GedcomParser{
         }
 
         matches = line.match(REGEX_PLACE)
-        if(matches && individual != null) {
+        if(matches && individual != null && family != null) {
           if(isMariagePart) {            
             family.tmpMariagePlace = matches[1].trim()
           } 
@@ -177,27 +177,29 @@ export class GedcomParser{
     Store.mapCodeFamily.forEach((family:Family,codeFamily:number) => {
       //Process the father
       if(family.father !== undefined && family.father !== null){
-        individual = Store.mapGedTechIdToIndividual.get(family.father)
+        individual = Store.mapGedTechIdToIndividual.get(family.father) as Individual
         if(individual == null){
-          console.info("individual null for idTech %o ", family.father)
+          console.info("individual null for idTech %o ", family.father, "in family object", family)
+        } else {
+          individual.mariageDate = family.tmpMariageDate
+          individual.mariagePlace = family.tmpMariagePlace
+          Store.mapGedTechIdToIndividual.set(family.father, individual)
         }
-        individual.mariageDate = family.tmpMariageDate
-        individual.mariagePlace = family.tmpMariagePlace
-        Store.mapGedTechIdToIndividual.set(family.father, individual)
       }
       //Process the mother
       if(family.mother !== undefined && family.mother !== null){
-        individual = Store.mapGedTechIdToIndividual.get(family.mother)
+        individual = Store.mapGedTechIdToIndividual.get(family.mother) as Individual
         if(individual == null){
           console.info("individual null for idTech %o ", family.mother)
+        } else {
+          individual.mariageDate = family.tmpMariageDate
+          individual.mariagePlace = family.tmpMariagePlace
+          Store.mapGedTechIdToIndividual.set(family.mother, individual)
         }
-        individual.mariageDate = family.tmpMariageDate
-        individual.mariagePlace = family.tmpMariagePlace
-        Store.mapGedTechIdToIndividual.set(family.mother, individual)
       }
       
-      family.tmpMariageDate = null
-      family.tmpMariagePlace = null
+      family.tmpMariageDate = ""
+      family.tmpMariagePlace = ""
     });
   }
 }

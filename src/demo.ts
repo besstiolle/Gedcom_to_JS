@@ -5,7 +5,7 @@ import './assets/gedcom/HAPIOT_Emile_sample.ged'
 import { SVGRenderer } from './SVGRenderer'
 import { GedcomParser } from './GedcomParser'
 import { ProgressBar } from './ProgressBar.class'
-import { Individual, SosaWrapper } from './struct.class'
+import { Individual, SosaWrapper, VirtualGridEntry } from './struct.class'
 import { TaskOrchestrator } from './TaskOrchestrator.class'
 import { Store } from './Store'
 import { Logger } from './Logger'
@@ -20,12 +20,14 @@ import { PDFRenderer } from './PDFRenderer'
 import { OptionBusiness } from './Options'
 
 const SOSA_ONE = new SosaWrapper(1)
-let progressBar:ProgressBar = null
-let taskOrchestrator:TaskOrchestrator = null   
+let progressBar:ProgressBar
+let taskOrchestrator:TaskOrchestrator 
 
 function init(){
   _HE_FILE.addEventListener('change', function(e) {
-    run(_HE_FILE.files[0])
+    if(_HE_FILE !== null && _HE_FILE.files !== null) {
+      run(_HE_FILE.files[0])
+    }
   })
 
   let isAdvancedUpload = function() {
@@ -63,11 +65,13 @@ function init(){
     _HE_FORM.addEventListener('drop', funcDragLeave)
 
     _HE_FORM.addEventListener('drop', function(e) {
-      let droppedFiles = e.dataTransfer.files
-      for(var i = 0; i < droppedFiles.length; i++){
-        if(droppedFiles[i]['name'].endsWith('.gedcom') || droppedFiles[i]['name'].endsWith('.ged')){
-          run(droppedFiles[i])
-          break
+      let droppedFiles = e.dataTransfer?.files
+      if(droppedFiles !== undefined){
+        for(var i = 0; i < droppedFiles.length; i++){
+          if(droppedFiles[i]['name'].endsWith('.gedcom') || droppedFiles[i]['name'].endsWith('.ged')){
+            run(droppedFiles[i])
+            break
+          }
         }
       }
     })
@@ -103,7 +107,7 @@ function run(file:File) {
   // Describe function of reading
   reader.onload = function (event) {
     taskOrchestrator = new TaskOrchestrator(progressBar)
-    taskOrchestrator.add(GedcomParser.parse, [event.target.result], "Parsing Gedcom Data")
+    taskOrchestrator.add(GedcomParser.parse, [event.target?.result], "Parsing Gedcom Data")
                     .add(exploit, [SOSA_ONE], "Exploiting Gedcom Data")
                     .add(compressContainer, [SOSA_ONE], "Compressing your Ancestors")
                     .add(getMaxSizeOfDrawing, [], "Calculate size of graph")
@@ -119,7 +123,7 @@ function run(file:File) {
 function exploit(sosaWrapper:SosaWrapper, position:number){
   hide([_HE_FORM])
 
-  if(position == null){
+  if(position == null && Store.firstGedTechIdParsed !== null){
     position = Store.firstGedTechIdParsed
   }
 
@@ -129,34 +133,38 @@ function exploit(sosaWrapper:SosaWrapper, position:number){
 
 
 function getMaxSizeOfDrawing(){
-  let tmp_box:Box|BoxV = null
-  let widthBox:number = null
-  let heightBox:number = null
-  let maxXOfGen:number = null
-  let maxYOfGen:number = null
-  let tmp_sosa: number = null
+  let tmp_box:Box|BoxV|null
+  let widthBox:number = 0
+  let heightBox:number = 0
+  let maxXOfGen:number = 0
+  let maxYOfGen:number = 0
+  let tmp_sosa: number = 0
 
   
   for (var i=1; i <= Store.grid.maxGenerationProcessed; i++){
     
-    tmp_sosa = Store.grid.mapRightSosaByGeneration.get(i).sosa
+    tmp_sosa = (Store.grid.mapRightSosaByGeneration.get(i) as SosaWrapper).sosa
     if(Store.grid.mapSosaToGridEntry.has(tmp_sosa)){
-      tmp_box = Store.grid.mapSosaToGridEntry.get(tmp_sosa).box
+      tmp_box = (Store.grid.mapSosaToGridEntry.get(tmp_sosa) as VirtualGridEntry).box
     } else {
       console.info("Store.grid.mapSosaToGridEntry doesn't have sosa %o in function getMaxSizeOfDrawing()", tmp_sosa)
       continue
     }
 
+    if(tmp_box !== null){
     maxXOfGen = tmp_box.getX()
-    if(maxXOfGen > Store.positionXMax){
-      Store.positionXMax = maxXOfGen
-      if(i > 5){widthBox = BoxV.width()} else {widthBox = Box.width()}
+      if(maxXOfGen > Store.positionXMax){
+        Store.positionXMax = maxXOfGen
+        if(i > 5){widthBox = BoxV.width()} else {widthBox = Box.width()}
+      }
     }
 
-    maxYOfGen = tmp_box.getY()
-    if(maxYOfGen > Store.positionYMax){
-      Store.positionYMax = maxYOfGen
-      if(i > 5){heightBox = BoxV.height()} else {heightBox = Box.height()}
+    if(tmp_box != null){
+      maxYOfGen = tmp_box.getY()
+      if(maxYOfGen > Store.positionYMax){
+        Store.positionYMax = maxYOfGen
+        if(i > 5){heightBox = BoxV.height()} else {heightBox = Box.height()}
+      }
     }
   }
   Store.positionXMax += widthBox + 20
@@ -208,7 +216,7 @@ export function reDraw(sameIdTech:boolean){
   Store.resetForRedraw()
 
 
-  let key:number
+  let key:number|null
   if(sameIdTech){
     //retieve current idTech
     key = Store.firstGedTechIdInGrid

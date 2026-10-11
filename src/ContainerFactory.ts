@@ -1,4 +1,4 @@
-import { VirtualGridEntry, SosaWrapper, Family } from "./struct.class"
+import { VirtualGridEntry, SosaWrapper, Family, Individual } from "./struct.class"
 import { Store } from "./Store"
 import { Box, BoxAbstract, BoxV } from "./Box.class"
 import { ImplexesType } from "./Options"
@@ -23,13 +23,13 @@ export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
       return
     }
 
-    let individual = Store.mapGedTechIdToIndividual.get(gedTechId)
+    let individual = Store.mapGedTechIdToIndividual.get(gedTechId) as Individual
     let curSosa = sosaWrapper.sosa
     let curGen = sosaWrapper.generation
     //Case of Implexe
     let hasImplexe = Store.grid.positionProcessed.indexOf(gedTechId)
-    let otherImplexeSosa:number = null
-    let otherImplexeGridEntry:VirtualGridEntry = null
+    let otherImplexeSosa:number|null = null
+    let otherImplexeGridEntry:VirtualGridEntry|null = null
 
     //Limitation
     if(Store.getOptions().maxGeneration != -1 && curGen > Store.getOptions().maxGeneration){
@@ -47,15 +47,15 @@ export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
         Store.grid.mapGenerationSosa.set(curGen, [])
     }
     
-    Store.grid.mapGenerationSosa.get(curGen).push(curSosa)
+    (Store.grid.mapGenerationSosa.get(curGen) as number[]).push(curSosa)
 
     if(hasImplexe !== -1){
       console.debug("implexe detected with gedTechId %o. Sosa was %o", gedTechId, sosaWrapper.sosa)
       sosaWrapper.isImplexe = true      
 
       //Update the other part of the implexe
-      otherImplexeSosa = Store.grid.mapGedTechIdInGridToSosa.get(gedTechId)
-      otherImplexeGridEntry = Store.grid.mapSosaToGridEntry.get(otherImplexeSosa)
+      otherImplexeSosa = Store.grid.mapGedTechIdInGridToSosa.get(gedTechId) as number
+      otherImplexeGridEntry = Store.grid.mapSosaToGridEntry.get(otherImplexeSosa) as VirtualGridEntry
       otherImplexeGridEntry.sosaWrapper.isImplexe = true
       Store.grid.mapSosaToGridEntry.set(otherImplexeSosa,otherImplexeGridEntry)
 
@@ -69,18 +69,18 @@ export function populateGrid(sosaWrapper:SosaWrapper, gedTechId:number): void{
 
     let previousSosaWrapper = null
     if(Store.grid.mapRightSosaByGeneration.has(curGen)){
-      let previousSosa = Store.grid.mapRightSosaByGeneration.get(curGen).sosa
+      let previousSosa = (Store.grid.mapRightSosaByGeneration.get(curGen) as SosaWrapper).sosa
       // Set "nextSosaWrapper" of previous
       if(Store.grid.mapSosaToGridEntry.has(previousSosa)){
-        Store.grid.mapSosaToGridEntry.get(previousSosa).nextSosaWrapper = sosaWrapper
-        previousSosaWrapper = Store.grid.mapSosaToGridEntry.get(previousSosa).sosaWrapper
+        (Store.grid.mapSosaToGridEntry.get(previousSosa) as VirtualGridEntry).nextSosaWrapper = sosaWrapper
+        previousSosaWrapper = (Store.grid.mapSosaToGridEntry.get(previousSosa) as VirtualGridEntry).sosaWrapper
       }
     }
 
     //retrive Family of Individual
     let family = new Family()
     if(Store.mapCodeFamily.has(individual.famc)) {
-      family = Store.mapCodeFamily.get(individual.famc)
+      family = Store.mapCodeFamily.get(individual.famc) as Family
     }
 
     Store.grid.mapRightSosaByGeneration.set(curGen,sosaWrapper)
@@ -160,24 +160,24 @@ export function compressContainer(sosaWrapper:SosaWrapper){
 
         let len =  ancestorsSosa.length
         for (var i = 0; i < len; i++) {
-          Store.grid.mapSosaToGridEntry.get(ancestorsSosa[i]).box.shiftRight(shift)
+          ((Store.grid.mapSosaToGridEntry.get(ancestorsSosa[i]) as VirtualGridEntry).box as Box | BoxV).shiftRight(shift)
         }
         myselfX = previousX
       }
     }
 
     //Set our own X/Y value
-    Store.grid.mapSosaToGridEntry.get(sosaWrapper.sosa).box.shiftRight(myselfX)
-    Store.grid.mapSosaToGridEntry.get(sosaWrapper.sosa).box.setY(myselfY)
+    ((Store.grid.mapSosaToGridEntry.get(sosaWrapper.sosa) as VirtualGridEntry).box as Box | BoxV).shiftRight(myselfX);
+    ((Store.grid.mapSosaToGridEntry.get(sosaWrapper.sosa) as VirtualGridEntry).box as Box | BoxV).setY(myselfY);
 
     //Return our own value
     return myselfX
   }
 
-function _getYPosition(sosaWrapper:SosaWrapper){
+function _getYPosition(sosaWrapper:SosaWrapper):number{
     //If it's already calculated
     if(Store.grid.mapGenerationYPosition.has(sosaWrapper.generation)){
-      return Store.grid.mapGenerationYPosition.get(sosaWrapper.generation)
+      return Store.grid.mapGenerationYPosition.get(sosaWrapper.generation) as number
     }
 
     let y = 0
@@ -211,9 +211,9 @@ function _getYPosition(sosaWrapper:SosaWrapper){
       widthPlusWidthPadding = Box.width() + Box.widthPadding()
       leftMargin = Box.leftMargin()
     }
-    let previousSosaWrapper = Store.grid.mapSosaToGridEntry.get(sosaWrapper.sosa).previousSosaWrapper
+    let previousSosaWrapper = (Store.grid.mapSosaToGridEntry.get(sosaWrapper.sosa) as VirtualGridEntry).previousSosaWrapper
     if(previousSosaWrapper !== null){
-      return Store.grid.mapSosaToGridEntry.get(previousSosaWrapper.sosa).box.getX() + widthPlusWidthPadding
+      return ((Store.grid.mapSosaToGridEntry.get(previousSosaWrapper.sosa) as VirtualGridEntry).box as Box | BoxV).getX() + widthPlusWidthPadding
     } else {
       return leftMargin
     }

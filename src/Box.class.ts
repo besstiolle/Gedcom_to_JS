@@ -10,11 +10,11 @@ const CONST_WIDTH_V = 95 //width of box in px
 const CONST_HEIGHT_V = 150 //height of box in px
 
 export class BoxAbstract {
-  maxGeneration:number = null
-  generation:number = null
-  sosa:number = null
-  x:number = null
-  y:number = null
+  maxGeneration:number
+  generation:number
+  sosa:number
+  x:number
+  y:number
 
   constructor(sosaWrapper:SosaWrapper, maxGeneration:number) {
     this.maxGeneration = maxGeneration

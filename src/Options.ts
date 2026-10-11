@@ -20,13 +20,13 @@ export class Options{
     maxGeneration:number = 100
     template:string = DEFAULT_TEMPLATE
 
-    constructor(implexes:ImplexesType=null, maxGeneration:string=null, template:string = null){
+    constructor(implexes:ImplexesType|null = null, maxGeneration:string|null = null, template:string|null = null){
         this.implexes = this.getValidImplexe(implexes)
         this.maxGeneration = this.getValideMaxGeneration(maxGeneration)
         this.template = this.getValideTemplate(template)
     }
 
-    parse(json:string):Options{
+    parse(json:string|null):Options{
         let object:any = {}
         if(json != null) {
             object = JSON.parse(json)
@@ -37,7 +37,7 @@ export class Options{
         return this
     }
 
-    getValidImplexe(str: string|ImplexesType): ImplexesType{
+    getValidImplexe(str: string|ImplexesType|null): ImplexesType{
         if (ImplexesType.nothing === str){
             return ImplexesType.nothing
         }
@@ -54,7 +54,7 @@ export class Options{
         return ImplexesType.nothing
     }
 
-    getValideMaxGeneration(str: string):number{
+    getValideMaxGeneration(str: string|null):number{
         let value = 100
         if(str != null && str.match(/^\-?[0-9]+$/)){
             value = parseInt(str)
@@ -65,7 +65,7 @@ export class Options{
         return value
     }
 
-    getValideTemplate(str: string):string{
+    getValideTemplate(str: string|null):string{
         if(str == null || str == undefined){
             return DEFAULT_TEMPLATE
         }

@@ -6,8 +6,8 @@ import { SVGRenderer } from "./SVGRenderer"
 
 export class MinimapRenderer {
   
-  static minimap:Container = null
-  static focus:Rect = null
+  static minimap:Container
+  static focus:Rect|null
 
   static drawMinimap(){
 
@@ -37,12 +37,12 @@ export class MinimapRenderer {
     //Event on the main SVG
     let svgTag = _HE_SVGWRAPPER.getElementsByTagName("svg")[0]
     svgTag.addEventListener("zoom", function( event ) {MinimapRenderer.drawFocus()}, false);
-    svgTag.addEventListener("mousedown ", function( event ) {MinimapRenderer.drawFocus()}, false);
+    svgTag.addEventListener("mousedown", function( event ) {MinimapRenderer.drawFocus()}, false);
     svgTag.addEventListener("mouseup", function( event ) {MinimapRenderer.drawFocus()}, false);
 
     //Event on the main SVG
     let minimapTag = _HE_MINIMAPWRAPPER.getElementsByTagName("svg")[0]
-    minimapTag.addEventListener("mousedown ", function( event:MouseEvent ) {SVGRenderer.changeFocus(event)}, false);
+    minimapTag.addEventListener("mousedown", function( event:MouseEvent ) {SVGRenderer.changeFocus(event)}, false);
     minimapTag.addEventListener("mouseup", function( event:MouseEvent ) {SVGRenderer.changeFocus(event)}, false);
   }
 

@@ -34,7 +34,9 @@ export function takeshot():void {
         logging:false
     }).then(function (canvas) {
         canvas.toBlob(function(blob) {
-            download(blob, ".png")      
+            if(blob !== null){
+                download(blob, ".png")      
+            }
         })        
     }).finally(()=>{
         hide([_HE_WAIT])

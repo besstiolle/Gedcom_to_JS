@@ -2,18 +2,18 @@ import { OptionRepository, Options } from "./Options"
 import { VirtualGrid, Family, Individual } from "./struct.class"
 
 export class Store{
-    static mapGedTechIdToIndividual:Map<number, Individual> = null // map Sosa / Gedcom Individus
-    static mapCodeFamily:Map<number, Family> = null     // map Sosa / Gedcom famillies
+    static mapGedTechIdToIndividual:Map<number, Individual> // map Sosa / Gedcom Individus
+    static mapCodeFamily:Map<number, Family>     // map Sosa / Gedcom famillies
 
-    static firstGedTechIdParsed:number = null // First GetTechId processed by the parser
-    static firstGedTechIdInGrid:number = null // First GetTechId processed in the Grid under the SOSA code #1
+    static firstGedTechIdParsed:number|null = null // First GetTechId processed by the parser
+    static firstGedTechIdInGrid:number|null = null// First GetTechId processed in the Grid under the SOSA code #1
 
     static positionXMax = 0
     static positionYMax = 0
 
-    static grid:VirtualGrid = null
+    static grid:VirtualGrid
 
-    private static options:Options = null
+    private static options:Options
 
     static init(){
         Store.mapGedTechIdToIndividual = new Map<number, Individual>()

@@ -9,7 +9,7 @@ export class AbstractPdfRenderer{
     protected svgElement = _HE_SVGWRAPPER.getElementsByTagName("svg")[0]
     protected orientation:'p'|'l' = 'p'
     protected static RATIO_PX_2_CM = 40 //Default Ratio px => cm
-    protected pdf:jsPDF = null
+    protected pdf:jsPDF|null = null //FIXME
 
     protected previous = {viewbox:'', w:'0', h:'0', zoom:0}
 

@@ -9,7 +9,7 @@ import { MinimapRenderer } from "./MinimapRendered"
 
 export class SVGRenderer {
   
-  static container:Container = null
+  static container:Container
 
   static drawSVG(){
 
@@ -40,10 +40,10 @@ export class SVGRenderer {
     }
 
     let sosaWrapper = null
-    let box:Box|BoxV = null
+    let box:Box|BoxV
     let width = null
     let height = null
-    let yIncrement:number = null
+    let yIncrement:number = 0
 
     if(generation > 5) {
       width = BoxV.width()
@@ -53,10 +53,10 @@ export class SVGRenderer {
       height = Box.height()
     }
 
-    let sosas = Store.grid.mapGenerationSosa.get(generation)
+    let sosas = Store.grid.mapGenerationSosa.get(generation) as number[]
     let len = sosas.length
-    let sosa:number = null
-    let gridEntry:VirtualGridEntry = null
+    let sosa:number = 0
+    let gridEntry:VirtualGridEntry
     
     const regexBefore = /^BEF/i
     const regexAfter = /^AFT/i
@@ -80,10 +80,10 @@ export class SVGRenderer {
           continue
         }
 
-        gridEntry = Store.grid.mapSosaToGridEntry.get(sosa)
+        gridEntry = Store.grid.mapSosaToGridEntry.get(sosa) as VirtualGridEntry
         yIncrement = 15
         sosaWrapper = gridEntry.sosaWrapper
-        box = gridEntry.box
+        box = gridEntry.box as Box | BoxV
 
         let cleanDate = function (date:string):string{
           if(date != undefined){
@@ -165,7 +165,7 @@ export class SVGRenderer {
 
         //Si père existe : liaison
         if(Store.grid.mapSosaToGridEntry.has(sosaWrapper.sosaFather)){
-          let father = Store.grid.mapSosaToGridEntry.get(sosaWrapper.sosaFather).box
+          let father = (Store.grid.mapSosaToGridEntry.get(sosaWrapper.sosaFather) as VirtualGridEntry).box as Box | BoxV
           let middleY = (father.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
 
           this.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
@@ -175,7 +175,7 @@ export class SVGRenderer {
         }
         //Si mère existe : liaison
         if(Store.grid.mapSosaToGridEntry.has(sosaWrapper.sosaMother)){
-          let mother = Store.grid.mapSosaToGridEntry.get(sosaWrapper.sosaMother).box
+          let mother = (Store.grid.mapSosaToGridEntry.get(sosaWrapper.sosaMother) as VirtualGridEntry).box as Box | BoxV
           let middleY = (mother.getBottomJunctionPoint().y + box.getTopJunctionPoint().y) / 2
 
           this.polyline([box.getTopJunctionPoint().x,box.getTopJunctionPoint().y
@@ -219,7 +219,7 @@ export class SVGRenderer {
 
   static svgViewBox(){
                     // X position of the SOSA #1
-    let viewboxX = Store.grid.mapSosaToGridEntry.get(1).box.getX() - ((window.innerWidth - 10) / 2) + Box.width() / 2
+    let viewboxX = ((Store.grid.mapSosaToGridEntry.get(1) as VirtualGridEntry).box as Box | BoxV).getX() - ((window.innerWidth - 10) / 2) + Box.width() / 2
     let viewboxY = Store.positionYMax - window.innerHeight + 100
     if(Store.positionYMax < window.innerHeight){
       viewboxY = (Store.positionYMax - window.innerHeight) / 2
